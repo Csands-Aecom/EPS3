@@ -1,0 +1,62 @@
+﻿<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a asp-action="Index" asp-controller="Home" class="navbar-brand"> <h1>EPS 2.0</h1></a>
+        </div>
+        <div class="navbar-collapse collapse navbar-right" id="navbar-collapse">
+            <p>&nbsp;</p>
+            <ul class="nav navbar-nav biglinks">
+
+                <li class="dropdown">
+                    <a class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
+                        FLAIRify and DOT FACTS<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li style="text-align:left"><a class="dropdown-item" role="button" target="_blank" href="https://fldot.sharepoint.com/sites/FDOT-OOC/DOO/FLAIRCodes/SitePages/Home.aspx">FLAIRify</a></li>
+                        <li style="text-align:left"><a class="dropdown-item" role="button" target="_blank" href="http://fdotewp2.dot.state.fl.us/OOCAutomationPlatform/Tasks/object-code-search">Object Code Search</a></li>
+                        <li style="text-align:left"><a class="dropdown-item" role="button" target="_blank" href="http://fdotewp2.dot.state.fl.us/OOCAutomationPlatform/Tasks/verifyrequest-flair-combinations">FLAIR Combinations</a></li>
+                        <li style="text-align:left"><a class="dropdown-item" role="button" target="_blank" href="https://fdotwp2.dot.state.fl.us/ContractFundsManagement/#/Facts/ContractSummary/">DOT FACTS</a></li>
+                        <li style="text-align:left"><a class="dropdown-item" role="button" target="_blank" href="https://fdotwp2.dot.state.fl.us/ContractFundsManagement/#/Facts/Edit/0/0/0">Add FACTS</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
+                        Contract<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="\Contracts\List">Contract List</a></li>
+                        <li><a href="\Contracts\Create">Add Contract</a></li>
+                        <li><a href="\LineItems">Line Item List</a></li>
+                    </ul>
+                </li>
+                @*<li>@Html.ActionLink("Review", "About", "Home")</li>*@
+                <li class="dropdown">
+
+                    <a class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
+                        Review<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Finance Review</a></li>
+                        <li><a href="#">Work Program</a></li>
+                        <li><a href="#">CFM Ready</a></li>
+                    </ul>
+                </li>
+                @*<li>@Html.ActionLink("Reports", "Contact", "Home")</li>*@
+                <li class="dropdown">
+                    <a class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
+                        Reports<span class="caret"></span>
+                    </a>                        <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Completed Forms</a></li>
+                        <li><a href="#">Contract Summary</a></li>
+                        <li><a href="#">Encumbrance Filter</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

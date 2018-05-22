@@ -1,0 +1,211 @@
+﻿@model EPS3.Models.Contract
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create</h2>
+
+<h4>Contract</h4>
+<hr />
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" name="UserID" id="UserID" value="1" />
+    <div class="row">
+        <div class="col-sm-3">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.ContractNumber)
+                </dt>
+                <dd>
+                    @Html.TextBoxFor(model => model.ContractNumber)
+                    @Html.ValidationMessageFor(model => model.ContractNumber, "A Contract Number is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-3">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.ContractTypeID)
+                </dt>
+                <dd>
+                    <input type="hidden" id="ContractTypeID" name="ContractTypeID" />
+                    <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" />
+                    @Html.ValidationMessageFor(model => model.ContractTypeID, "A Contract Type is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-3">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.IsRenewable)
+                </dt>
+                <dd>
+                    <span>
+                        <label for="IsRenewable1" class="radio-inline control-label">
+                            Yes &nbsp; &nbsp; &nbsp;<input class="radio-inline" id="IsRenewable1" name="IsRenewable" type="radio" value="1">
+                        </label>
+                        <label for="IsRenewable0" class="radio-inline control-label">
+                            No &nbsp; &nbsp; &nbsp;<input class="radio-inline" id="IsRenewable0" name="IsRenewable" type="radio" value="0">
+                        </label>
+                    </span>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.ContractTotal)
+                </dt>
+                <dd>
+                    <span class="input-group-addon">
+                        <label for="ContractTotal">
+                            <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                            @Html.TextBoxFor(model => model.ContractTotal)
+                        </label>
+                    </span>
+                    @Html.ValidationMessageFor(model => model.ContractTotal, "The Contract Total is the sum of all associated line items.")
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.MaxLoaAmount)
+                </dt>
+                <dd>
+                    <span class="input-group-addon">
+                        <label for="MaxLoaAmount">
+                            <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                            @Html.TextBoxFor(model => model.MaxLoaAmount)
+                        </label>
+                    </span>
+                    @Html.ValidationMessageFor(model => model.MaxLoaAmount, "The default Maximum amount per LOA is $0.00.")
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.BudgetCeiling)
+                </dt>
+                <dd>
+                    <span class="input-group-addon">
+                        <label for="BudgetCeiling">
+                            <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                            @Html.TextBoxFor(model => model.BudgetCeiling)
+                        </label>
+                    </span>
+                    @Html.ValidationMessageFor(model => model.BudgetCeiling, "The default Budget Ceiling is $0.00.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-2">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.BeginningDate)
+                </dt>
+                <dd>
+                    <div class="input-group date">
+                        @Html.TextBoxFor(model => model.BeginningDate, "", new { @class = "datepicker" })
+                        <span class="input-group-addon">
+                            <label for="BeginningDate">
+                                <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                            </label>
+                        </span>
+                    </div>
+                    @Html.ValidationMessageFor(model => model.BeginningDate, "")
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.EndingDate)
+                </dt>
+                <dd>
+                    <div class="input-group date">
+                        @Html.TextBoxFor(model => model.EndingDate, "", new { @class = "datepicker" })
+                        <span class="input-group-addon">
+                            <label for="EndingDate">
+                                <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                            </label>
+                        </span>
+                    </div>
+                    @Html.ValidationMessageFor(model => model.EndingDate, "")
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.ServiceEndingDate)
+                </dt>
+                <dd>
+                    <div class="input-group date">
+                        @Html.TextBoxFor(model => model.ServiceEndingDate, "", new { @class = "datepicker" })
+                        <span class="input-group-addon">
+                            <label for="ServiceEndingDate">
+                                <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                            </label>
+                        </span>
+                    </div>
+                    @Html.ValidationMessageFor(model => model.ServiceEndingDate, "")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-5">
+            <dl>
+                <dt>
+                    <label for="ProcurementID">Procurement</label>
+                </dt>
+                <dd>
+                    @Html.DropDownList("ProcurementID", new SelectList((IEnumerable<Procurement>)ViewData["Procurements"], "ProcurementID", "ProcurementSelector"))
+                        @Html.ValidationMessageFor(model => model.ProcurementID, "Please select a Procurement option.")
+                </dd>
+                <p></p>
+                <dt>
+                    <label for="CompensationID">Contract Funding Terms</label>
+                </dt>
+                <dd>
+                    @Html.DropDownList("CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationType"))
+
+                    @Html.ValidationMessageFor(model => model.CompensationID, "")
+                </dd>
+                <p></p>
+                <dt>
+                    <label for="VendorID">Vendor</label>
+                </dt>
+                <dd>
+                    <input type="hidden" id="VendorID" name="VendorID" />
+                    <input type="text" id="VendorSelector" name="VendorSelector" />
+                    @Html.ValidationMessageFor(model => model.VendorID, "If the Vendor is not known, select AD.")
+                </dd>
+                <p></p>
+                <dt>
+                    <label for="RecipientID">Recipient</label>
+                </dt>
+                <dd>
+                    @Html.DropDownList("RecipientID", new SelectList((IEnumerable<Recipient>)ViewData["Recipients"], "RecipientID", "RecipientSelector"))
+                    @Html.ValidationMessageFor(model => model.RecipientID, "Please select a Recipient.")
+
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.DescriptionOfWork)
+                </dt>
+                <dd>
+                    @Html.TextAreaFor(model => model.DescriptionOfWork, new { @rows = 3, @cols = "200" })
+                    @Html.ValidationMessageFor(model => model.DescriptionOfWork, "Please provide a description of the work to be completed under this contract.")
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

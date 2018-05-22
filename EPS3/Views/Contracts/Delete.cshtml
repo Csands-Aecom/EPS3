@@ -1,0 +1,99 @@
+﻿@model EPS3.Models.Contract
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Contract</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ContractNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ContractNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ContractType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ContractType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsRenewable)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsRenewable)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ContractTotal)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ContractTotal)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MaxLoaAmount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MaxLoaAmount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BudgetCeiling)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BudgetCeiling)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BeginningDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BeginningDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EndingDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EndingDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ServiceEndingDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ServiceEndingDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DescriptionOfWork)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DescriptionOfWork)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ContractFunding)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ContractFunding.CompensationID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MethodOfProcurement)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MethodOfProcurement.ProcurementID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Vendor)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Vendor.VendorID)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ContractID" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

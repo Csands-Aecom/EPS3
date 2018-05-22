@@ -1,0 +1,201 @@
+﻿@model EPS3.Models.LineItem
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // populate FiscalYear dropdown
+            populateFiscalYearList(@Model.FiscalYear);
+            $("FiscalYearList").hide();
+        });
+        function toggleFY() {
+            var fyText = $("FiscalYear");
+            var fyList = $("FiscalYearList");
+            if (fyText.is(":visible")) {
+                fyText.hide();
+                fyList.show();
+            } else {
+                if (fyList.val()) {
+                    fyText.text = fyList.val();
+                }
+                fyList.hide();
+                fyText.show();
+            }
+        }
+    </script>
+}
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>LineItem</h4>
+<hr />
+<form asp-action="Edit" class="form-horizontal">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.ContractID" />
+    <input type="hidden" id="LineItemID" name="LineItemID" value="@ViewBag.LineItemID" />
+    <div class="row">
+        <div class="col-sm-2">
+            <dl>
+                <dt>
+                    @Html.LabelFor(model => model.OrgCode)
+                </dt>
+                <dd>
+                    @Html.TextBoxFor(model => model.OrgCode)
+                    @Html.ValidationMessageFor(model => model.OrgCode, "Org Code is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-2">
+            <dl>
+                <dt>
+                    @Html.LabelFor(model => model.FinancialProjectNumber)
+                </dt>
+                <dd>
+                    @Html.TextBoxFor(model => model.FinancialProjectNumber)
+                    @Html.ValidationMessageFor(model => model.FinancialProjectNumber, "A Financial Project Number is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-4">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.StateProgramID)
+                </dt>
+                <dd>
+                    @Html.DropDownList("StateProgramID", new SelectList((IEnumerable<StateProgram>)ViewData["StatePrograms"], "ProgramID", "ProgramSelector"))
+                    @Html.ValidationMessageFor(model => model.StateProgramID, "A State Program value is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-3">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.CategoryID)
+                </dt>
+                <dd>
+                    @Html.DropDownList("CategoryID", new SelectList((IEnumerable<Category>)ViewData["Categories"], "CategoryID", "CategorySelector"))
+                    @Html.ValidationMessageFor(model => model.CategoryID, "An Category value is required.")
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <dl>
+                <dt>
+                    @Html.LabelFor(model => model.WorkActivity)
+                </dt>
+                <dd>
+                    @Html.TextBoxFor(model => model.WorkActivity)
+                    @Html.ValidationMessageFor(model => model.WorkActivity, "An Work Activity is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-1">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.OCAID)
+                </dt>
+                <dd>
+                    <input type="hidden" id="OCAID" name="OCAID" value="@Model.OCAID" />
+                    <div class="" data-toggle="tooltip" title="@Model.OCA.OCASelector">
+                        <input type="text" id="OCASelector" name="OCASelector" value="@ViewBag.myOCA.OCACode" />
+                    </div>
+                    @Html.ValidationMessageFor(model => model.OCAID, "An OCA value is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-1">
+            <dl>
+                <dt>
+                    @Html.LabelFor(model => model.ExpansionObject)
+                </dt>
+                <dd>
+                    @Html.TextBoxFor(model => model.ExpansionObject)
+                    @Html.ValidationMessageFor(model => model.ExpansionObject, "An Extension Object is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-1">
+            <dl>
+                <dt>
+                    @Html.LabelFor(model => model.FlairObject)
+                </dt>
+                <dd>
+                    @Html.TextBoxFor(model => model.FlairObject)
+                    @Html.ValidationMessageFor(model => model.FlairObject, "A Flair Object is required.")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-1">
+            <dl>
+                <dt>
+                    @Html.DisplayNameFor(model => model.FundID)
+                </dt>
+                <dd>
+                    <input type="hidden" id="FundID" name="FundID" value="@Model.FundID" />
+                    <div class="" data-toggle="tooltip" title="@ViewBag.myFund.FundDescription">
+                        <input type="text" id="FundSelector" name="FundSelector" value="@ViewBag.myFund.FundCode" />
+                        @Html.ValidationMessageFor(model => model.FundID, "A Fund value is required.")
+                    </div>
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-2">
+            <dl>
+                <dt>
+                    @Html.LabelFor(model => model.FiscalYear)
+
+                </dt>
+                <dd>
+                    <div class="" data-toggle="tooltip" title="FY @Model.FiscalYear = @Model.FiscalYearRange">
+                        @Html.TextBoxFor(model => model.FiscalYear, new { onfocus = "toggleFY()" })
+                    </div>
+                    <select id="FiscalYearList" name="FiscalYearList" class="fiscalyear"></select>
+                    @Html.ValidationMessageFor(model => model.FiscalYear, "Fiscal Year is a four digit year, the first year in a two-year fiscal span (i.e., 2018 = FY 18-19).")
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-2">
+            <dl>
+                <dt>
+                    @Html.LabelFor(model => model.Amount)
+
+                </dt>
+                <dd>
+                    <span class="input-group-addon">
+                        <label for="Amount">
+                            <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                            @Html.TextBoxFor(model => model.Amount)
+                        </label>
+                    </span>
+                    @Html.ValidationMessageFor(model => model.Amount, "Amounts must be numeric values.")
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            <dl>
+                <dd>
+                    <input type="submit" value="Update" class="btn btn-default" />
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            <dl>
+                <dd>
+                    <a asp-controller="Contracts" asp-action="Edit"  asp-route-id="@ViewBag.ContractID">Back to Contract</a>
+                </dd>
+            </dl>
+        </div>
+    </div>
+</form>
+
+

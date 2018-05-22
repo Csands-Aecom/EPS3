@@ -1,0 +1,60 @@
+﻿@model EPS3.Models.LineItem
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>LineItem</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.OrgCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OrgCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ExpansionObject)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ExpansionObject)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FlairObject)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FlairObject)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FinancialProjectNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FinancialProjectNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Category)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Category)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Fund)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Fund)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.LineItemID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
