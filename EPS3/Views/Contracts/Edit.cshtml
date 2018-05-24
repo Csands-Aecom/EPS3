@@ -4,12 +4,22 @@
     ViewData["Title"] = "Edit";
 }
 
+<script>
+    @{
+        decimal TotalAmount = 0.00M;
+        foreach (LineItem item in (Model.LineItems))
+        {
+            TotalAmount = TotalAmount + item.Amount;
+        }
+
+    }
+</script>
 <h2>Edit</h2>
 
 <form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" name="ContractID" id="ContractID" value="@Model.Contract.ContractID" />
-    <input type="hidden" name="UserID" id="UserID" value="1" />
+    <input type="hidden" name="Contract.ContractID" id="ContractContractID" value="@Model.Contract.ContractID" />
+    <input type="hidden" name="Contract.UserID" id="Model.ContractUserID" value="1" />
     <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
         <div class="panel-heading">
             <h3>
@@ -29,7 +39,7 @@
                             @Html.DisplayNameFor(model => model.Contract.ContractNumber)
                         </dt>
                         <dd>
-                            @if (Model.Contract.CurrentStatus.Equals(StatusType.Draft) || Model.Contract.CurrentStatus.Equals(StatusType.New))
+                            @if (Model.Contract.CurrentStatus.Equals(ConstantStrings.Draft) || Model.Contract.CurrentStatus.Equals(ConstantStrings.NewContract))
                             {
                                 @Html.TextBoxFor(model => model.Contract.ContractNumber)
                             }
@@ -117,7 +127,7 @@
                             Total of Line Items
                         </dt>
                         <dd>
-                            <b>TODO: TotalAmount</b>
+                            <b>$@TotalAmount</b>
                         </dd>
                     </dl>
                 </div>
@@ -173,7 +183,7 @@
                             <label for="ProcurementID">Procurement</label>
                         </dt>
                         <dd>
-                            @Html.DropDownList("ProcurementID", new SelectList((IEnumerable<Procurement>)ViewData["Procurements"], "ProcurementID", "ProcurementSelector"))
+                            @Html.DropDownList("Contract.ProcurementID", new SelectList((IEnumerable<Procurement>)ViewData["Procurements"], "ProcurementID", "ProcurementSelector"))
                             @Html.ValidationMessageFor(model => model.Contract.ProcurementID, "Please select a Procurement option.")
                         </dd>
                         <p></p>
@@ -181,7 +191,7 @@
                             <label for="CompensationID">Contract Funding Terms</label>
                         </dt>
                         <dd>
-                            @Html.DropDownList("CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationType"))
+                            @Html.DropDownList("Contract.CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationType"))
 
                             @Html.ValidationMessageFor(model => model.Contract.CompensationID, "")
                         </dd>
@@ -200,7 +210,7 @@
                             <label for="RecipientID">Recipient</label>
                         </dt>
                         <dd>
-                            @Html.DropDownList("RecipientID", new SelectList((IEnumerable<Recipient>)ViewData["Recipients"], "RecipientID", "RecipientSelector"))
+                            @Html.DropDownList("Contract.RecipientID", new SelectList((IEnumerable<Recipient>)ViewData["Recipients"], "RecipientID", "RecipientSelector"))
                             @Html.ValidationMessageFor(model => model.Contract.RecipientID, "Please select a Recipient.")
 
                         </dd>
@@ -221,54 +231,54 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+        <div class="panel-heading">
+            <h3>Line Items</h3>
+            <a href="\LineItems\Create\@Model.Contract.ContractID">Add Line Item</a>
         </div>
-        <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
-            <div class="panel-heading">
-                <h3>Line Items</h3>
-                <a href="\LineItems\Create\@Model.Contract.ContractID">Add Line Item</a>
-            </div>
-            <div class="panel-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>
-                                Organization Code
-                            </th>
-                            <th>
-                                Financial Project Number
-                            </th>
-                            <th>
-                                State Program
-                            </th>
-                            <th>
-                                Category
-                            </th>
-                            <th>
-                                Work Activity
-                            </th>
-                            <th>
-                                OCA
-                            </th>
-                            <th>
-                                EO
-                            </th>
-                            <th>
-                                Object
-                            </th>
-                            <th>
-                                Fund
-                            </th>
-                            <th>
-                                Fiscal Year
-                            </th>
-                            <th>
-                                Amount
-                            </th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (LineItem item in Model.LineItems)
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Organization Code
+                        </th>
+                        <th>
+                            Financial Project Number
+                        </th>
+                        <th>
+                            State Program
+                        </th>
+                        <th>
+                            Category
+                        </th>
+                        <th>
+                            Work Activity
+                        </th>
+                        <th>
+                            OCA
+                        </th>
+                        <th>
+                            EO
+                        </th>
+                        <th>
+                            Object
+                        </th>
+                        <th>
+                            Fund
+                        </th>
+                        <th>
+                            Fiscal Year
+                        </th>
+                        <th>
+                            Amount
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (LineItem item in Model.LineItems)
                     {
                         <tr>
                             <td>
@@ -317,36 +327,36 @@
                                 <a asp-controller="LineItems" asp-action="Create" asp-route-id="@item.LineItemID">Duplicate</a>
                             </td>
                         </tr>
-                }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
-        <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
-            <div class="panel-heading">
-                <h3>History</h3>
+    </div>
+    <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+        <div class="panel-heading">
+            <h3>History</h3>
 
-                <a href="\ContractStatus\Create\@Model.Contract.ContractID">Update Contract Status</a>
-            </div>
-            <div class="panel-body">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>
-                                User
-                            </th>
-                            <th>
-                                Status
-                            </th>
-                            <th>
-                                Date
-                            </th>
-                            <th>
-                                Comment
-                            </th>
-                        </tr>
-                    </thead>
-                    @foreach (ContractStatus status in Model.Statuses)
+            <a href="\ContractStatus\Create\@Model.Contract.ContractID">Update Contract Status</a>
+        </div>
+        <div class="panel-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            User
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                        <th>
+                            Date
+                        </th>
+                        <th>
+                            Comment
+                        </th>
+                    </tr>
+                </thead>
+                @foreach (ContractStatus status in Model.Statuses)
                 {
                     <tr>
                         <td>
@@ -368,58 +378,56 @@
 
                         </td>
                     </tr>
-            }
-                </table>
-            </div>
+                }
+            </table>
         </div>
+    </div>
 
-        <div class="row">
-            <div class="col-sm-4">
-                <dl>
-                    <dt>
-                        New Contract Status
-                    </dt>
-                    <dd>
-                        <select id="CurrentStatus" name="CurrentStatus" class="form-control">
-                            <option value="Draft">Draft</option>
-                            <option value="Submitted">Submitted</option>
-                            <option value="FinanceApproved">Finance Approved</option>
-                            <option value="BypassWP">Bypass Work Program</option>
-                            <option value="AcctManApproved">Work Program Approved</option>
-                            <option value="CFMReady">CFM Ready</option>
-                            <option value="CompleteInvalid">Complete: Invalid</option>
-                            <option value="CompleteWorkDone">Complete: Work Done</option>
-                            <option value="Closed">Closed</option>
-                            <option value="Deleted">Deleted</option>
-                        </select>
-                    </dd>
-                </dl>
-            </div>
-            <div class="form-group col-sm-4">
-                <dl>
-                    <dt>
-                        Comments
-                    </dt>
-                    <dd>
-                        <textarea id="Comments" name="Comments" class="form-control"></textarea>
-                    </dd>
-                </dl>
-            </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <dl>
+                <dt>
+                    New Contract Status
+                </dt>
+                <dd>
+                    <select id="Contract.CurrentStatus" name="Contract.CurrentStatus" class="form-control" value="Draft">
+                        <option value="Draft">Draft</option>
+                        <option value="Submitted">Submitted</option>
+                        <option value="FinanceApproved">Finance Approved</option>
+                        <option value="BypassWP">Bypass Work Program</option>
+                        <option value="AcctManApproved">Work Program Approved</option>
+                        <option value="CFMReady">CFM Ready</option>
+                        <option value="CompleteInvalid">Complete: Invalid</option>
+                        <option value="CompleteWorkDone">Complete: Work Done</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Deleted">Deleted</option>
+                    </select>
+                </dd>
+            </dl>
         </div>
-        <div class="row">
-            <div class="col-sm-4">
-                <input type="submit" value="Update" class="btn btn-default" title="Update Contract" />
+        <div class="form-group col-sm-4">
+            <dl>
+                <dt>
+                    Comments
+                </dt>
+                <dd>
+                    <textarea id="Comments" name="Comments" class="form-control"></textarea>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
 
-                @if (@Model.Contract.CurrentStatus == StatusType.Draft.ToString())
+            @if (@Model.Contract.CurrentStatus == ConstantStrings.Draft || @Model.Contract.CurrentStatus == ConstantStrings.NewContract)
             {
                 <div class="form-group">
                     <input type="submit" value="Update" class="btn btn-default" title="Save changes, but don't submit for review." />
-                    <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="@StatusType.Submitted.ToString()" />
                     <input type="submit" value="Submit" class="btn btn-default" title="Submit for Review" />
                 </div>
-        }
-            </div>
+            }
         </div>
+    </div>
 </form>
 
 

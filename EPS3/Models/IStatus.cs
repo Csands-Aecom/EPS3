@@ -15,7 +15,7 @@ namespace EPS3.Models
         [ForeignKey("UserID")]
         public int UserID { get; set; }
         public virtual User User { get; set; }
-        public StatusType CurrentStatus { get; set; }
+        public string CurrentStatus { get; set; }
         [Display(Name = "Date")]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy hh:mm }", ApplyFormatInEditMode = true)]
         public DateTime SubmittalDate { get; set; }

@@ -148,7 +148,7 @@ namespace EPS3.Controllers
                  //Session.["UserLogin"] = currentUser.UserLogin;
 
                 //Add a ContractStatus record for a new Contract
-                ContractStatus newStatus = new ContractStatus(currentUser, StatusType.Draft);
+                ContractStatus newStatus = new ContractStatus(currentUser, contract, ConstantStrings.NewContract);
                 if (contract.Statuses == null)
                 {
                     contract.Statuses = new List<ContractStatus>();
@@ -199,33 +199,34 @@ namespace EPS3.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Review(int id,  ContractViewModel cvm)
+        public async Task<IActionResult> Review(int contractID, int userID, string currentStatus, string comments)
         {
-            if (id != cvm.Contract.ContractID)
+            if (contractID <= 0)
             {
                 return NotFound();
             }
+            Contract contract = _context.Contracts.SingleOrDefault(c => c.ContractID == contractID);
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     //Create new status record for Contract
-
                     User currentUser = await _context.Users
                         .AsNoTracking()
-                        .SingleOrDefaultAsync(u => u.UserID == cvm.Contract.UserID);
-                    ContractStatus newStatus = new ContractStatus ();
-                    
-                    //cvm.Contract.ModifiedDate = DateTime.Now.Date;
+                        .SingleOrDefaultAsync(u => u.UserID == userID);
+                    ContractStatus newStatus = new ContractStatus(currentUser, contract, currentStatus);
+                    newStatus.Comments = comments;
 
-                    cvm.Statuses.Add(newStatus);
-                    _context.Update(cvm);
+                    contract.CurrentStatus = currentStatus;
+                    contract.ModifiedDate = DateTime.Now.Date;
+                    contract.Statuses.Add(newStatus);
+                    _context.Update(contract);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ContractExists(cvm.Contract.ContractID))
+                    if (!ContractExists(contract.ContractID))
                     {
                         return NotFound();
                     }
@@ -236,12 +237,12 @@ namespace EPS3.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ContractTypes"] = new SelectList(_context.ContractTypes, "ContractTypeID", "ContractTypeID", cvm.Contract.ContractType);
-            ViewData["Compensations"] = new SelectList(_context.Compensations, "CompensationID", "CompensationID", cvm.Contract.CompensationID);
-            ViewData["Procurements"] = new SelectList(_context.Procurements, "ProcurementID", "ProcurementID", cvm.Contract.ProcurementID);
-            ViewData["Recipients"] = new SelectList(_context.Recipients, "RecipientID", "RecipientID", cvm.Contract.RecipientID);
-            ViewData["Vendors"] = new SelectList(_context.Vendors, "VendorID", "VendorID", cvm.Contract.VendorID);
-            return View(cvm.Contract);
+            ViewData["ContractTypes"] = new SelectList(_context.ContractTypes, "ContractTypeID", "ContractTypeID", contract.ContractType);
+            ViewData["Compensations"] = new SelectList(_context.Compensations, "CompensationID", "CompensationID", contract.CompensationID);
+            ViewData["Procurements"] = new SelectList(_context.Procurements, "ProcurementID", "ProcurementID", contract.ProcurementID);
+            ViewData["Recipients"] = new SelectList(_context.Recipients, "RecipientID", "RecipientID", contract.RecipientID);
+            ViewData["Vendors"] = new SelectList(_context.Vendors, "VendorID", "VendorID", contract.VendorID);
+            return View(contract);
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -292,7 +293,7 @@ namespace EPS3.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ContractID,ContractNumber,ContractTypeID,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,RecipientID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,UserID,CurrentStatus")] Contract contract)
+        public async Task<IActionResult> Edit(int id, [Bind("ContractID,ContractNumber,ContractTypeID,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,RecipientID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,UserID,CurrentStatus")] Contract contract, string Comments)
         {
             if (id != contract.ContractID)
             {
@@ -401,7 +402,7 @@ namespace EPS3.Controllers
             string userLogin = HttpContext.User.Identity.Name;
             if (userLogin == null)
             {
-               // userLogin = "KNAECCS";
+                userLogin = "KNAECCS";
             }
             string value = HttpContext.Session.GetString(sessionKey)==null ? null :  JsonConvert.ToString(HttpContext.Session.GetString(sessionKey));
             if (userLogin != null)
@@ -451,43 +452,43 @@ namespace EPS3.Controllers
 
         private void RedirectAllActions(string action, int userID, int contractID, int contractOriginator, string roles, string status)
         {
-            string AllowedActions = "";
+            List<string> AllowedActions = new List<string>();
             string Message = "";
             switch (action)
             {
                 case "Index":
 
-                    if (roles.Contains("Originator"))
+                    if (roles.Contains(ConstantStrings.Originator))
                     {
-                        AllowedActions += "Create"; //enable Add New Contract link
-                        AllowedActions += "Edit"; //enable Edit links for projects with same UserID
+                        AllowedActions.Add("Create"); //enable Add New Contract link
+                        AllowedActions.Add("Edit"); //enable Edit links for projects with same UserID
                     }
                     else
                     {
-                        AllowedActions += "Details"; //                show only Details links
+                        AllowedActions.Add("Details"); //                show only Details links
                     }
                     break;
                 case "Edit":
 
-                    if (roles.Contains("Originator") && userID == contractOriginator && status == "Draft")
+                    if (roles.Contains(ConstantStrings.Originator) && userID == contractOriginator && status == "Draft")
                     {
-                        AllowedActions += "Edit"; //enable the form
+                        AllowedActions.Add("Edit"); //enable the form
                     }
-                    if (status == "FinanceReview" && roles.Contains("Finance"))
+                    if (status == "FinanceReview" && roles.Contains(ConstantStrings.FinanceReviewer))
                     {
-                        AllowedActions += "Finance"; //enable finance review and editing the form
+                        AllowedActions.Add("Finance"); //enable finance review and editing the form
                     }
-                    if (status == "WPReview" && roles.Contains("WP"))
+                    if (status == "WPReview" && roles.Contains(ConstantStrings.WPReviewer))
                     {
-                        AllowedActions += "WorkProgram";
+                        AllowedActions.Add("WorkProgram");
                     }
-                    if (status == "CFMReview" && roles.Contains("CFM"))
+                    if (status == "CFMReview" && roles.Contains(ConstantStrings.CFMSubmitter))
                     {
-                        AllowedActions += "CFM";
+                        AllowedActions.Add("CFM");
                     }
-                    if (status == "CFMSubmitted" && roles.Contains("Finance"))
+                    if (status == "CFMSubmitted" && roles.Contains(ConstantStrings.FinanceReviewer))
                     {
-                        AllowedActions += "Complete";
+                        AllowedActions.Add("Complete");
                     }
                     else
                     {
@@ -497,9 +498,9 @@ namespace EPS3.Controllers
                     break;
                 case "Create":
 
-                    if (roles.Contains("Originator"))
+                    if (roles.Contains(ConstantStrings.Originator))
                     {
-                        AllowedActions += "Create";
+                        AllowedActions.Add("Create");
                     }
                     else
                     {
@@ -509,21 +510,21 @@ namespace EPS3.Controllers
                     break;
                 case "Review":
 
-                    if (status == "FinanceReview" && roles.Contains("Finance"))
+                    if (status == "FinanceReview" && roles.Contains(ConstantStrings.FinanceReviewer))
                     {
-                        AllowedActions += "Finance"; //enable finance review and editing the form
+                        AllowedActions.Add("Finance"); //enable finance review and editing the form
                     }
-                    if (status == "WPReview" && roles.Contains("WP"))
+                    if (status == "WPReview" && roles.Contains(ConstantStrings.WPReviewer))
                     {
-                        AllowedActions += "WorkProgram";
+                        AllowedActions.Add("WorkProgram");
                     }
-                    if (status == "CFMReview" && roles.Contains("CFM"))
+                    if (status == "CFMReview" && roles.Contains(ConstantStrings.CFMSubmitter))
                     {
-                        AllowedActions += "CFM";
+                        AllowedActions.Add("CFM");
                     }
-                    if (status == "CFMSubmitted" && roles.Contains("Finance"))
+                    if (status == "CFMSubmitted" && roles.Contains(ConstantStrings.FinanceReviewer))
                     {
-                        AllowedActions += "Complete";
+                        AllowedActions.Add("Complete");
                     }
                     break;
                  default:
@@ -531,7 +532,15 @@ namespace EPS3.Controllers
                     break;
 
             }
-            ViewBag.AllowedActions = AllowedActions;
+            if (roles.Contains(ConstantStrings.AdminRole))
+            {
+                AllowedActions.Add("Create");
+                AllowedActions.Add("Edit");
+                AllowedActions.Add("Finance");
+                AllowedActions.Add("WorkProgram");
+                AllowedActions.Add("CFM");
+            }
+            ViewBag.AllowedActions = AllowedActions.ToString();
             ViewBag.Message = Message;
 
         }

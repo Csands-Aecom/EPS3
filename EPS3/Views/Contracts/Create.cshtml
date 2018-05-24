@@ -8,6 +8,8 @@
 <form asp-action="Create">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="UserID" id="UserID" value="1" />
+    <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="New" />
+    <input type="hidden" name="AllowedActions" id="AllowedActions" value="@ViewBag.AllowedActions" />
     <div class="row panel panel-default">
         <div class="panel-heading">
             <h3> Contract</h3>
