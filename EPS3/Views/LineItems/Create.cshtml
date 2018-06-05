@@ -134,6 +134,7 @@
                 <dd>
                     @Html.HiddenFor(model => model.FiscalYear)
                     <select id="FiscalYearList" name="FiscalYearList" class="fiscalyear"></select>
+                    <p>The Fiscal Year runs from July 1 to June 30. </p><p>The current Fiscal Year is @ViewBag.CurrentFiscalYear.</p>
                     @Html.ValidationMessageFor(model => model.FiscalYear, "Fiscal Year is a four digit year, the first year in a two-year fiscal span (i.e., 2018 = FY 18-19).")
                 </dd>
             </dl>

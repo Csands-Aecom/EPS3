@@ -57,10 +57,12 @@
                             @Html.DisplayNameFor(model => model.Contract.ContractTypeID)
                         </dt>
                         <dd>
-                            <input type="hidden" id="Contract_ContractTypeID" name="Contract.ContractTypeID" value="@Model.Contract.ContractTypeID" />
-                            <input type="text" size="50" class="form-control" id="ContractTypeSelector" name="ContractTypeSelector" value="@ViewBag.myContractType.ContractTypeSelector" />
-                            <span id="ContractTypeClear" class="glyphicon glyphicon-remove-circle "></span>
-                            @Html.ValidationMessageFor(model => model.Contract.ContractTypeID, "A Contract Type is required.")
+                            <div>
+                                <input type="hidden" id="Contract_ContractTypeID" name="Contract.ContractTypeID" value="@Model.Contract.ContractTypeID" />
+                                <input type="text" size="50" class="form-control" id="ContractTypeSelector" name="ContractTypeSelector" value="@ViewBag.myContractType.ContractTypeSelector" />
+                                <span id="ContractTypeClear" class="glyphicon glyphicon-remove-circle float-right" style="margin-right : 10px; vertical-align: text-bottom"></span>
+                                @Html.ValidationMessageFor(model => model.Contract.ContractTypeID, "A Contract Type is required.")
+                            </div>
                         </dd>
                     </dl>
                 </div>
@@ -185,8 +187,9 @@
                         <dd>
                             @Html.DropDownList("Contract.ProcurementID", new SelectList((IEnumerable<Procurement>)ViewData["Procurements"], "ProcurementID", "ProcurementSelector"))
                             @Html.ValidationMessageFor(model => model.Contract.ProcurementID, "Please select a Procurement option.")
+                            <br />
                         </dd>
-                        <p></p>
+                        
                         <dt>
                             <label for="CompensationID">Contract Funding Terms</label>
                         </dt>
@@ -194,18 +197,21 @@
                             @Html.DropDownList("Contract.CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationType"))
 
                             @Html.ValidationMessageFor(model => model.Contract.CompensationID, "")
+                            <br />
                         </dd>
-                        <p></p>
+                        
                         <dt>
                             <label for="VendorID">Vendor</label>
                         </dt>
                         <dd>
-                            <input type="hidden" id="Contract_VendorID" name="Contract.VendorID" value="@Model.Contract.VendorID" />
-                            <input type="text" class="form-control" id="VendorSelector" name="VendorSelector" value="@ViewBag.myVendor.VendorSelector" />
-                            <span id="VendorClear" class="glyphicon glyphicon-remove-circle "></span>
-                            @Html.ValidationMessageFor(model => model.Contract.VendorID, "If the Vendor is not known, select AD.")
-                        </dd>
-                        <p></p>
+                            <div>
+                                <input type="hidden" id="Contract_VendorID" name="Contract.VendorID" value="@Model.Contract.VendorID" />
+                                <input type="text" class="form-control" id="VendorSelector" name="VendorSelector" value="@ViewBag.myVendor.VendorSelector" />
+                                <span id="VendorClear" class="glyphicon glyphicon-remove-circle float-right " style="margin-right : 10px; vertical-align: text-bottom"></span>
+                                @Html.ValidationMessageFor(model => model.Contract.VendorID, "If the Vendor is not known, select AD.")
+                            </div>
+                            <br />
+                        </dd>                        
                         <dt>
                             <label for="RecipientID">Recipient</label>
                         </dt>
@@ -335,8 +341,8 @@
     <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
         <div class="panel-heading">
             <h3>History</h3>
-
-            <a href="\ContractStatus\Create\@Model.Contract.ContractID">Update Contract Status</a>
+            <input type="button" class="btn" onclick="openContractStatusDialog()" value="Update Contract Status" />
+            <!-- <a href=”javascript:void(0);” id="updateContractStatusLink" onclick="openContractStatusDialog()">Update Contract Status</a> -->
         </div>
         <div class="panel-body">
             <table>
@@ -383,58 +389,91 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-sm-4">
-            <dl>
-                <dt>
-                    New Contract Status
-                </dt>
-                <dd>
-                    <select id="Contract.CurrentStatus" name="Contract.CurrentStatus" class="form-control" value="Draft">
-                        <option value="Draft">Draft</option>
-                        <option value="Submitted">Submitted</option>
-                        <option value="FinanceApproved">Finance Approved</option>
-                        <option value="BypassWP">Bypass Work Program</option>
-                        <option value="AcctManApproved">Work Program Approved</option>
-                        <option value="CFMReady">CFM Ready</option>
-                        <option value="CompleteInvalid">Complete: Invalid</option>
-                        <option value="CompleteWorkDone">Complete: Work Done</option>
-                        <option value="Closed">Closed</option>
-                        <option value="Deleted">Deleted</option>
-                    </select>
-                </dd>
-            </dl>
-        </div>
-        <div class="form-group col-sm-4">
-            <dl>
-                <dt>
-                    Comments
-                </dt>
-                <dd>
-                    <textarea id="Comments" name="Comments" class="form-control"></textarea>
-                </dd>
-            </dl>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-4">
-
-            @if (@Model.Contract.CurrentStatus == ConstantStrings.Draft || @Model.Contract.CurrentStatus == ConstantStrings.NewContract)
-            {
-                <div class="form-group">
-                    <input type="submit" value="Update" class="btn btn-default" title="Save changes, but don't submit for review." />
-                    <input type="submit" value="Submit" class="btn btn-default" title="Submit for Review" />
-                </div>
-            }
-        </div>
-    </div>
 </form>
 
+<div id="contractStatusDialog" title="Update Contract Status" style="display: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>Contract Status</h4>
+        </div>
+        <div class='panel-body'>
+                <form asp-controller="ContractStatus" asp-action="Create" id="ContractStatusForm" name="ContractStatusForm">
+                    <div asp-validation-summary='ModelOnly' class='text-danger'></div>
+                    <div class='form-group'>
+                        <b>Contract:</b>  @Model.Contract.ContractNumber
+                    </div>
+                    <div class='form-group'>
+                        <b>Current Status:</b> @Model.Contract.CurrentStatus
+                    </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+                    <div>
+                        <dl>
+                            <dt>
+                                <b>New Status</b>
+                            </dt>
+                            <dd>
+                                <select id='CurrentStatus' name='CurrentStatus' class='form-control'>
+                                    @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
+|| (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == ViewBag.Contract.UserID))
+                                    {
+                                        <option value='@ConstantStrings.Draft'>Draft</option>
+                                        <option value='@ConstantStrings.Submitted '>Submitted</option>
+                                    }
+                                    @if (ViewBag.Contract.CurrentStatus == ConstantStrings.Submitted
+                         && (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
+                                    {
+                                        <option value='@ConstantStrings.FinanceApproved'>Finance Approved</option>
+                                    }
+                                    @if (ViewBag.Contract.CurrentStatus == ConstantStrings.FinanceApproved
+                         && (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
+|| ViewBag.Roles.Contains(ConstantStrings.WPReviewer)))
+                                    {
+                                        <option value='@ConstantStrings.ByPassWP'>Bypass Work Program</option>
+                                    }
+                                    @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+|| ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
+                                    {
+                                        <option value='@ConstantStrings.WPApproved'>Work Program Approved</option>
+                                    }
+                                    @if ((ViewBag.Contract.CurrentStatus == ConstantStrings.ByPassWP || ViewBag.Contract.CurrentStatus == ConstantStrings.WPApproved)
+&& (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
+                                    {
+                                        <option value='@ConstantStrings.CompleteInvalid'>Complete: Invalid</option>
+                                        <option value='@ConstantStrings.CompleteWorkDone'>Complete: Work Done</option>
+                                        <option value='@ConstantStrings.ClosedContract'>Mark Contract Closed</option>
+                                        <option value='@ConstantStrings.DeletedContract'>Mark Contract Deleted</option>
+                                    }
+                                </select>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div>
+                        <dl>
+                            <dt>
+                                Comments
+                            </dt>
+                            <dd>
+                                <textarea id='Comments' name='Comments' class='form-control'></textarea>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class='form-group'>
+                        <input type='hidden' id='ContractID' name="ContractID" value='@ViewBag.Contract.ContractID' />
+                        <input type='hidden' id='UserID' name='UserID' value='@ViewBag.CurrentUser.UserID' />
+                        <input type='submit' value='Update' class='btn btn-default'/>
+                    </div>
+                </form>
+            </div> <!-- end panel body -->
+        </div> <!-- end panel -->
+    </div> <!-- end contractStatusDialog -->
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+        @section Scripts {
+            @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        }

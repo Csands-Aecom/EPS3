@@ -54,6 +54,7 @@ namespace EPS3.Controllers
         public IActionResult Create(int? id)
         {
             ViewBag.contractID = id;
+            ViewBag.currentFiscalYear = CurrentFiscalYear();
             ViewData["Categories"] = _context.Categories.OrderBy(v => v.CategoryCode);
             ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
             return View();
@@ -64,7 +65,7 @@ namespace EPS3.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LineItemID,ContractID,OrgCode,ExpansionObject,FlairObject,FinancialProjectNumber,Amount,StateProgram,OCA,Category")] LineItem lineItem)
+        public async Task<IActionResult> Create([Bind("LineItemID,ContractID,OrgCode,ExpansionObject,FlairObject,FinancialProjectNumber,FundID,Amount,StateProgramID,OCAID,WorkActivity,CategoryID,FiscalYear")] LineItem lineItem)
         {
             // remove "55-" prefix from OrgCode value before saving
             lineItem.OrgCode = CleanOrgCode(lineItem.OrgCode);
@@ -286,6 +287,20 @@ namespace EPS3.Controllers
                 orgCode = orgCode.Substring(1);
             }
             return orgCode;
+        }
+
+        private string CurrentFiscalYear()
+        {
+            int year = DateTime.Now.Year;
+            int month = DateTime.Now.Month;
+            if (month >= 6)
+            {
+                return year.ToString() + " - " + (year + 1).ToString();
+            }
+            else
+            {
+                return (year-1).ToString() + " - " + year.ToString();
+            }
         }
     } // end class
 

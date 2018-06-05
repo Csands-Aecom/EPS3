@@ -44,7 +44,7 @@ namespace EPS3.Models
         [Display(Name = "OCA")]
         public int OCAID { get; set; }
         [Display(Name ="OCA")]
-        public OCA OCA { get; set; }
+        public virtual OCA OCA { get; set; }
         [Display(Name = "Organization Code")]
         [StringLength(12)] // 55-plus 9 digit string. Only 9 digits are saved
         // Display with "55" prefix
@@ -53,7 +53,7 @@ namespace EPS3.Models
         [Display(Name = "State Program")]
         public int StateProgramID { get; set; }
         [Display(Name ="State Program")]
-        public StateProgram StateProgram { get; set; }
+        public virtual StateProgram StateProgram { get; set; }
         [Display(Name = "History")]
         public virtual ICollection<LineItemStatus> Statuses { get; set; }
 

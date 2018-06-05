@@ -29,7 +29,7 @@ $(document).ready(function () {
         while (orgCode.charAt(0) === "5" || orgCode.charAt(0) === "-") {
             orgCode = orgCode.substring(1, orgCode.length);
         }
-        $("#OrgCode").val("55-"+orgCode);
+        $("#OrgCode").val("55-" + orgCode);
     });
 
     //initialize autocomplete for EO from existing in LineItems
@@ -46,10 +46,10 @@ $(document).ready(function () {
                     }));
                 }
             });
-},
-    messages: {
-        noResults: "", results: ""
-    }
+        },
+        messages: {
+            noResults: "", results: ""
+        }
     });
 
     //initialize autocomplete for Work Activity from existing in LineItems
@@ -71,7 +71,7 @@ $(document).ready(function () {
             noResults: "", results: ""
         }
     });
-    
+
     // Flair Object autocomplete from existing in LineItems
     $("#FlairObject").autocomplete({
         source: function (request, response) {
@@ -110,7 +110,7 @@ $(document).ready(function () {
         messages: {
             noResults: "", results: ""
         }
-});
+    });
 
     //Vendors
     $("#VendorSelector").autocomplete({
@@ -136,7 +136,7 @@ $(document).ready(function () {
         messages: {
             noResults: "", results: ""
         }
-});
+    });
 
     //Contract Types
     $("#ContractTypeSelector").autocomplete({
@@ -182,7 +182,7 @@ $(document).ready(function () {
         },
         select: function (event, ui) {
             $("#OCASelector").val(ui.item.label);
-            $("#OCAID").val(ui.item.oCAID);
+            $("#OCAID").val(ui.item.OCAID);
             return false;
         },
         messages: {
@@ -208,7 +208,7 @@ $(document).ready(function () {
         },
         select: function (event, ui) {
             $("#FundSelector").val(ui.item.label);
-            $("#FundID").val(ui.item.fundID);
+            $("#FundID").val(ui.item.FundID);
             return false;
         },
         messages: {
@@ -216,14 +216,28 @@ $(document).ready(function () {
         }
     });
 
+    $("#FiscalYearList").change(function() {
+        $("#FiscalYear").val($("#FiscalYearList").val());
+        return false;
+    }).change();
+
+    // update Contract Status dialog link
+    $('#contractStatusDialog').dialog({
+        autoOpen: false,
+        height: 400,
+        width: 800
+    });
+    $('#updateContractStatusLink').click(function () {
+        $('#contractStatusDialog').dialog("open");
+    });
 }); // end of ready function
 
 function populateFiscalYearList(selectedValue) {
     var fiscalYear = $('#FiscalYearList');
     var currentYear = new Date().getFullYear();
     var currentMonth = new Date().getMonth();
-    if (currentMonth < 6) {
-        currentYear = currentYear - 1;
+    if (currentMonth > 6) {
+        currentYear = currentYear + 1;
     }
     var list = '';
     if (!selectedValue) {
@@ -249,4 +263,13 @@ function populateFiscalYearList(selectedValue) {
         fiscalYear.val(year);
     }
     */
+}
+function openContractStatusDialog() {
+    $("#contractStatusDialog").dialog("open");
+}
+function updateContractStatus() {
+    // make sure all values are populated
+    // submit to /ContractStatus/Create controller
+    $("ContractStatusForm").submit();
+    // close dialog and return focus to /Contracts/Edit
 }

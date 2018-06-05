@@ -29,7 +29,7 @@ namespace EPS3.Controllers
         // GET: Contracts
         public async Task<IActionResult> Index()
         {
-            AuthenticateAsync("Index", 0);
+            PopulateViewBag("Index", 0);
 
             var contracts = _context.Contracts
                 .Include(c => c.ContractFunding)
@@ -52,6 +52,7 @@ namespace EPS3.Controllers
         // GET: Contracts
         public async Task<IActionResult> List()
         {
+            PopulateViewBag("List", 0);
             if (TempData["CurrentUser"] == null)            { 
                 string username = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
                 User currentUser = (User) _context.Users
@@ -62,20 +63,14 @@ namespace EPS3.Controllers
                     User user = (User)TempData["CurrentUser"];
                 }
             }
-            string CurrentUserName = "KNAECCS";
-            if (this.User.Identity.Name != null)
-            {
-                CurrentUserName = this.User.Identity.Name.ToUpper();
-            }
-            var CurrentUser = await _context.Users
-                .Where(u => u.UserLogin == CurrentUserName)
-                .AsNoTracking()
-                .SingleOrDefaultAsync();
-            ViewBag.CurrentUser = CurrentUser;
+           
+            var CurrentUser = (User)ViewBag.CurrentUser;
+            var userID = CurrentUser.UserID;
             var contracts = _context.Contracts
                 .Include(c => c.Vendor)
                 .Include(c => c.ContractType)
-                .Where(c => c.UserID == CurrentUser.UserID);
+                .Include(c => c.User)
+                .Where(c => c.UserID == userID);
             return View(await contracts.ToListAsync());
         }
 
@@ -86,7 +81,7 @@ namespace EPS3.Controllers
             {
                 return NotFound();
             }
-            AuthenticateAsync("Details", id);
+            PopulateViewBag("Details", id);
             var contract = await _context.Contracts
                 .Include(c => c.ContractFunding)
                 .Include(c => c.MethodOfProcurement)
@@ -122,7 +117,7 @@ namespace EPS3.Controllers
         // GET: Contracts/Create
         public IActionResult Create()
         {
-            AuthenticateAsync("Create", 0);
+            PopulateViewBag("Create", 0);
             ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
             ViewData["Compensations"] = _context.Compensations.OrderBy(c => c.CompensationID);
             ViewData["Vendors"] = _context.Vendors.OrderBy(v => v.VendorName);
@@ -168,7 +163,7 @@ namespace EPS3.Controllers
             {
                 return NotFound();
             }
-            AuthenticateAsync("Review", id);
+            PopulateViewBag("Review", id);
             var contractVM = new ContractViewModel();
             contractVM.Contract = await _context.Contracts.SingleOrDefaultAsync(m => m.ContractID == id);
             if (contractVM.Contract != null)
@@ -219,8 +214,9 @@ namespace EPS3.Controllers
                     newStatus.Comments = comments;
 
                     contract.CurrentStatus = currentStatus;
-                    contract.ModifiedDate = DateTime.Now.Date;
-                    contract.Statuses.Add(newStatus);
+                    contract.ModifiedDate = DateTime.Now;
+                    //contract.Statuses.Add(newStatus);
+                    _context.Update(newStatus);
                     _context.Update(contract);
                     await _context.SaveChangesAsync();
                 }
@@ -251,7 +247,7 @@ namespace EPS3.Controllers
             {
                 return NotFound();
             }
-            AuthenticateAsync("Edit", id);
+            PopulateViewBag("Edit", id);
             var contractVM = new ContractViewModel();
             contractVM.Contract = await _context.Contracts.SingleOrDefaultAsync(m => m.ContractID == id);
             if (contractVM.Contract != null)
@@ -269,6 +265,7 @@ namespace EPS3.Controllers
                     .OrderByDescending(s => s.SubmittalDate);
                 contractVM.Statuses = await statuses.ToListAsync();
             }
+            
             if (contractVM == null)
             {
                 return NotFound();
@@ -281,8 +278,6 @@ namespace EPS3.Controllers
 
             ViewData["Categories"] = _context.Categories.OrderBy(v => v.CategoryCode);
             ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
-            //TODO: Figure this out
-            //ViewBag.myStatusTypes = MyExtensions.ToTextSelectList();
             ViewBag.myContractType = _context.ContractTypes.SingleOrDefault(c => c.ContractTypeID == contractVM.Contract.ContractTypeID);
             ViewBag.myVendor = _context.Vendors.SingleOrDefault(v => v.VendorID == contractVM.Contract.VendorID);
             return View(contractVM);
@@ -396,51 +391,59 @@ namespace EPS3.Controllers
             }
             return new JsonResult(searchString);
         }
-        public async void AuthenticateAsync(string action, int? id)
+        public  void PopulateViewBag(string action, int? contractID)
         {
-            const string sessionKey = "CurrentUser";
-            string userLogin = HttpContext.User.Identity.Name;
-            if (userLogin == null)
+            //const string sessionKey = "CurrentUser";
+            string userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
+            if (userLogin == null || userLogin.Contains("sands"))
             {
                 userLogin = "KNAECCS";
             }
-            string value = HttpContext.Session.GetString(sessionKey)==null ? null :  JsonConvert.ToString(HttpContext.Session.GetString(sessionKey));
+            //string value = HttpContext.Session.GetString(sessionKey)==null ? null :  JsonConvert.ToString(HttpContext.Session.GetString(sessionKey));
             if (userLogin != null)
             {
-                User currentUser = await _context.Users
+                User currentUser =  _context.Users
                 .Where(u => u.UserLogin == userLogin)
                 .AsNoTracking()
-                .SingleOrDefaultAsync();
+                .SingleOrDefault();
 
                     
-                if (currentUser == null)
-                {
-                    RedirectToAction("Home");
-                }else
-                {
-                    List<UserRole> rolesList = await _context.UserRoles
+                //if (currentUser == null)
+                //{
+                //    RedirectToAction("Home");
+                //}else
+                //{
+                    List<UserRole> rolesList =  _context.UserRoles
                     .Where(ur => ur.UserID == currentUser.UserID)
                     .AsNoTracking()
-                    .ToListAsync();
+                    .ToList();
                     int userID = currentUser.UserID;
-                    string roles = rolesList.ToString();
+                    string roles = "";
+                    for(int i = 0; i < rolesList.Count; i++)
+                    {
+                        roles += rolesList[i].Role;
+                    }
                     var serialisedUser = JsonConvert.SerializeObject(currentUser);
-                    HttpContext.Session.SetString(sessionKey, serialisedUser.ToString());
+                    //HttpContext.Session.SetString(sessionKey, serialisedUser.ToString());
 
-                    int contractID = id != null ? (int) id : 0;
+                    int selectedContractID = contractID != null ? (int)contractID : 0;
                     string status = "";
                     int contractOriginator = 0;
-                    if (contractID > 0)
+                Contract contract = null;
+                if (selectedContractID > 0)
                     {
-                        Contract contract = await _context.Contracts
-                        .Where(c => c.ContractID == contractID)
+                        contract =  _context.Contracts
+                        .Where(c => c.ContractID == selectedContractID)
                         .AsNoTracking()
-                        .SingleOrDefaultAsync();
+                        .SingleOrDefault();
                         status = contract.CurrentStatus;
                         contractOriginator = contract.UserID;
                     }
-                    RedirectAllActions(action, userID, contractID, contractOriginator, roles, status);
-                }
+                ViewBag.Contract = contract;
+                ViewBag.CurrentUser = currentUser;
+                ViewBag.Roles = roles;
+                //RedirectAllActions(action, userID, selectedContractID, contractOriginator, roles, status);
+                // }
             }
             else
             {
@@ -454,6 +457,8 @@ namespace EPS3.Controllers
         {
             List<string> AllowedActions = new List<string>();
             string Message = "";
+            ViewBag.Roles = roles;
+            AllowedActions.Add("Create");
             switch (action)
             {
                 case "Index":
@@ -465,30 +470,34 @@ namespace EPS3.Controllers
                     }
                     else
                     {
-                        AllowedActions.Add("Details"); //                show only Details links
+                        AllowedActions.Add("Details"); // show only Details links
                     }
                     break;
                 case "Edit":
 
-                    if (roles.Contains(ConstantStrings.Originator) && userID == contractOriginator && status == "Draft")
+                    if (roles.Contains(ConstantStrings.Originator) && userID == contractOriginator && status == ConstantStrings.Draft)
                     {
                         AllowedActions.Add("Edit"); //enable the form
                     }
-                    if (status == "FinanceReview" && roles.Contains(ConstantStrings.FinanceReviewer))
+                    if (status == ConstantStrings.Submitted && roles.Contains(ConstantStrings.FinanceReviewer))
                     {
-                        AllowedActions.Add("Finance"); //enable finance review and editing the form
+                        ViewBag.AllowedActions = "Finance, Review";
+                        RedirectToAction("Review");
                     }
-                    if (status == "WPReview" && roles.Contains(ConstantStrings.WPReviewer))
+                    if (status == ConstantStrings.FinanceApproved && roles.Contains(ConstantStrings.WPReviewer))
                     {
-                        AllowedActions.Add("WorkProgram");
+                        ViewBag.AllowedActions = "WorkProgram, Review";
+                        RedirectToAction("Review");
                     }
-                    if (status == "CFMReview" && roles.Contains(ConstantStrings.CFMSubmitter))
+                    if (status == ConstantStrings.WPApproved && roles.Contains(ConstantStrings.CFMSubmitter))
                     {
-                        AllowedActions.Add("CFM");
+                        ViewBag.AllowedActions = "CFM, Review";
+                        RedirectToAction("Review");
                     }
-                    if (status == "CFMSubmitted" && roles.Contains(ConstantStrings.FinanceReviewer))
+                    if ((status == ConstantStrings.CompleteInvalid || status == ConstantStrings.CompleteWorkDone) && roles.Contains(ConstantStrings.FinanceReviewer))
                     {
-                        AllowedActions.Add("Complete");
+                        ViewBag.AllowedActions = "Complete";
+                        RedirectToAction("Details");
                     }
                     else
                     {
@@ -510,25 +519,24 @@ namespace EPS3.Controllers
                     break;
                 case "Review":
 
-                    if (status == "FinanceReview" && roles.Contains(ConstantStrings.FinanceReviewer))
+                    if (status == ConstantStrings.Submitted && roles.Contains(ConstantStrings.FinanceReviewer))
                     {
                         AllowedActions.Add("Finance"); //enable finance review and editing the form
                     }
-                    if (status == "WPReview" && roles.Contains(ConstantStrings.WPReviewer))
+                    if (status == ConstantStrings.FinanceApproved && roles.Contains(ConstantStrings.WPReviewer))
                     {
                         AllowedActions.Add("WorkProgram");
                     }
-                    if (status == "CFMReview" && roles.Contains(ConstantStrings.CFMSubmitter))
+                    if (status == ConstantStrings.CFMReady && roles.Contains(ConstantStrings.CFMSubmitter))
                     {
                         AllowedActions.Add("CFM");
                     }
-                    if (status == "CFMSubmitted" && roles.Contains(ConstantStrings.FinanceReviewer))
+                    if (status == ConstantStrings.CFMReady && roles.Contains(ConstantStrings.FinanceReviewer))
                     {
                         AllowedActions.Add("Complete");
                     }
                     break;
                  default:
-                    View();
                     break;
 
             }
@@ -542,7 +550,6 @@ namespace EPS3.Controllers
             }
             ViewBag.AllowedActions = AllowedActions.ToString();
             ViewBag.Message = Message;
-
         }
     }
 }
