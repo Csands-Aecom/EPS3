@@ -88,7 +88,7 @@
                         </dl>
                         <dl>
                             <dt>
-                                Total of Line Items
+                                Total of Encumbrance Requests
                             </dt>
                             <dd>
                                 $@TotalAmount
@@ -184,7 +184,7 @@
 
             <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
                 <div class="panel-heading">
-                    <h3>Line Items</h3>
+                    <h3>Encumbrance Requests</h3>
                 </div>
                 <div class="panel-body row">
                     <div class="col-sm-12">
@@ -271,7 +271,7 @@
 || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
 || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID))
                             {
-                                <a asp-controller="LineItems" asp-action="Edit" asp-route-id="@item.LineItemID">Edit Line Item</a> <br />
+                                    <a asp-controller="LineItems" asp-action="Edit" asp-route-id="@item.LineItemID">Edit Encumbrance Request</a> <br />
                     }
                                 </td>
                             </tr>
@@ -286,7 +286,7 @@
         || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
         || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID))
         {
-            <a asp-controller="LineItems" asp-action="Create" asp-route-id="@Model.Contract.ContractID">Add Line Item</a>
+                <a asp-controller="LineItems" asp-action="Create" asp-route-id="@Model.Contract.ContractID">Add Encumbrance Request</a>
 }
             </div>
             <div class="row panel panel-default">
@@ -342,43 +342,23 @@
                                         Contract Status
                                     </dt>
                                     <dd>
-                                        <select id="CurrentStatus" name="CurrentStatus" class="form-control">
-                                            <option value=""></option>
-                                            @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-|| (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID))
-    {
-                                        <option value="@ConstantStrings.Draft">Draft</option>
-                                        <option value="@ConstantStrings.Submitted ">Submitted</option>
-}
-                                            @if (Model.Contract.CurrentStatus == ConstantStrings.Submitted
-&& (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
-    {
-                                        <option value="@ConstantStrings.FinanceApproved">Finance Approved</option>
-}
-                                            @if (Model.Contract.CurrentStatus == ConstantStrings.FinanceApproved
-&& (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-|| ViewBag.Roles.Contains(ConstantStrings.WPReviewer)))
-    {
-                                        <option value="@ConstantStrings.ByPassWP">Bypass Work Program</option>
-}
-                                            @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
-    {
-                                        <option value="@ConstantStrings.WPApproved">Work Program Approved</option>
-}
-                                            @if ((Model.Contract.CurrentStatus == ConstantStrings.ByPassWP || Model.Contract.CurrentStatus == ConstantStrings.WPApproved)
-&& (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
-    {
-                                        <option value="@ConstantStrings.CompleteInvalid">Complete: Invalid</option>
-                                        <option value="@ConstantStrings.CompleteWorkDone">Complete: Work Done</option>
-                                        <option value="@ConstantStrings.ClosedContract">Mark Contract Closed</option>
-                                        <option value="@ConstantStrings.DeletedContract">Mark Contract Deleted</option>
-}
-                                        </select>
+                                <select id='CurrentStatus' name='CurrentStatus' class='form-control'>
+                                   @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+                                   || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
+                                   || (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == ViewBag.Contract.UserID))
+                                    {
+                                    <option value='ContractDrafted'>@ConstantStrings.ContractDrafted</option>
+                                    <option value='ContractInCFM'>@ConstantStrings.ContractInCFM</option>
+                                    }
+                                  @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+                                  || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                    {
+                                    <option value='ContractComplete50'>@ConstantStrings.ContractComplete50</option>
+                                    <option value='ContractComplete52'>@ConstantStrings.ContractComplete52</option>
+                                    <option value='ContractComplete98'>@ConstantStrings.ContractComplete98</option>
+                                    <option value='ContractArchived'>@ConstantStrings.ContractArchived</option>
+                                    }
+                                </select>
                                     </dd>
                                 </dl>
                             </div> <!-- end column -->

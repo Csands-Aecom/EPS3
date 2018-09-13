@@ -40,6 +40,28 @@
         <dd>
             @Html.DisplayFor(model => model.Phone)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ReceiveEmails)
+        </dt>
+        <dd>
+            @if(Model.ReceiveEmails > 0)
+            {
+                <text>Email Notifications</text>
+            }
+            else
+            {                
+                <text>Message Center Only</text>
+            }
+        </dd>
+        <dt>
+            Roles
+        </dt>
+        <dd>
+            @foreach(UserRole role in Model.Roles)
+            {
+            <text>@role.Role</text><br/>
+            }
+        </dd>
     </dl>
 </div>
 <div>

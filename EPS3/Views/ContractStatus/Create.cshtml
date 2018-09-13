@@ -32,42 +32,23 @@
                             <b>New Status</b> 
                         </dt>
                         <dd>
-                            <select id="CurrentStatus" name="CurrentStatus" class="form-control">
-                                @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-|| (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == @ViewBag.Contract.UserID))
-                                {
-                            <option value="@ConstantStrings.Draft">Draft</option>
-                            <option value="@ConstantStrings.Submitted ">Submitted</option>
-                }
-                                @if (@ViewBag.Contract.CurrentStatus == ConstantStrings.Submitted
-                          && (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
-                                {
-                            <option value="@ConstantStrings.FinanceApproved">Finance Approved</option>
-                }
-                                @if (@ViewBag.Contract.CurrentStatus == ConstantStrings.FinanceApproved
-                          && (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-|| ViewBag.Roles.Contains(ConstantStrings.WPReviewer)))
-                                {
-                            <option value="@ConstantStrings.ByPassWP">Bypass Work Program</option>
-                }
-                                @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-|| ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
-                        {
-                            <option value="@ConstantStrings.WPApproved">Work Program Approved</option>
-                }
-                                @if ((@ViewBag.Contract.CurrentStatus == ConstantStrings.ByPassWP || @ViewBag.Contract.CurrentStatus == ConstantStrings.WPApproved)
-                         && (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-                     || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
-                                {
-                            <option value="@ConstantStrings.CompleteInvalid">Complete: Invalid</option>
-                            <option value="@ConstantStrings.CompleteWorkDone">Complete: Work Done</option>
-                            <option value="@ConstantStrings.ClosedContract">Mark Contract Closed</option>
-                            <option value="@ConstantStrings.DeletedContract">Mark Contract Deleted</option>
-                }
-                            </select>
+                                 <select id='CurrentStatus' name='CurrentStatus' class='form-control'>
+                                   @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+                                   || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
+                                   || (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == ViewBag.Contract.UserID))
+                                    {
+                                    <option value='ContractDrafted'>@ConstantStrings.ContractDrafted</option>
+                                    <option value='ContractInCFM'>@ConstantStrings.ContractInCFM</option>
+                                    }
+                                  @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+                                  || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                    {
+                                    <option value='ContractComplete50'>@ConstantStrings.ContractComplete50</option>
+                                    <option value='ContractComplete52'>@ConstantStrings.ContractComplete52</option>
+                                    <option value='ContractComplete98'>@ConstantStrings.ContractComplete98</option>
+                                    <option value='ContractArchived'>@ConstantStrings.ContractArchived</option>
+                                    }
+                                </select>
                         </dd>
                     </dl>
                 </div> 

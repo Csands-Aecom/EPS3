@@ -11,6 +11,7 @@ namespace EPS3.Models
     {
         [Display(Name = "Contract Begin Date")]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode =true)]
+        [Required(ErrorMessage = "Please select a Contract Begin Date")]
         public DateTime BeginningDate { get; set; }
         [Display(Name = "Budget Ceiling")]
         [DisplayFormat(DataFormatString = "{0:c}")]
@@ -25,7 +26,7 @@ namespace EPS3.Models
         [Display(Name = "Contract Number")]
         [StringLength(5)]
         public string ContractNumber { get; set; }
-        [Display(Name = "Contract Total Amount")]
+        [Display(Name = "Contract Initial Amount")]
         [DisplayFormat(DataFormatString = "{0:c}")]
         public decimal ContractTotal { get; set; }
         [ForeignKey("ContractTypeID")]
@@ -41,6 +42,7 @@ namespace EPS3.Models
         public string DescriptionOfWork { get; set; }
         [Display(Name = "Contract End Date")]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
+        [Required(ErrorMessage = "Please select a Contract End Date")]
         public DateTime EndingDate { get; set; }
         [Display(Name = "Is Contract Renewable?")]
         public byte IsRenewable { get; set; }
@@ -65,7 +67,9 @@ namespace EPS3.Models
         public virtual User User { get; set; }
         [Display(Name = "Service End Date")]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
+        [Required(ErrorMessage = "Please select a Service End Date")]
         public DateTime ServiceEndingDate { get; set; }
+        [Required]
         [ForeignKey("VendorID")]
         [Display(Name = "Vendor")]
         public int VendorID { get; set; }

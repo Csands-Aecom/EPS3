@@ -1,7 +1,7 @@
 ﻿@model EPS3.Models.LineItem
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Encumbrance Request";
 }
 @section Scripts{
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -9,207 +9,349 @@
     <script type="text/javascript">
         $(document).ready(function () {
             // populate FiscalYear dropdown
-            populateFiscalYearList(); 
+            populateFiscalYearList();
         });
     </script>
 }
-<h2>Create</h2>
 
-<h4>LineItem</h4>
-<hr />
-
-<form asp-action="Create" class="form-horizontal">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.ContractID" />
-    <div class="row">
-        <div class="col-sm-2">
-            <dl>
-                <dt>
-                    @Html.LabelFor(model => model.OrgCode)
-                </dt>
-                <dd>
-                    @Html.TextBoxFor(model => model.OrgCode)
-                    @Html.ValidationMessageFor(model => model.OrgCode, "Org Code is required.")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-2">
-            <dl>
-                <dt>
-                    @Html.LabelFor(model => model.FinancialProjectNumber)
-                </dt>
-                <dd>
-                    @Html.TextBoxFor(model => model.FinancialProjectNumber)
-                    @Html.ValidationMessageFor(model => model.FinancialProjectNumber, "A Financial Project Number is required.")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-4">
-            <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.StateProgramID)
-                </dt>
-                <dd>
-                    @Html.DropDownList("StateProgramID", new SelectList((IEnumerable<StateProgram>)ViewData["StatePrograms"],  "ProgramID", "ProgramSelector"), " ")
-                    @Html.ValidationMessageFor(model => model.StateProgramID, "A State Program value is required.")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-3">
-            <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.CategoryID)
-                </dt>
-                <dd>
-                    @Html.DropDownList("CategoryID", new SelectList((IEnumerable<Category>)ViewData["Categories"], "CategoryID", "CategorySelector"), " ")
-                    @Html.ValidationMessageFor(model => model.CategoryID, "An Category value is required.")
-                </dd>
-            </dl>
-        </div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>Encumbrance Request</h3>
     </div>
-    <div class="row">
-        <div class="col-sm-2">
-            <dl>
-                <dt>
-                    @Html.LabelFor(model => model.WorkActivity)
-                </dt>
-                <dd>
-                    @Html.TextBoxFor(model => model.WorkActivity)
-                    @Html.ValidationMessageFor(model => model.WorkActivity, "An Work Activity is required.")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-1">
-            <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.OCAID)
-                </dt>
-                <dd>
-                    <input type="hidden" id="OCAID" name="OCAID" />
-                    <input type="text" id="OCASelector" name="OCASelector" />
-                    @Html.ValidationMessageFor(model => model.OCAID, "An OCA value is required.")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-1">
-            <dl>
-                <dt>
-                    @Html.LabelFor(model => model.ExpansionObject)
-                </dt>
-                <dd>
-                    @Html.TextBoxFor(model => model.ExpansionObject)
-                    @Html.ValidationMessageFor(model => model.ExpansionObject, "An Extension Object is required.")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-1">
-            <dl>
-                <dt>
-                    @Html.LabelFor(model => model.FlairObject)
-                </dt>
-                <dd>
-                    @Html.TextBoxFor(model => model.FlairObject)
-                    @Html.ValidationMessageFor(model => model.FlairObject, "A Flair Object is required.")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-1">
-            <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.FundID)
-                </dt>
-                <dd>
-                    <input type="hidden" id="FundID" name="FundID" />
-                    <input type="text" id="FundSelector" name="FundSelector" />
-                    @Html.ValidationMessageFor(model => model.FundID, "A Fund value is required.")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-2">
-            <dl>
-                <dt>
-                    @Html.LabelFor(model => model.FiscalYear)
+    <div class="panel-body">
 
-                </dt>
-                <dd>
-                    @Html.HiddenFor(model => model.FiscalYear)
-                    <select id="FiscalYearList" name="FiscalYearList" class="fiscalyear"></select>
-                    <p>The Fiscal Year runs from July 1 to June 30. </p><p>The current Fiscal Year is @ViewBag.CurrentFiscalYear.</p>
-                    @Html.ValidationMessageFor(model => model.FiscalYear, "Fiscal Year is a four digit year, the first year in a two-year fiscal span (i.e., 2018 = FY 18-19).")
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-2">
-            <dl>
-                <dt>
-                    @Html.LabelFor(model => model.Amount)
+        <form asp-action="Create" class="form-horizontal">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.ContractID" />
+            <input type="hidden" id="UserID" name="UserID" value="@ViewBag.UserID" />
+            <div class="row">
 
-                </dt>
-                <dd>
-                    <span class="input-group-addon">
-                        <label for="Amount">
-                            <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                            @Html.TextBoxFor(model => model.Amount)
-                        </label>
-                    </span>
-                    @Html.ValidationMessageFor(model => model.Amount, "Amounts must be numeric values.")
-                </dd>
-            </dl>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-2">
-            <dl>
-                <dt>
-                    Line Item Type
-                </dt>
-                <dd>
-                    <!-- Line Item Status record-->
-                    <select id="LineItemType" name="LineItemType">
-                        <option value="None"></option>
-                        <option value="New">New</option>
-                        <option value="Amendment">Amendment</option>
-                        <option value="Supplemental">Supplemental</option>
-                        <option value="LOA">LOA</option>
-                        <option value="Renewal">Renewal</option>
-                        <option value="Overrun">Overrun</option>
-                        <option value="Settlement">Settlement</option>
-                        <option value="Correction">Correction</option>
-                        <option value="Deletion">Deletion</option>
-                    </select>
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-5">
-            <dl>
-                <dt>
-                    Comments
-                </dt>
-                <dd>
-                    <textarea name="Comments" id="Comments"></textarea>
-                </dd>
-            </dl>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-2">
-            <dl>
-                <dd>
-                    <input type="hidden" id="CurrentStatus" name="CurrentStatus" value="Draft" />
-                    <input type="submit" value="Create" class="btn btn-default" title="Save Line in Draft status." />
-                </dd>
-            </dl>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-8">
-            <dl>
-                <dd>
-                    <a asp-controller="Contracts" asp-action="Index">Back to List</a>
-                </dd>
-            </dl>
-        </div>
-    </div>
-</form>
+                <div class="col-sm-2">
+                    <strong>Contract:</strong> @ViewBag.Contract.ContractNumber
+                </div>
+                <div class="col-sm-2">
+                    <strong>Contract Ending Date:</strong> @ViewBag.Contract.EndingDate.ToString("dd/MM/yyyy")
+                </div>
+                <div class="col-sm-2">
+                    <strong>Budget Ceiling:</strong>  @string.Format("{0:C}", @ViewBag.Contract.BudgetCeiling)
+                </div>
+                <div class="col-sm-4">
+                    <strong>Description of Work:</strong> @ViewBag.Contract.DescriptionOfWork
+                </div>
+                <div class="col-sm-2">
+                @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                {
+                  <a href="/Contracts/View/@ViewBag.ContractID">Edit Contract Details</a>
+                }
+                </div>
+            </div>
+            <div class="row">
+                <hr />
+            </div>
+            @if (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+    {
+        <div class="row">
 
+            <div class="col-sm-2">
+                <dl>
+                    <dt>
+                        Encumbrance
+                    </dt>
+                    <dd>
+                        @ViewBag.LineItemGroup.GroupID
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-sm-2">
+                <dl>
+                    <dt>
+                        @Html.LabelFor(model => model.LineItemType)
+                    </dt>
+                    <dd>
+                        <!-- Encumbrance Request Status record-->
+                        <select id="LineItemType" name="LineItemType">
+                            @foreach (SelectListItem itemType in ViewBag.lineItemTypes)
+                            { 
+                                if (itemType.Value.Equals(@ViewBag.lineItemGroup.LineItemType))
+                                {
+                            <option selected value= "@itemType.Value"> @itemType.Text </option>
+                                }
+                                else
+                                {
+                            <option value= "@itemType.Value"> @itemType.Text </option>
+                                }
+                            }
+                        </select>
+                        
+                        <input type="hidden" id="LineItemGroupID" name="LineItemGroupID" value="@ViewBag.lineItemGroup.GroupID" />
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-sm-2">
+                <dl>
+                    <dt>
+                        @Html.LabelFor(model => model.FlairAmendmentID)
+                    </dt>
+                    <dd>
+                        <input type="text" name="FlairAmendmentID" id="FlairAmendmentID" value="@ViewBag.lineItemGroup.FlairAmendmentID" />
+                        @Html.ValidationMessageFor(model => model.FlairAmendmentID, "Flair Amendment ID can be found in the FACTS.")
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-sm-2">
+                <dl>
+                    <dt>
+                        @Html.LabelFor(model => model.UserAssignedID)
+                    </dt>
+                    <dd>
+                        <input type="text" name="UserAssignedID" id="UserAssignedID" value="@ViewBag.lineItemGroup.UserAssignedID" />
+                        @Html.ValidationMessageFor(model => model.UserAssignedID, "Assign your own Amendment ID.")
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-sm-2" id="referencedAmendmentDiv">
+                <dl>
+                    <dt>
+                        Corrects FLAIR Amendment ID
+                    </dt>
+                    <dd>
+                        <input type="text" name="AmendedLineItemID" id="AmendedLineItemID" value="@ViewBag.lineItemGroup.AmendedLineItemID" />
+                        @Html.ValidationMessageFor(model => model.AmendedLineItemID, "Reference to encumbrance request being updated.")
+                    </dd>
+                </dl>
+            </div>
+        </div>
+}
+else
+{
+        <div class="row">
+            <div class="col-sm-2">
+                <dl>
+                    <dt>
+                        Encumbrance:
+                    </dt>
+                    <dd>
+                        @ViewBag.LineItemGroup.GroupID
+                    </dd>
+                </dl>
+                <dl>
+                    <dt>
+                        @Html.LabelFor(model => model.LineItemType)
+                    </dt>
+                    <dd>
+                        <!-- Encumbrance Request Status record-->
+                        @Html.DisplayFor(model => model.LineItemType)
+                        <input type="hidden" id="LineItemGroupID" name="LineItemGroupID" value="@ViewBag.LineItemGroup.GroupID" />
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-sm-2">
+                <dl>
+                    <dt>
+                        @Html.LabelFor(model => model.FlairAmendmentID)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.FlairAmendmentID)
+                        @Html.ValidationMessageFor(model => model.FlairAmendmentID, "Flair Amendment ID can be found in the FACTS.")
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-sm-2">
+                <dl>
+                    <dt>
+                        @Html.LabelFor(model => model.UserAssignedID)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.UserAssignedID)
+                        @Html.ValidationMessageFor(model => model.UserAssignedID, "Assign your own Amendment ID.")
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-sm-2" style="display:none" id="referencedAmendmentDiv">
+                <dl>
+                    <dt>
+                        <label for="AmendedLineItemID" id="AmendedLineItemIDLabel" name="AmendedLineItemIDLabel"></label>
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.AmendedLineItemID)
+                        @Html.ValidationMessageFor(model => model.AmendedLineItemID, "Reference to encumbrance request being updated.")
+                    </dd>
+                </dl>
+            </div>
+        </div>
+}
+            <div class="row">
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.OrgCode)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.OrgCode)
+                            @Html.ValidationMessageFor(model => model.OrgCode, "Org Code must be 55- followed by 9 digits")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.FinancialProjectNumber)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.FinancialProjectNumber)
+                            @Html.ValidationMessageFor(model => model.FinancialProjectNumber, "A Financial Project Number with 11 digits is required.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-4">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.StateProgramID)
+                        </dt>
+                        <dd>
+                            @Html.DropDownList("StateProgramID", new SelectList((IEnumerable<StateProgram>)ViewData["StatePrograms"], "ProgramID", "ProgramSelector"), " ", new {@onchange="updateOCAMessage()" })
+                            @Html.ValidationMessageFor(model => model.StateProgramID, "A State Program value is required. Please select one from the list.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.CategoryID) 
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Category from the list of options."></span>
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="CategoryID" name="CategoryID" />
+                            <input type="text" id="CategorySelector" name="CategorySelector" />
+                            <span class="field-validation-valid" data-valmsg-for="CategorySelector" data-valmsg-replace="false">A Category is required. Please begin typing and select one from the list.</span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.WorkActivity)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.WorkActivity)
+                            @Html.ValidationMessageFor(model => model.WorkActivity, "A Work Activity is required.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-1">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.OCAID) 
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select an OCA value  from the list of options."></span>
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="OCAID" name="OCAID" value="1" />
+                            <input type="text" id="OCASelector" name="OCASelector" value="00000" /> 
+                            <div id="OCAMessage"></div>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-1">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.ExpansionObject)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.ExpansionObject)
+                            @Html.ValidationMessageFor(model => model.ExpansionObject, "An Extension Object with two alphanumeric characters is required.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-1">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.FlairObject)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.FlairObject)
+                            @Html.ValidationMessageFor(model => model.FlairObject, "A six digit Flair Object is required.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-1">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.FundID) 
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Fund  from the list of options."></span>
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="FundID" name="FundID" />
+                            <input type="text" id="FundSelector" name="FundSelector" />
+                            <span class="field-validation-valid" data-valmsg-for="FundSelector" data-valmsg-replace="false">A Fund is required. Please begin typing and select one from the list.</span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.FiscalYear)
 
+                        </dt>
+                        <dd>
+                            @Html.HiddenFor(model => model.FiscalYear)
+                            <select id="FiscalYearList" name="FiscalYearList" class="fiscalyear"></select>
+                            <p>The Fiscal Year runs from July 1 to June 30. </p><p>The current Fiscal Year is @ViewBag.CurrentFiscalYear.</p>
+                            @Html.ValidationMessageFor(model => model.FiscalYear, "Fiscal Year is a four digit year, the year ending a two-year fiscal span (i.e., 2018 = FY 17-18.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.Amount)
+
+                        </dt>
+                        <dd>
+                            <span class="input-group-addon">
+                                <label for="Amount">
+                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    @Html.TextBoxFor(model => model.Amount)
+                                </label>
+                            </span>
+                            @Html.ValidationMessageFor(model => model.Amount, "Amounts must be numeric values.")
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.Comments)
+                        </dt>
+                        <dd>
+                            @Html.TextAreaFor(model => model.Comments)
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <dl>
+                        <dd>
+                            <input type="hidden" id="CurrentStatus" name="CurrentStatus" value="Draft" />
+                            <input type="submit" value="Create" class="btn btn-default" title="Save Line in Draft status." />
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <dl>
+                        <dd>
+                            <a asp-controller="Contracts" asp-action="View" asp-route-id="@ViewBag.ContractID">Back to Contract</a>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </form>
+    </div> <!-- end panel body -->
+</div> <!-- end panel -->

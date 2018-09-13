@@ -13,5 +13,9 @@ namespace EPS3.Models
         public int CompensationID { get; set; }
         [Display(Name = "Compensation")]
         public String CompensationType { get; set; }
+        public string CompensationSelector
+        {
+            get { return CompensationID + " - " + CompensationType; }
+        }
     }
 }

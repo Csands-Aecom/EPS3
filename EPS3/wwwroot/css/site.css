@@ -201,12 +201,9 @@ h5, h6 {
 .main-content {
     /*background: url("../Images/accent.png") no-repeat;*/
     /*padding: 10px;*/
-    /*padding-top: 30px;*/
+    padding-top: 30px;
 }
 
-.featured + .main-content {
-    /*background: url("../Images/heroAccent.png") no-repeat;*/
-}
 
 header .content-wrapper {
     padding-top: 20px;
@@ -473,7 +470,6 @@ aside {
     #loginForm .validation-summary-errors li {
         display: inline;
         list-style: none;
-        margin: 0;
     }
 
     #loginForm input {
@@ -560,7 +556,7 @@ input, textarea {
 }
 
 textarea {
-    width: 500px;
+    width: 300px;
 }
 
     input:focus, textarea:focus {
@@ -710,7 +706,6 @@ tr.pager td {
     padding: 0 0.25em 0 0;
 }
 
-
 /********************
 *   Mobile Styles   *
 ********************/
@@ -744,7 +739,6 @@ tr.pager td {
         #login li {
             display: inline;
             list-style: none;
-            margin: 0;
             padding: 0;
         }
 
@@ -1328,7 +1322,7 @@ li a, .dropbtn {
 
 ol.circles-list {
     list-style-type: none;
-    list-style-type: decimal !ie; /*IE 7- hack*/
+    list-style-type: decimal;
     margin: 0;
     margin-left: 4em;
     padding: 0;
@@ -1411,4 +1405,8 @@ label span {
 
 .ui-jqgrid .ui-jqgrid-htable th div {
     height: auto !important;
+}
+
+input[type="radio"] {
+    margin: 0 10px 0 10px;
 }

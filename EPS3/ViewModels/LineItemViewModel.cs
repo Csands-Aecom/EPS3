@@ -8,7 +8,9 @@ namespace EPS3.ViewModels
 {
     public class LineItemViewModel
     {
+        public LineItemGroup LineItemGroup { get; set; }
         public LineItem LineItem { get; set; }
-        public List<LineItemStatus> Statuses  { get; set; }
+        public List<LineItemStatus> Comments  { get; set; }
+        public List<FileAttachment> FileAttachments { get; set; }
     }
 }

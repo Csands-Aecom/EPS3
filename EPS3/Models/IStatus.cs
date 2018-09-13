@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace EPS3.Models
 {
-    public enum StatusType { New, Draft, Submitted, FinanceApproved, BypassWP, WPApproved, CFMReady, CompleteWorkDone, CompleteInvalid, Closed, Deleted }
     public class IStatus
     {
         [Key]

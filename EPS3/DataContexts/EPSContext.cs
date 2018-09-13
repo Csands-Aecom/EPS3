@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EPS3.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace EPS3.DataContexts
 {
@@ -12,7 +13,6 @@ namespace EPS3.DataContexts
     {
         public EPSContext(DbContextOptions<EPSContext> options) : base(options)
         {
-
         }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Compensation> Compensations { get; set; }
@@ -22,6 +22,9 @@ namespace EPS3.DataContexts
         public DbSet<Fund> Funds { get; set; }
         public DbSet<LineItem> LineItems { get; set; }
         public DbSet<LineItemStatus> LineItemStatuses { get; set; }
+        public DbSet<LineItemGroup> LineItemGroups { get; set; }
+        public DbSet<LineItemGroupStatus> LineItemGroupStatuses { get; set; }
+        public DbSet<LineItemComment> LineItemComments { get; set; }
         public DbSet<OCA> OCAs { get; set; }
         public DbSet<Procurement> Procurements { get; set; }
         public DbSet<Recipient> Recipients { get; set; }
@@ -30,6 +33,10 @@ namespace EPS3.DataContexts
         public DbSet<Vendor> Vendors { get; set; }
         public DbSet<WorkActivity> WorkActivities { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<FileAttachment> FileAttachments { get; internal set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<MessageRecipient> MessageRecipients  { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -37,7 +44,14 @@ namespace EPS3.DataContexts
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer(@"Server=\\TLH1LT150\TURNPIKETEST;Datebase=NewEPS;Trusted_Connection=True;");
+            // No connection string needed since it is set in Startup, read from appsettings.json
+            optionsBuilder.UseSqlServer(@"Server=USTLH1LT1506\TURNPIKETEST;Database=EPSNew;Trusted_Connection=True;");
+            //optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL16T;Database=EPSNew;user id=ursWeb;password=ursweb");
+            //optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL-H1B;Database=EPSNew;");
+            // log SQL
+            var lf = new LoggerFactory();
+            lf.AddConsole();
+            optionsBuilder.UseLoggerFactory(lf);
         }
     }
 }

@@ -7,16 +7,24 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EPS3.DataContexts;
 using EPS3.Models;
+using System.Net.Mail;
+using System.Net;
+using Microsoft.Extensions.Logging;
+using Serilog;
+
 
 namespace EPS3.Controllers
 {
     public class ContractStatusController : Controller
     {
         private readonly EPSContext _context;
+        private readonly ILogger<ContractsController> _logger;
 
-        public ContractStatusController(EPSContext context)
+        public ContractStatusController(EPSContext context, ILoggerFactory loggerFactory)
         {
             _context = context;
+            _logger = loggerFactory.CreateLogger<ContractsController>();
+
         }
 
         // GET: ContractStatus
@@ -52,11 +60,10 @@ namespace EPS3.Controllers
             Contract contract =  (Contract) _context.Contracts
                 .AsNoTracking()
                 .SingleOrDefault(c => c.ContractID== id);
-            string CurrentUser = HttpContext.User.Identity.Name;
-            if (CurrentUser == null) { CurrentUser = "KNAEC01"; }
+            string userLogin = HttpContext.User.Identity.Name;
             User user = (User)_context.Users
                 .AsNoTracking()
-                .SingleOrDefault(u => u.UserLogin == CurrentUser);
+                .SingleOrDefault(u => u.UserLogin == userLogin);
             List<UserRole> rolesList = _context.UserRoles
                 .AsNoTracking()
                 .Where(ur => ur.UserID == user.UserID)
@@ -84,6 +91,10 @@ namespace EPS3.Controllers
                 contractStatus.SubmittalDate = DateTime.Now;
                 _context.Add(contractStatus);
                 await _context.SaveChangesAsync();
+
+                //Send Notification
+                SendMail();
+
                 return RedirectToAction("Edit", "Contracts", new { id = contractStatus.ContractID });
             }
             return View();
@@ -178,6 +189,32 @@ namespace EPS3.Controllers
         private bool ContractStatusExists(int id)
         {
             return _context.ContractStatuses.Any(e => e.StatusID == id);
+        }
+
+        private bool SendMail()
+        {
+            try
+            {
+                SmtpClient client = new SmtpClient("some.server.com");
+                // authentication if needed
+                client.Credentials = new NetworkCredential("username", "password");
+                // create the message:
+
+                MailMessage mailMessage = new MailMessage();
+                mailMessage.From = new MailAddress("chris.sands@aecom.com");
+                mailMessage.To.Add("chris.sands@aecom.com");
+                mailMessage.Subject = "Hello There";
+                mailMessage.Body = "Hello my friend!";
+
+                // send the message:
+                client.Send(mailMessage);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.StackTrace);
+                return false;
+            }
         }
     }
 }

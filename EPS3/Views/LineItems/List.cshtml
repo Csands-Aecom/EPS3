@@ -1,0 +1,129 @@
+﻿@model Dictionary<string, List<EPS3.Models.LineItem>>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index of Encumbrance Requests</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div id="tabs">
+    <ul>
+        @foreach (string key in Model.Keys)
+        {
+            <li><a href="#tabs-@key">@key</a></li>
+        }
+    </ul>
+
+    @foreach (string key in Model.Keys)
+    {
+        <div id="tabs-@key">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Contract
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().OrgCode)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().FinancialProjectNumber)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().StateProgram)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().Category)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().WorkActivity)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().OCA)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().ExpansionObject)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().FlairObject)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().Fund)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().FiscalYear)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().Amount)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (LineItem item in Model[key])
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Contract.ContractNumber)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LineItemGroup.CurrentStatus)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.OrgCode)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FinancialProjectNumber)
+                            </td>
+                            <td>
+                                <div class="" data-toggle="tooltip" data-placement="top" title="@item.StateProgram.ProgramName">
+                                    @Html.DisplayFor(modelItem => item.StateProgram.ProgramCode)
+                                </div>
+                            </td>
+                            <td>
+                                <div class="" data-toggle="tooltip" data-placement="top" title="@item.Category.CategoryName">
+                                    @Html.DisplayFor(modelItem => item.Category.CategoryCode)
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.WorkActivity)
+                            </td>
+                            <td>
+                                <div class="" data-toggle="tooltip" data-placement="top" title="@item.OCA.OCAName">
+                                    @Html.DisplayFor(modelItem => item.OCA.OCACode)
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ExpansionObject)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FlairObject)
+                            </td>
+                            <td>
+                                <div class="" data-toggle="tooltip" data-placement="top" title="@item.Fund.FundDescription">
+                                    @Html.DisplayFor(modelItem => item.Fund.FundCode)
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FiscalYearRange)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Amount)
+                            </td>
+                            <td>
+                                <a href="/Contracts/View?id=@item.ContractID#enc_@item.LineItemGroupID">Review</a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div> <!-- end tab for key -->
+    }
+</div> <!-- end tabs div-->

@@ -25,5 +25,10 @@ namespace EPS3.Models
         [Display(Name = "End Date")]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? EndDate { get; set; }
+
+        public override string ToString()
+        {
+            return Role;
+        }
     }
 }

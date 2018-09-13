@@ -8,7 +8,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using EPS3.DataContexts;
+using EPS3.Models;
 using System.Data.Entity;
+using Microsoft.Extensions.Logging;
+using System.IO;
+using Serilog;
 
 namespace EPS3
 {
@@ -24,7 +28,13 @@ namespace EPS3
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<EPSContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            string connectionString = Configuration.GetConnectionString("EPSTestContext");
+            string smtpSetup = Configuration.GetSection("Smtp").ToString();
+            Log.Information("Connection String: " + connectionString);
+            Log.Information("Smtp Setup: " + smtpSetup);
+
+            services.Configure<SmtpConfig>(Configuration.GetSection("Smtp"));
+            services.AddDbContext<EPSContext>(options => options.UseSqlServer(connectionString));
             services.AddMvc(options =>
             {
             }).AddSessionStateTempDataProvider();
@@ -38,12 +48,12 @@ namespace EPS3
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, EPSContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, EPSContext context, ILoggerFactory loggerFactory)
         {
+            app.UseDeveloperExceptionPage();
             if (env.IsDevelopment())
             {
                 app.UseBrowserLink();
-                app.UseDeveloperExceptionPage();
             }
             else
             {
@@ -55,10 +65,21 @@ namespace EPS3
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
+                    name: "duplicate",
+                    template: "{controller=LineItems}/{action=Edit}/{id}/{duplicate?}");
+                routes.MapRoute(
+                    name: "newLineItemGroup",
+                    template: "{controller=LineItems}/{action=Create}/{contractID}/{groupID}");
+                routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
             //DbInitializer.Initialize(context);
+            loggerFactory.AddDebug();
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File("eps2_log.txt", outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .CreateLogger();
         }
     }
 }

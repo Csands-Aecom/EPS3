@@ -38,6 +38,27 @@
                 <input asp-for="User.Phone" class="form-control" />
                 <span asp-validation-for="User.Phone" class="text-danger"></span>
             </div>
+            <div>
+                <select id="ReceiveEmails" name="ReceiveEmails">
+                    <option value="0">Use Message Center Only</option>
+                    <option value="1">Send Email Notifications</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <strong>Roles</strong><br />
+                @foreach (string role in ViewBag.RolesList)
+        {
+            if (ViewBag.UserRoles.Contains(role))
+            {
+                <input type="checkbox" name="role_@role" id="role_@role" value="@role" onchange="concatenateSelectedRoles()" checked />@role<br />
+    }
+    else
+    {
+        <input type="checkbox" name="role_@role" id="role_@role" value="@role" onchange="concatenateSelectedRoles()" />@role<br />
+}
+}
+                <input type="hidden" name="userRoles" id="userRoles" />
+            </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
