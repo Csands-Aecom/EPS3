@@ -13,16 +13,30 @@
     <div class="panel-heading">
         <!-- Contract Information in the panel header-->
         <div class="row">
-            <div class="col-sm-10">
+            <div class="col-sm-4">                
                 <h3>
                     Contract - @Html.DisplayFor(model => model.Contract.ContractNumber)
                 </h3>
             </div>
+            <div class="col-sm-3">
+                <strong>@Html.DisplayNameFor(model => model.Contract.CreatedDate):</strong> @Html.DisplayFor(model => model.Contract.CreatedDate)
+
+            </div>
+            <div class="col-sm-3">
+                <strong>@Html.DisplayNameFor(model => model.Contract.ModifiedDate):</strong> @Html.DisplayFor(model => model.Contract.ModifiedDate)
+
+            </div>
+
             <div class="col-sm-2">
                 @if(ViewBag.Roles.Contains("Admin") || ViewBag.Roles.Contains("FinanceReviewer") ||(ViewBag.Roles.Contains("Originator") && ViewBag.CurrentUser.UserID == Model.Contract.UserID))
                 {
                     <a href="/Contracts/Edit/@Model.Contract.ContractID">Edit Contract</a>
                 }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10">
+                <strong>Originated by:</strong> <a href="mailto:@Model.Contract.User.Email">@Model.Contract.User.FullName</a> (@Model.Contract.User.UserLogin) @Model.Contract.User.Phone <br/>
             </div>
         </div>
         <div class="row">
@@ -195,44 +209,34 @@
                     <dt>
                         Contract Status
                         <input type="hidden" id="Contract_ContractID" value="@Model.Contract.ContractID" />
+                        @if (ViewBag.CurrentUser != null)
+                        {
                         <input type="hidden" id="Contract_UserID" value="@ViewBag.CurrentUser.UserID" />
+                        }
                     </dt>
-                @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) || ViewBag.Roles.Contains(ConstantStrings.AdminRole))
-                {
                 <dd>
-                    <select id="Contract_CurrentStatus" onchange="updateContractStatus()" value="@Model.Contract.CurrentStatus">
-                   @foreach (SelectListItem status in ViewBag.ContractStatusSelectionList)
+                    @Model.Contract.CurrentStatus<br />
+
+                    @if (ViewBag.ContractStatusSelectionList != null && ViewBag.ContractStatusSelectionList.Count > 0)
                     {
-                        if (status.Value.Equals(Model.Contract.CurrentStatus))
-                        {
-                        <option selected value="@status.Value"> @status.Text </option>
-                        }
-                        else
-                        {
-                        <option value="@status.Value"> @status.Text </option>
-                        }
-                    }
+                    <select id="Contract_CurrentStatus" onchange="updateContractStatus()" value="@Model.Contract.CurrentStatus">
+                       @foreach (SelectListItem status in ViewBag.ContractStatusSelectionList)
+                       {
+                           if (status.Value.Equals(Model.Contract.CurrentStatus))
+                           {
+                            <option selected value="@status.Value"> @status.Text </option>
+                           }
+                           else
+                           {
+                            <option value="@status.Value"> @status.Text </option>
+                           }
+                       }
                     </select>
                     <br />
+                    }
                     <div id="UpdateSuccess"></div>
                 </dd>
-                }
-                 else
-                {
-                    <dd>
-                        @Model.Contract.CurrentStatus
-                    </dd>
-                }
-                </dl>
-            </div>
-            <div class="col-sm-2">
-                <dl>
-                    <dt>
-                        Contract Comments:
-                    </dt>
-                    <dd>
-                        <textarea id="ContractStatus_Comments"></textarea>
-                    </dd>
+
                 </dl>
             </div>
         </div>
@@ -243,11 +247,14 @@
         <table class="table table-striped table-bordered" id="indexTable" style="width: 100%">
             <thead>
                 <tr>
-                    <th colspan="10">
+                    <th colspan="11">
                         <h3>Encumbrances</h3>
                     </th>
                     <td colspan="2">
-                        <a href="/LineItems/Create/?contractID=@Model.Contract.ContractID&groupID=0">Add Encumbrance Request</a>
+                        @if (ViewBag.CurrentUser != null)
+                        {
+                        <a href="/LineItemGroups/Manage/?contractID=@Model.Contract.ContractID">Add Encumbrance Request</a>
+                        }
                     </td>
                 </tr>
             </thead>
@@ -255,7 +262,7 @@
    @foreach (LineItemGroup group in Model.LineItemGroups)
     {
         if ((group.CurrentStatus == ConstantStrings.Draft)
-            && (ViewBag.CurrentUser.UserID == group.OriginatorUserID || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
+            && ((ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserID == group.OriginatorUserID) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
         {
             <tr class="groupHeader" style="background-color: #a6dbed;" id="groupHeader_@group.GroupID">
                 <td id="EncumbranceToggle_@group.GroupID">
@@ -263,15 +270,18 @@
                     <a href="javascript: toggleEncumbrance('@group.GroupID')" id="toggleLink_@group.GroupID">Hide encumbrance items</a>
                 </td>
                 <td>
-                    <strong>Contract: </strong>@Model.Contract.ContractNumber <br />
-                    <strong>Encumbrance: </strong>@group.GroupID <br /><br />
+                    <strong>Contract: </strong>@Model.Contract.ContractNumber <br /><br />
+                    <strong>Encumbrance (6s): </strong>@group.LineID6S <br /><br />
+                    @if (ViewBag.CurrentUser != null)
+                    {
                     <a href="/LineItems/Create/?contractID=@Model.Contract.ContractID&groupID=@group.GroupID">Add New Line</a>
+                    }
                 </td>
                 <td>
                     <strong>Encumbrance Type:</strong>
                     <!-- Encumbrance Request Status record-->
                     <select id="LineItemType_@group.GroupID" name="LineItemType_@group.GroupID">
-               @foreach (SelectListItem itemType in ViewBag.lineItemTypes)
+               @foreach (SelectListItem itemType in ViewBag.LineItemTypes)
                 {
                     if (itemType.Value.Equals(@group.LineItemType))
                     {
@@ -286,7 +296,7 @@
                 </td>
                 <td>
                     <strong>Status:</strong> @group.CurrentStatus <br />
-                    <strong>Encumbrance Total:</strong> $@string.Format("{0:C}", ViewBag.GroupTotalAmounts[group.GroupID].ToString())
+                    <strong>Encumbrance Total:</strong> $@string.Format("{0:C}", ViewBag.GroupTotalAmounts[group.GroupID].ToString("#,##0.00"))
                 </td>
                 <td>
                     <strong>Original FLAIR Amendment ID:</strong>
@@ -301,6 +311,19 @@
                     <input type="text" id="AmendedLineItemID_@group.GroupID" value="@group.AmendedLineItemID" />
                 </td>
                 <td>Last Updated @String.Format("{0:d}", @group.LastEditedDate) by @group.LastEditedUser.FullName</td>
+
+                <td colspan="3">
+                    <strong>Description:</strong>
+                    <textarea id="Description_@group.GroupID" name="Description" cols="20"></textarea>
+                    @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && @group.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                    {
+                        foreach (User wpuser in ViewBag.WPReviewers)
+                        {
+                            string thisID = "wp_" + @wpuser.UserID + "_" + @group.GroupID;
+                            <input type="checkbox" id="@thisID" value="@wpuser.UserID" />@wpuser.FirstName @wpuser.LastName <br />
+                        }
+                    }
+                </td>
                 <td colspan="2">
            @if (@group.CurrentStatus.Equals(ConstantStrings.Draft))
             {
@@ -339,18 +362,6 @@
                 }
             }
                     </td>
-                    <td colspan="2">
-                        <strong>Comments:</strong>
-                        <textarea id="Comments_@group.GroupID" name="Comments" cols="20"></textarea>
-           @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && @group.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-            {
-                foreach (User wpuser in ViewBag.WPReviewers)
-                {
-                    string thisID = "wp_" + @wpuser.UserID + "_" + @group.GroupID;
-                    <input type="checkbox" id="@thisID" value="@wpuser.UserID" />@wpuser.FirstName @wpuser.LastName <br />
-                }
-            }
-                    </td>
                 </tr>
 
         }
@@ -372,8 +383,11 @@
 
                 <td>
                     <strong>Contract: </strong>@Model.Contract.ContractNumber <br />
-                    <strong>Encumbrance: </strong>@group.GroupID <br /><br />
+                    <strong>Encumbrance (6s): </strong>@group.LineID6S <br /><br />
+                    @if (ViewBag.CurrentUser != null)
+                    {
                     <a href="/LineItems/Create/?contractID=@Model.Contract.ContractID&groupID=@group.GroupID">Add New Line</a>
+                    }
                 </td>
                 <td>
                     <strong>Encumbrance Type:</strong> <br /> @group.LineItemType
@@ -400,6 +414,34 @@
                     {@group.AmendedLineItemID}
                 </td>
                 <td colspan="2"><strong>Last Updated:</strong> <br /> @String.Format("{0:d}", @group.LastEditedDate) <br />by @group.LastEditedUser.FullName</td>
+                <td colspan="3">
+                    @if (@group.Description != null && @group.Description.Length > 0)
+                    {
+                    <strong>Description:</strong>
+                    @group.Description
+                    }
+                    @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && @group.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                    {
+                        foreach (User wpuser in ViewBag.WPReviewers)
+                        {
+                            string thisID = "wp_" + @wpuser.UserID + "_" + @group.GroupID;
+                                <input type="checkbox" id="@thisID" value="@wpuser.UserID" />@wpuser.FirstName @wpuser.LastName <br />
+                        }
+                    }
+                    <input type="hidden" id="LineItemType_@group.GroupID" value="@group.LineItemType" />
+                    <input type="hidden" id="CurrentStatus_@group.GroupID" value="@group.CurrentStatus" />
+                    <input type="hidden" id="FlairAmendmentID_@group.GroupID" value="@group.FlairAmendmentID" />
+                    <input type="hidden" id="UserAssignedID_@group.GroupID" value="@group.UserAssignedID" />
+                    <input type="hidden" id="AmendedLineItemID_@group.GroupID" value="@group.AmendedLineItemID" />
+                    <input type="hidden" id="LineID6S_@group.GroupID" value="@group.LineID6S" />
+                    <input type="hidden" id="ContractID_@group.GroupID" value="@ViewBag.Contract.ContractID" />
+                    <input type="hidden" id="ContractNumber_@group.GroupID" value="@ViewBag.Contract.ContractNumber" />
+                    @if (ViewBag.CurrentUser != null)
+                    {
+                    <input type="hidden" id="UserID_@group.GroupID" value="@ViewBag.CurrentUser.UserID" />
+                    <input type="hidden" id="UserName_@group.GroupID" value="@ViewBag.CurrentUser.FullName" />
+                    }
+                </td>
                 <td colspan="2">
             @if (@group.CurrentStatus.Equals(ConstantStrings.Draft))
             {
@@ -438,27 +480,6 @@
                  }
             }
                 </td>
-                <td colspan="2">
-                    <strong>Comments:</strong>
-                    <textarea id="Comments_@group.GroupID" name="Comments" cols="20"></textarea>
-            @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && @group.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-            {
-                 foreach (User wpuser in ViewBag.WPReviewers)
-                {
-                    string thisID = "wp_" + @wpuser.UserID + "_" + @group.GroupID;
-                    <input type="checkbox" id="@thisID" value="@wpuser.UserID" />@wpuser.FirstName @wpuser.LastName <br />
-                }
-            }
-                    <input type="hidden" id="LineItemType_@group.GroupID" value="@group.LineItemType" />
-                    <input type="hidden" id="CurrentStatus_@group.GroupID" value="@group.CurrentStatus" />
-                    <input type="hidden" id="FlairAmendmentID_@group.GroupID" value="@group.FlairAmendmentID" />
-                    <input type="hidden" id="UserAssignedID_@group.GroupID" value="@group.UserAssignedID" />
-                    <input type="hidden" id="AmendedLineItemID_@group.GroupID" value="@group.AmendedLineItemID" />
-                    <input type="hidden" id="ContractID_@group.GroupID" value="@ViewBag.Contract.ContractID" />
-                    <input type="hidden" id="ContractNumber_@group.GroupID" value="@ViewBag.Contract.ContractNumber" />
-                    <input type="hidden" id="UserID_@group.GroupID" value="@ViewBag.CurrentUser.UserID" />
-                    <input type="hidden" id="UserName_@group.GroupID" value="@ViewBag.CurrentUser.FullName" />
-                </td>
             </tr>
            
         }
@@ -471,7 +492,7 @@
                 <th colspan="2">Date</th>
                 <th colspan="2">Commenter</th>
                 <th colspan="2">Status</th>
-                <th colspan="6">Comment</th>
+                <th colspan="7">Comment</th>
             </tr>
                 @foreach (LineItemGroupStatus gstatus in group.Statuses)
                 {
@@ -479,7 +500,7 @@
                         <td colspan="2">@gstatus.SubmittalDate</td>
                         <td colspan="2">@gstatus.User.FullName</td>
                         <td colspan="2">@gstatus.CurrentStatus</td>
-                        <td colspan="6">@gstatus.Comments</td>
+                        <td colspan="7">@gstatus.Comments</td>
                     </tr>
 
                 }
@@ -487,55 +508,64 @@
 
             @if (group.LineItems.Count() > 0)
             {
-            <tr class="groupItem">
-                <th>
-                    Line Number
-                </th>
-                <th>
-                    Organization Code
-                </th>
-                <th>
-                    Financial Project Number
-                </th>
-                <th>
-                    State Program
-                </th>
-                <th>
-                    Category
-                </th>
-                <th>
-                    Work Activity
-                </th>
-                <th>
-                    OCA
-                </th>
-                <th>
-                    EO
-                </th>
-                <th>
-                    Object Code
-                </th>
-                <th>
-                    Fund
-                </th>
-                <th>
-                    Fiscal Year
-                </th>
-                <th>
-                    Amount
-                </th>
-            </tr>
+                    <tr class="groupItem">
+                        <th>
+                            Order
+                        </th>
+                        <th>
+                            Line ID
+                        </th>
+                        <th>
+                            Organization Code
+                        </th>
+                        <th>
+                            Financial Project Number
+                        </th>
+                        <th>
+                            State Program
+                        </th>
+                        <th>
+                            Category
+                        </th>
+                        <th>
+                            Work Activity
+                        </th>
+                        <th>
+                            OCA
+                        </th>
+                        <th>
+                            EO
+                        </th>
+                        <th>
+                            Object Code
+                        </th>
+                        <th>
+                            Fund
+                        </th>
+                        <th>
+                            Fiscal Year
+                        </th>
+                        <th>
+                            Amount
+                        </th>
+                    </tr>
             }
             @foreach (LineItem item in group.LineItems)
             {
             <tr class="groupItem">
-                <td>
-                    @item.LineNumber <br />
+                <td>@item.LineNumber <br />
+                    
+                    @if (ViewBag.CurrentUser != null)
+                    {
                     <a href="/LineItems/Edit/@item.LineItemID">Edit</a> <br />
                     <a href="/LineItems/Edit/@item.LineItemID?duplicate=true">Duplicate</a>  <br />
                     <a href="/LineItems/Delete/@item.LineItemID">Delete</a>
+                    }
                 </td>
-                <td>@item.OrgCode</td>
+                <td>
+                    <a name="lineitem_@item.LineItemID">@item.LineItemID</a>
+                </td>
+                <td>55-@item.OrgCode</td>
                 <td>@item.FinancialProjectNumber</td>
                 <td>@item.StateProgram.ProgramSelector</td>
                 <td>@item.Category.CategorySelector</td>
@@ -550,19 +580,19 @@
                 @if (item.Statuses != null && item.Statuses.Count > 0)
                 {
                 <tr>
-                    <td colspan="13"><a href="javascript: toggleLineHistory(@item.LineItemID)" id="lineHistoryToggle_@item.LineItemID">Show Line Comments</a></td>
+                    <td colspan="14"><a href="javascript: toggleLineHistory(@item.LineItemID)" id="lineHistoryToggle_@item.LineItemID">Show Line Comments</a></td>
                 </tr>
                 <tr class="hidden lineStatus_@item.LineItemID">
                     <th colspan="2">Date</th>
                     <th colspan="2">Commenter</th>
-                    <th colspan="8">Comment</th>
+                    <th colspan="9">Comment</th>
                 </tr>
                 @foreach (LineItemStatus listatus in item.Statuses)
                 {
                 <tr class="hidden lineStatus_@item.LineItemID">
                     <td colspan="2">@listatus.SubmittalDate</td>
                     <td colspan="2">@listatus.User.FirstName @listatus.User.LastName</td>
-                    <td colspan="8">@listatus.Comments</td>
+                    <td colspan="9">@listatus.Comments</td>
                 </tr>
                  }
             }

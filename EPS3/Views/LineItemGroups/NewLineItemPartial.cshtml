@@ -1,0 +1,209 @@
+﻿@model EPS3.Models.LineItem
+
+@{
+    ViewData["Title"] = "Line Item";
+}
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // populate FiscalYear dropdown
+            populateFiscalYearList();
+        });
+    </script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>Line Item</h3>
+    </div>
+    <div class="panel-body">
+
+        <form asp-action="Create" class="form-horizontal">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.ContractID" />
+            <input type="hidden" id="UserID" name="UserID" value="@ViewBag.UserID" />
+            <input type="hidden" id="LineItemID" name="LineItemID" value="0" />
+            <div class="row">
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            Line Item ID
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.LineItemID)
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            Order Number
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.LineNumber)
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.OrgCode)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.OrgCode)
+                            @Html.ValidationMessageFor(model => model.OrgCode, "Org Code must be 55- followed by 9 digits")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.FinancialProjectNumber)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.FinancialProjectNumber)
+                            @Html.ValidationMessageFor(model => model.FinancialProjectNumber, "A Financial Project Number with 11 digits is required.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-4">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.StateProgramID)
+                        </dt>
+                        <dd>
+                            @Html.DropDownList("StateProgramID", new SelectList((IEnumerable<StateProgram>)ViewData["StatePrograms"], "ProgramID", "ProgramSelector"), " ", new { @onchange = "updateOCAMessage()" })
+                            @Html.ValidationMessageFor(model => model.StateProgramID, "A State Program value is required. Please select one from the list.")
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.CategoryID)
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Category from the list of options."></span>
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="CategoryID" name="CategoryID" />
+                            <input type="text" id="CategorySelector" name="CategorySelector" />
+                            <span class="field-validation-valid" data-valmsg-for="CategorySelector" data-valmsg-replace="false">A Category is required. Please begin typing and select one from the list.</span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.WorkActivity)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.WorkActivity)
+                            @Html.ValidationMessageFor(model => model.WorkActivity, "A Work Activity is required.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.OCAID)
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select an OCA value  from the list of options."></span>
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="OCAID" name="OCAID" value="1" />
+                            <input type="text" id="OCASelector" name="OCASelector" value="00000" />
+                            <div id="OCAMessage"></div>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-1">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.ExpansionObject)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.ExpansionObject)
+                            @Html.ValidationMessageFor(model => model.ExpansionObject, "An Extension Object with two alphanumeric characters is required.")
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.FlairObject)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.FlairObject)
+                            @Html.ValidationMessageFor(model => model.FlairObject, "A six digit Flair Object is required.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.FundID)
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Fund  from the list of options."></span>
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="FundID" name="FundID" />
+                            <input type="text" id="FundSelector" name="FundSelector" />
+                            <span class="field-validation-valid" data-valmsg-for="FundSelector" data-valmsg-replace="false">A Fund is required. Please begin typing and select one from the list.</span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.FiscalYear)
+
+                        </dt>
+                        <dd>
+                            @Html.HiddenFor(model => model.FiscalYear)
+                            <select id="FiscalYearList" name="FiscalYearList" class="fiscalyear"></select>
+                            <p>The Fiscal Year runs from July 1 to June 30. </p><p>The current Fiscal Year is @ViewBag.CurrentFiscalYear.</p>
+                            @Html.ValidationMessageFor(model => model.FiscalYear, "Fiscal Year is a four digit year, the year ending a two-year fiscal span (i.e., 2018 = FY 17-18.")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.Amount)
+
+                        </dt>
+                        <dd>
+                            <span class="input-group-addon">
+                                <label for="Amount">
+                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    @Html.TextBoxFor(model => model.Amount)
+                                </label>
+                            </span>
+                            @Html.ValidationMessageFor(model => model.Amount, "Amounts must be numeric values.")
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.Comments)
+                        </dt>
+                        <dd>
+                            @Html.TextAreaFor(model => model.Comments)
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <span id="messageSpanLineItem"></span>
+                </div>
+            </div>
+        </form>
+    </div> <!-- end panel body -->
+</div> <!-- end panel -->

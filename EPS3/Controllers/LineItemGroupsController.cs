@@ -20,6 +20,7 @@ namespace EPS3.Controllers
         private readonly EPSContext _context;
         private readonly ILogger<LineItemGroupsController> _logger;
         private PermissionsUtils _pu;
+        private MessageService _messageService;
         public SmtpConfig SmtpConfig { get; }
 
         public LineItemGroupsController(EPSContext context, ILoggerFactory loggerFactory, IOptions<SmtpConfig> smtpConfig)
@@ -36,9 +37,9 @@ namespace EPS3.Controllers
             // Get Roles
             // Get Line Items needing attention for the roles
             // i.e., line items in encumbrance requests that are in status
-            //   Submitted to Finance for FinanceReviewer role
-            //   Submiitted to Work Program for WP Reviewer role
-            //   Ready for CFM for CFMSubmitter Role
+            //   Finance for FinanceReviewer role
+            //   Work Program for WP Reviewer role
+            //   CFM for CFMSubmitter Role
             // Group by role
             // Order by last updated (ascending)
 
@@ -104,9 +105,84 @@ namespace EPS3.Controllers
 
             return  View(group);
         }
+
+        [HttpGet]
+        public  IActionResult Manage(int? id)
+        {
+            PopulateViewBag(0);
+
+            int groupID = (id == null) ? 0 : (int)id;
+
+            List<LineItem> LineList = _pu.GetDeepLineItems(groupID);
+            ViewBag.LineItems = LineList;
+            ViewBag.LineItemCount = LineList.Count();
+            ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
+            // ViewBag.LineItemsMap = Map of LineItemID, JSONString of serialized object
+            Dictionary<int, string> lineItemsMap = new Dictionary<int, string>();
+            foreach (LineItem lineItem in LineList) {
+                lineItemsMap.Add(lineItem.LineItemID, JsonConvert.SerializeObject(lineItem));
+            }
+            ViewBag.LineItemsMap = lineItemsMap;
+            if (groupID > 0)
+            {
+                LineItemGroup Encumbrance = _pu.GetDeepEncumbrance(groupID);
+                if (Encumbrance != null)
+                {
+                    Contract Contract = _pu.GetDeepContract(Encumbrance.ContractID);
+                    ViewBag.Contract = Contract;
+                    return View(Encumbrance);
+                }
+            }
+                return View();
+        }
+
+        [HttpPost]
+        public  IActionResult Manage([Bind("GroupID,ContractID,LineItemType,AmendedLineItemID,FlairAmendmentID,UserAssignedID,LastEditedUserID,OriginatorUserID,CurrentStatus,Description")] LineItemGroup group, string Comments, int CurrentUserID)
+        {
+            if (group.ContractID >0)
+            {
+                return RedirectToAction("View", "Contracts", new { id = group.ContractID });
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            // Delete an encumbrance and all of its statuses, its line items and their statuses
+            try
+            {
+                LineItemGroup encumbrance = await _context.LineItemGroups
+                     .Include(g => g.Statuses)
+                     .Include(g => g.LineItems).ThenInclude(li => li.Statuses)
+                     .SingleOrDefaultAsync(g => g.GroupID == id);
+                if (encumbrance == null)
+                {
+                    return NotFound();
+                }
+                return View(encumbrance);
+            }catch(Exception e)
+            {
+                _logger.LogError("LineItemGroupsController.Delete Error:" + e.GetBaseException());
+                return NotFound();
+            }
+        }
+
+
+        // POST: Users/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            return View();
+        }
+
         [HttpPost]
         //This is the AJAX method that returns a JSON object
-
         public JsonResult Update(string encumbrance)
         {
             EncumbranceRequestViewModel encumbranceVM = JsonConvert.DeserializeObject<EncumbranceRequestViewModel>(encumbrance);
@@ -178,17 +254,20 @@ namespace EPS3.Controllers
             }
             // 4. send appropriate notifications
             int msgID = 0;
-            string url = this.Request.Scheme + "://" + this.Request.Host;
-            MessageService messageService = new MessageService(_context, SmtpConfig, url);
+            if (_messageService == null)
+            {
+                string url = this.Request.Scheme + "://" + this.Request.Host;
+                _messageService = new MessageService(_context, SmtpConfig, url);
+            }
             if (workProgramUserIds != null && workProgramUserIds.Count > 0)
             {
-                msgID = messageService.AddMessage(AssessStatusChange(newGroup.CurrentStatus, oldStatus), existingGroup, newStatus.Comments, workProgramUserIds);
+                msgID = _messageService.AddMessage(AssessStatusChange(newGroup.CurrentStatus, oldStatus), existingGroup, newStatus.Comments, workProgramUserIds);
             }
             else
             {
-                msgID = messageService.AddMessage(AssessStatusChange(newGroup.CurrentStatus, oldStatus), existingGroup, newStatus.Comments);
+                msgID = _messageService.AddMessage(AssessStatusChange(newGroup.CurrentStatus, oldStatus), existingGroup, newStatus.Comments);
             }
-            messageService.SendEmailMessage(msgID);
+            _messageService.SendEmailMessage(msgID);
             User user = existingGroup.LastEditedUser;
             // 5. return success message with updated LineItemGroup in JSON object
             // roll my own json response
@@ -268,13 +347,265 @@ namespace EPS3.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("ContractsController.PopulateViewBag Error:" + e.GetBaseException());
+                    _logger.LogError("LineItemGroupsController.PopulateViewBag Error:" + e.GetBaseException());
                 }
             }
             else
             {
                 RedirectToAction("Home");
             }
+        }
+
+        [HttpGet]
+        public IActionResult NewContractPartial(int? id)
+        {
+
+            Contract contract = null;
+            if (id != null && id > 0) { 
+                contract = _context.Contracts
+                    .Include(c => c.ContractType)
+                    .Include(c => c.Vendor)
+                    .SingleOrDefault(c => c.ContractID == id);
+            }
+            string userLogin = GetLogin();
+            PopulateViewBag(0);
+            ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
+            ViewData["Compensations"] = _context.Compensations.OrderBy(c => c.CompensationID);
+            ViewData["Vendors"] = _context.Vendors.OrderBy(v => v.VendorName);
+            ViewData["Recipients"] = _context.Recipients.OrderBy(v => v.RecipientCode);
+            if (contract != null)
+            {
+                return PartialView("NewContractPartial", contract);
+            }
+            return PartialView("NewContractPartial");
+        }
+
+        [HttpGet]
+        public IActionResult NewLineItemPartial(int? id)
+        {
+            Contract contract = null;
+            if (id != null && id > 0)
+            {
+                contract = _context.Contracts.SingleOrDefault(c => c.ContractID == id);
+            }
+            string userLogin = GetLogin();
+            PopulateViewBag(0);
+            ViewBag.currentFiscalYear = _pu.GetCurrentFiscalYear();
+            ViewData["Categories"] = _context.Categories.OrderBy(v => v.CategoryCode);
+            ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
+            if(contract != null)
+            {
+                return PartialView("NewLineItemPartial", contract);
+            }
+            return PartialView("NewLineItemPartial");
+        }
+
+        [HttpPost]
+        public JsonResult AddNewEncumbrance(string lineItemGroup, string comments)
+        {
+            LineItemGroup newLineItemGroup = JsonConvert.DeserializeObject<LineItemGroup>(lineItemGroup);
+            EncumbranceComment newComment = JsonConvert.DeserializeObject<EncumbranceComment>(comments);
+
+            int groupID = newLineItemGroup.GroupID;
+            string oldStatus = "";
+            bool isNew = groupID <= 0;
+            Contract contract = _context.Contracts.SingleOrDefault(c => c.ContractID == newLineItemGroup.ContractID);
+            if (isNew)
+            {
+                // add new
+                newLineItemGroup.OriginatorUserID = newLineItemGroup.LastEditedUserID;
+                newLineItemGroup.LastEditedDate = DateTime.Now;
+                newLineItemGroup.OriginatedDate = DateTime.Now;
+                newLineItemGroup.Contract = contract;
+                newLineItemGroup.CurrentStatus = newComment.status;
+                _context.LineItemGroups.Add(newLineItemGroup);
+            }
+            else
+            {
+                // update existing
+                LineItemGroup existingGroup = _context.LineItemGroups
+                    .SingleOrDefault(g => g.GroupID == groupID);
+                newLineItemGroup.LastEditedDate = DateTime.Now;
+                existingGroup.AmendedLineItemID = newLineItemGroup.AmendedLineItemID;
+                existingGroup.ContractID = newLineItemGroup.ContractID;
+                oldStatus = existingGroup.CurrentStatus;
+                existingGroup.CurrentStatus = newComment.status;
+                existingGroup.Description = newLineItemGroup.Description;
+                existingGroup.FlairAmendmentID = newLineItemGroup.FlairAmendmentID;
+                existingGroup.IncludesContract = newLineItemGroup.IncludesContract;
+                existingGroup.IsEditable = newLineItemGroup.IsEditable;
+                existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
+                existingGroup.UserAssignedID = newLineItemGroup.UserAssignedID;
+                existingGroup.Contract = contract;
+                _context.Update(existingGroup);
+                newLineItemGroup = existingGroup;
+            }
+            _context.SaveChanges();
+            // add LineItemGroupStatus
+            LineItemGroupStatus newStatus = new LineItemGroupStatus()
+            {
+                LineItemGroupID = newLineItemGroup.GroupID,
+                CurrentStatus = newComment.status,
+                UserID = newComment.userID,
+                SubmittalDate = DateTime.Now
+            };
+            _context.LineItemGroupStatuses.Add(newStatus);
+            _context.SaveChanges();
+
+            // send receipt and notification if Encumbrance is submitted for review
+            string statusChange = AssessStatusChange(newLineItemGroup.CurrentStatus, oldStatus);
+            int msgID = 0;
+
+            // initialize the message service if necessary
+            if (_messageService == null)
+            {
+                string url = this.Request.Scheme + "://" + this.Request.Host;
+                _messageService = new MessageService(_context, SmtpConfig, url);
+            }
+
+            if (newComment.notify)
+            {
+                // TODO: Add ability to cc: the sender.
+                //User sender = _pu.GetUserByID(newComment.userID);
+                //msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, sender);
+
+
+                // For now, just add the sender to the recipients list
+                newComment.wpIDs.Add(newComment.userID);
+                msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
+            }
+            else {
+                msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
+            }
+            if (newComment.receipt)
+            {
+                User sender = _pu.GetUserByID(newComment.userID);
+                _messageService.SendReceipt(newLineItemGroup, sender, newComment.comments);
+            }
+
+            // return complete, updated object (with GroupID, if new)
+            // avoid self-referential loop with unnecessary information in Statuses
+            newLineItemGroup.Statuses = null;
+            string result = JsonConvert.SerializeObject(newLineItemGroup);
+            return Json(result);
+        }
+
+        [HttpPost]
+        public JsonResult ListContracts(string searchString)
+        {
+            var searchSTRING = searchString.ToUpper();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                List<Contract> ContractList = _context.Contracts
+                    .Where(c => (c.ContractNumber.ToUpper().Contains(searchSTRING)))
+                    .OrderBy(c => c.ContractNumber)
+                    .ToList();
+                return Json(ContractList);
+            }
+            return new JsonResult(searchString);
+        }
+        // GET: LineItems
+        [HttpGet]
+        public IActionResult List()
+        {
+            Dictionary<string, List<LineItemGroup>> categorizedLineItemGroups = getCategorizedLineItemGroups();
+            Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(categorizedLineItemGroups);
+            ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
+            return View(categorizedLineItemGroups);
+        }
+
+        private Dictionary<string, List<LineItemGroup>> getCategorizedLineItemGroups()
+        {
+            Dictionary<string, List<LineItemGroup>> results = new Dictionary<string, List<LineItemGroup>>();
+            PopulateViewBag(0);
+            User user = ViewBag.CurrentUser;
+
+            if (ViewBag.Roles.Contains(ConstantStrings.Originator))
+            {
+                // add Group IDs for Groups in Draft where user is the originator
+                List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
+                    .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
+                    .Include(l => l.Contract)
+                    .ToList();
+                results.Add(ConstantStrings.Originator, origLineIDs);
+            }
+            if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+            {
+                // add Line IDs for Groups in Draft where user is the originator
+                List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                    .Include(l => l.Contract)
+                    .ToList();
+                results.Add(ConstantStrings.FinanceReviewer, finLineIDs);
+            }
+            if (ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
+            {
+                // add Line IDs for Groups in Draft where user is the originator
+                List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
+                    .Include(l => l.Contract)
+                    .ToList();
+                results.Add(ConstantStrings.WPReviewer, wpLineIDs);
+            }
+            if (ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
+            {
+                // add Line IDs for Groups in Draft where user is the originator
+                List<LineItemGroup> cfmLineIDs = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
+                    .Include(l => l.Contract)
+                    .ToList();
+                results.Add(ConstantStrings.CFMSubmitter, cfmLineIDs);
+            }
+            return results;
+        }
+
+        private Dictionary<int, string> getLineItemGroupAmounts(Dictionary<string, List<LineItemGroup>> encumbrances)
+        {
+            Dictionary<int, string> EncumbranceAmounts = new Dictionary<int, string>();
+            foreach(string key in encumbrances.Keys)
+            {
+                List<LineItemGroup> encumbranceList = encumbrances[key];
+                foreach(LineItemGroup encumbrance in encumbranceList)
+                {
+                    decimal amount = GetEncumbranceAmount(encumbrance);
+                    string amountString = String.Format("{0:C2}", amount); ;
+                    EncumbranceAmounts.Add(encumbrance.GroupID, amountString);
+                }
+            }
+            return EncumbranceAmounts;
+        }
+
+        public decimal GetEncumbranceAmount(LineItemGroup encumbrance)
+        {
+            List<LineItem> items = _context.LineItems.Where(l => l.LineItemGroupID == encumbrance.GroupID).ToList();
+            decimal amount = 0.0m;
+            foreach (LineItem item in items)
+            {
+                amount += item.Amount;
+            }
+            return amount;
+        }
+        public JsonResult GetEncumbranceCountByType (string encumbranceInfo)
+        {
+            dynamic lookupInfo = JsonConvert.DeserializeObject(encumbranceInfo);
+            int contractID = lookupInfo.contractID;
+            string encumbranceType = lookupInfo.encumbranceType;
+
+            int encumbranceCount = _context.LineItemGroups.Where(g => g.ContractID == contractID && g.LineItemType == encumbranceType).Count();
+            return Json(encumbranceCount);
+        }
+
+        [HttpPost]
+        public JsonResult GetNextLineNumber(string groupInfo)
+        {
+            int nextLineNumber = 0;
+            dynamic lookupInfo = JsonConvert.DeserializeObject(groupInfo);
+            if (lookupInfo.groupID != null && lookupInfo.groupID > 0) { 
+                int groupID = lookupInfo.groupID;
+                nextLineNumber = _context.LineItems.Where(g => g.LineItemGroupID == groupID).Select(g => g.LineNumber).DefaultIfEmpty(0).Max();
+            }
+            return Json(nextLineNumber);
         }
     }
 }

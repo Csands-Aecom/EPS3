@@ -1060,3 +1060,178 @@ Error Number:515,State:2,Class:16
 2018-09-12 13:16:23.808 -04:00 [INF] The value '' is invalid. | The value '' is invalid.
 2018-09-12 13:31:46.097 -04:00 [INF] Model state not valid: 
 2018-09-12 13:31:46.098 -04:00 [INF] The value '' is invalid. | The value '' is invalid.
+2018-09-17 16:35:56.556 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at System.Dynamic.UpdateDelegates.UpdateAndExecute3[T0,T1,T2,TRet](CallSite site, T0 arg0, T1 arg1, T2 arg2)
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at System.Dynamic.UpdateDelegates.UpdateAndExecute3[T0,T1,T2,TRet](CallSite site, T0 arg0, T1 arg1, T2 arg2)
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-26 19:42:24.807 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 19:43:11.144 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 19:44:46.997 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 19:53:49.254 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 19:54:04.790 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 19:54:38.675 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 19:57:01.304 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 19:57:36.965 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 20:08:25.331 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 20:08:38.721 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 20:12:13.716 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-26 20:13:10.555 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-27 09:36:35.474 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at System.Dynamic.UpdateDelegates.UpdateAndExecute3[T0,T1,T2,TRet](CallSite site, T0 arg0, T1 arg1, T2 arg2)
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at System.Dynamic.UpdateDelegates.UpdateAndExecute3[T0,T1,T2,TRet](CallSite site, T0 arg0, T1 arg1, T2 arg2)
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 10:12:13.341 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 10:14:42.665 -04:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 136
+   at EPS3.Controllers.ContractsController.<View>d__12.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 327
+2018-09-27 11:34:26.565 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 11:36:21.232 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 11:36:35.282 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 11:38:59.680 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 12:39:50.942 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 12:40:40.362 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 12:43:51.217 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 13:03:59.189 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-09-27 13:08:48.480 -04:00 [ERR] ContractsController.Create Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+   at EPS3.Models.LineItemGroup..ctor(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Models\LineItemGroup.cs:line 16
+   at CallSite.Target(Closure , CallSite , Type , Object , Object )
+   at EPS3.Controllers.LineItemsController.Create(Int32 contractID, Int32 groupID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 87
+2018-10-18 01:58:37.107 -04:00 [ERR] LineItemsController.DeleteLineItem  Error:System.ArgumentNullException: Value cannot be null.
+Parameter name: entity
+   at Microsoft.EntityFrameworkCore.Utilities.Check.NotNull[T](T value, String parameterName)
+   at Microsoft.EntityFrameworkCore.DbContext.Remove[TEntity](TEntity entity)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.Remove(TEntity entity)
+   at EPS3.Controllers.LineItemsController.DeleteLineItem(Int32 LineItemID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 233
+   at Microsoft.EntityFrameworkCore.Utilities.Check.NotNull[T](T value, String parameterName)
+   at Microsoft.EntityFrameworkCore.DbContext.Remove[TEntity](TEntity entity)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.Remove(TEntity entity)
+   at EPS3.Controllers.LineItemsController.DeleteLineItem(Int32 LineItemID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 233
+2018-10-18 02:08:12.435 -04:00 [ERR] LineItemsController.DeleteLineItem  Error:System.ArgumentNullException: Value cannot be null.
+Parameter name: entity
+   at Microsoft.EntityFrameworkCore.Utilities.Check.NotNull[T](T value, String parameterName)
+   at Microsoft.EntityFrameworkCore.DbContext.Remove[TEntity](TEntity entity)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.Remove(TEntity entity)
+   at EPS3.Controllers.LineItemsController.DeleteLineItem(Int32 LineItemID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 233
+   at Microsoft.EntityFrameworkCore.Utilities.Check.NotNull[T](T value, String parameterName)
+   at Microsoft.EntityFrameworkCore.DbContext.Remove[TEntity](TEntity entity)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.Remove(TEntity entity)
+   at EPS3.Controllers.LineItemsController.DeleteLineItem(Int32 LineItemID) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemsController.cs:line 233

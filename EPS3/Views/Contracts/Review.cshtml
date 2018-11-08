@@ -16,7 +16,7 @@
 <h2>Review</h2>
 
 <div class="container-fluid">
-        <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+        <div class="panel panel-default" data-toggle="collapse" aria-expanded="true">
             <div class="panel-heading">
                 <h3>
                     Contract - @Html.DisplayFor(model => model.Contract.ContractNumber)
@@ -182,7 +182,7 @@
             <br />
             </div >
 
-            <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+            <div class="panel panel-default" data-toggle="collapse" aria-expanded="true">
                 <div class="panel-heading">
                     <h3>Encumbrance Requests</h3>
                 </div>
@@ -195,10 +195,10 @@
                                         <label for="OrgCode">Organization Code</label>
                                     </th>
                                     <th>
-                                        <label for="ExpansionObject">EO</label>
+                                        <label for="ExpansionObject">Expansion Option</label>
                                     </th>
                                     <th>
-                                        <label for="FlairObject">Object</label>
+                                        <label for="FlairObject">Object Code</label>
                                     </th>
                                     <th>
                                         <label for="Amount">Amount</label>
@@ -289,7 +289,7 @@
                 <a asp-controller="LineItems" asp-action="Create" asp-route-id="@Model.Contract.ContractID">Add Encumbrance Request</a>
 }
             </div>
-            <div class="row panel panel-default">
+            <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3>History</h3>
                 </div>

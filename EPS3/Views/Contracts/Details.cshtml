@@ -1,4 +1,4 @@
-﻿@model EPS3.Models.Contract
+﻿@model EPS3.ViewModels.EncumbranceRequestViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -6,24 +6,26 @@
 <script>
     @{
         decimal TotalAmount = 0.00M;
-        foreach (LineItem item in (IEnumerable<LineItem>)ViewData["LineItems"] as IEnumerable<LineItem>)
+        if (ViewData["LineItems"] != null)
         {
-            TotalAmount = TotalAmount + item.Amount;
+            foreach (LineItem item in (IEnumerable<LineItem>)ViewData["LineItems"] as IEnumerable<LineItem>)
+            {
+                TotalAmount = TotalAmount + item.Amount;
+            }
         }
-
     }
 </script>
 <h2>Details</h2>
 
 <div class="container-fluid">
-    <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+    <div class="panel panel-default" data-toggle="collapse" aria-expanded="true">
         <div class="panel-heading">
             <h3>
-                Contract - @Html.DisplayFor(model => model.ContractNumber)
+                Contract - @Html.DisplayFor(model => model.Contract.ContractNumber)
             </h3>
             <div class="float-right align-top">
                 <h4>
-                    <b>Current Status: </b> @Html.DisplayFor(model => model.CurrentStatus)
+                    <b>Current Status: </b> @Html.DisplayFor(model => model.Contract.CurrentStatus)
                 </h4>
             </div>
         </div>
@@ -32,30 +34,30 @@
                 <div class="col-sm-2">
                     <dl>
                         <dt>
-                            @Html.DisplayNameFor(model => model.ContractNumber)
+                            @Html.DisplayNameFor(model => model.Contract.ContractNumber)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.ContractNumber)
+                            @Html.DisplayFor(model => model.Contract.ContractNumber)
                         </dd>
                     </dl>
                 </div>
                 <div class="col-sm-2">
                     <dl>
                         <dt>
-                            @Html.DisplayNameFor(model => model.ContractType)
+                            @Html.DisplayNameFor(model => model.Contract.ContractType)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.ContractType.ContractTypeSelector)
+                            @Html.DisplayFor(model => model.Contract.ContractType.ContractTypeSelector)
                         </dd>
                     </dl>
                 </div>
                 <div class="col-sm-2">
                     <dl>
                         <dt>
-                            @Html.DisplayNameFor(model => model.IsRenewable)
+                            @Html.DisplayNameFor(model => model.Contract.IsRenewable)
                         </dt>
                         <dd>
-                            @(Model.IsRenewable.ToString().Equals("0") ? "No" : "Yes")
+                            @(Model.Contract.IsRenewable.ToString().Equals("0") ? "No" : "Yes")
                         </dd>
                     </dl>
                 </div>
@@ -64,26 +66,26 @@
                 <div class="col-sm-2">
                     <dl>
                         <dt>
-                            @Html.DisplayNameFor(model => model.ContractTotal)
+                            @Html.DisplayNameFor(model => model.Contract.ContractTotal)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.ContractTotal)
+                            @Html.DisplayFor(model => model.Contract.ContractTotal)
                         </dd>
                     </dl>
                     <dl>
                         <dt>
-                            @Html.DisplayNameFor(model => model.MaxLoaAmount)
+                            @Html.DisplayNameFor(model => model.Contract.MaxLoaAmount)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.MaxLoaAmount)
+                            @Html.DisplayFor(model => model.Contract.MaxLoaAmount)
                         </dd>
                     </dl>
                     <dl>
                         <dt>
-                            @Html.DisplayNameFor(model => model.BudgetCeiling)
+                            @Html.DisplayNameFor(model => model.Contract.BudgetCeiling)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.BudgetCeiling)
+                            @Html.DisplayFor(model => model.Contract.BudgetCeiling)
                         </dd>
                     </dl>
                     <dl>
@@ -98,60 +100,60 @@
                 <div class="col-sm-2">
                     <dl>
                         <dt>
-                            @Html.LabelFor(model => model.BeginningDate, htmlAttributes: new { @class = "control-label" })
+                            @Html.LabelFor(model => model.Contract.BeginningDate, htmlAttributes: new { @class = "control-label" })
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.BeginningDate)
+                            @Html.DisplayFor(model => model.Contract.BeginningDate)
                         </dd>
                     </dl>
                     <dl>
                         <dt>
-                            @Html.LabelFor(model => model.EndingDate, htmlAttributes: new { @class = "control-label" })
+                            @Html.LabelFor(model => model.Contract.EndingDate, htmlAttributes: new { @class = "control-label" })
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.EndingDate)
+                            @Html.DisplayFor(model => model.Contract.EndingDate)
                         </dd>
                     </dl>
                     <dl>
                         <dt>
-                            @Html.LabelFor(model => model.ServiceEndingDate, htmlAttributes: new { @class = "control-label" })
+                            @Html.LabelFor(model => model.Contract.ServiceEndingDate, htmlAttributes: new { @class = "control-label" })
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.ServiceEndingDate)
+                            @Html.DisplayFor(model => model.Contract.ServiceEndingDate)
                         </dd>
                     </dl>
                 </div>
                 <div class="col-sm-3">
                     <dl>
                         <dt>
-                            @Html.LabelFor(model => model.MethodOfProcurement, htmlAttributes: new { @class = "control-label" })
+                            @Html.LabelFor(model => model.Contract.MethodOfProcurement, htmlAttributes: new { @class = "control-label" })
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.MethodOfProcurement.ProcurementSelector)
+                            @Html.DisplayFor(model => model.Contract.MethodOfProcurement.ProcurementSelector)
                         </dd>
                     </dl>
                     <dl>
                         <dt>
-                            @Html.LabelFor(model => model.ContractFunding, htmlAttributes: new { @class = "control-label" })
+                            @Html.LabelFor(model => model.Contract.ContractFunding, htmlAttributes: new { @class = "control-label" })
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.ContractFunding.CompensationType)
+                            @Html.DisplayFor(model => model.Contract.ContractFunding.CompensationType)
                         </dd>
                     </dl>
                     <dl>
                         <dt>
-                            @Html.LabelFor(model => model.Vendor, htmlAttributes: new { @class = "control-label" })
+                            @Html.LabelFor(model => model.Contract.Vendor, htmlAttributes: new { @class = "control-label" })
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.Vendor.VendorSelector)
+                            @Html.DisplayFor(model => model.Contract.Vendor.VendorSelector)
                         </dd>
                     </dl>
                     <dl>
                         <dt>
-                            @Html.LabelFor(model => model.Recipient, htmlAttributes: new { @class = "control-label" })
+                            @Html.LabelFor(model => model.Contract.Recipient, htmlAttributes: new { @class = "control-label" })
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.Recipient.RecipientSelector)
+                            @Html.DisplayFor(model => model.Contract.Recipient.RecipientSelector)
                         </dd>
                     </dl>
                 </div>
@@ -160,10 +162,10 @@
                 <div class="col-sm-12">
                     <dl>
                         <dt>
-                            @Html.LabelFor(model => model.DescriptionOfWork, htmlAttributes: new { @class = "control-label" })
+                            @Html.LabelFor(model => model.Contract.DescriptionOfWork, htmlAttributes: new { @class = "control-label" })
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.DescriptionOfWork)
+                            @Html.DisplayFor(model => model.Contract.DescriptionOfWork)
                         </dd>
                     </dl>
                 </div> <!-- close col -->
@@ -173,9 +175,9 @@
     <div>
         @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
       || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-      || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.UserID))
+      || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID))
         {
-            <a asp-action="View" asp-route-id="@Model.ContractID">Edit Contract</a>
+            <a asp-action="View" asp-route-id="@Model.Contract.ContractID">Edit Contract</a>
         }
         <a asp-action="List"> Back to Contract List </a>
 
@@ -183,7 +185,7 @@
 
     <br />
 
-    <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+    <div class="panel panel-default" data-toggle="collapse" aria-expanded="true">
         <div class="panel-heading">
             <h3>Encumbrance Requests</h3>
         </div>
@@ -196,10 +198,10 @@
                                 <label for="OrgCode">Organization Code</label>
                             </th>
                             <th>
-                                <label for="ExpansionObject">EO</label>
+                                <label for="ExpansionObject">Expansion Option</label>
                             </th>
                             <th>
-                                <label for="FlairObject">Object</label>
+                                <label for="FlairObject">Object Code</label>
                             </th>
                             <th>
                                 <label for="Amount">Amount</label>
@@ -231,8 +233,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (LineItem item in (IEnumerable<LineItem>)ViewData["LineItems"] as IEnumerable<LineItem>)
+                        @if(ViewData["LineItems"] != null)
                         {
+                            @foreach (LineItem item in (IEnumerable<LineItem>)ViewData["LineItems"] as IEnumerable<LineItem>)
+                            {
                             <tr>
                                 <td>
                                     <span id="OrgCode" name="OrgCode">55-@item.OrgCode</span>
@@ -270,12 +274,13 @@
                                 <td>
                                     @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
                                   || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-                                  || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.UserID))
+                                  || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID))
                                     {
                                         <a asp-controller="LineItems" asp-action="Edit" asp-route-id="@item.LineItemID">Edit Encumbrance Request</a> <br />
                                     }
                                 </td>
                             </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -285,20 +290,20 @@
     <div>
         @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
   || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-  || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.UserID))
+  || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID))
         {
-            <a asp-controller="LineItems" asp-action="Create" asp-route-id="@Model.ContractID">Add Encumbrance Request</a>
+            <a asp-controller="LineItems" asp-action="Create" asp-route-id="@Model.Contract.ContractID">Add Encumbrance Request</a>
         }
     </div>
-    <div class="row panel panel-default">
+    <div class="panel panel-default">
         <div class="panel-heading">
             <h3>History</h3>
             @{
                 if (
                     (
-                        (Model.CurrentStatus == ConstantStrings.ContractNew || Model.CurrentStatus == ConstantStrings.ContractNew)
+                        (Model.Contract.CurrentStatus == ConstantStrings.ContractNew || Model.Contract.CurrentStatus == ConstantStrings.ContractNew)
                             && (ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) || ViewBag.Roles.Contains(ConstantStrings.AdminRole)) 
-                        || ((Model.CurrentStatus == ConstantStrings.ContractComplete50 || Model.CurrentStatus == ConstantStrings.ContractComplete52 || Model.CurrentStatus == ConstantStrings.ContractComplete98) 
+                        || ((Model.Contract.CurrentStatus == ConstantStrings.ContractComplete50 || Model.Contract.CurrentStatus == ConstantStrings.ContractComplete52 || Model.Contract.CurrentStatus == ConstantStrings.ContractComplete98) 
                             && (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) || ViewBag.Roles.Contains(ConstantStrings.AdminRole)))
                     ) 
                    )
@@ -324,8 +329,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (ContractStatus status in (IEnumerable<ContractStatus>)ViewData["Statuses"])
+                        @if(ViewData["Statuses"] != null)
                         {
+                            @foreach (ContractStatus status in (IEnumerable<ContractStatus>)ViewData["Statuses"])
+                            {
                             <tr>
                                 <td>
                                     <a href="mailto:@status.User.Email">@status.User.FirstName @status.User.LastName</a>
@@ -342,6 +349,7 @@
                                     <b>Comments: </b>@status.Comments
                                 </td>
                             </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -358,10 +366,10 @@
             <form asp-controller="ContractStatus" asp-action="Create" id="ContractStatusForm" name="ContractStatusForm">
                 <div asp-validation-summary='ModelOnly' class='text-danger'></div>
                 <div class='form-group'>
-                    <b>Contract:</b>  @Model.ContractNumber
+                    <b>Contract:</b>  @Model.Contract.ContractNumber
                 </div>
                 <div class='form-group'>
-                    <b>Current Status:</b> @Model.CurrentStatus
+                    <b>Current Status:</b> @Model.Contract.CurrentStatus
                 </div>
 
                 <div>

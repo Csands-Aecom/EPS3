@@ -30,6 +30,11 @@ namespace EPS3.Models
         [Display(Name = "Receive Emails?")]
         public byte ReceiveEmails { get; set; }
         [Display(Name = "Roles")]
+        public Boolean CanReceiveEmails()
+        {
+            return this.ReceiveEmails > 0;
+        }
         public virtual ICollection<UserRole> Roles { get; set; }
+        public byte IsDisabled { get; set; }
     }
 }

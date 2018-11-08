@@ -9,12 +9,18 @@ namespace EPS3.Models
 {
     public class LineItem
     {
+        private string _EO;
+
         [Display(Name = "Corrects FLAIR Amendment ID")]
         [StringLength(10)]
         public string AmendedLineItemID { get; set; }
         [Display(Name = "Amount")]
-        [DisplayFormat(DataFormatString = "{0:c}")]
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Amount { get; set; }
+        public String AmountString
+        {
+            get { return Amount.ToString("#,##0.00"); }
+        }
         [ForeignKey("CategoryID")]
         [Display(Name = "Category")]
         [Required]
@@ -29,9 +35,8 @@ namespace EPS3.Models
         [ForeignKey("ContractID")]
         public int ContractID { get; set; }
         public virtual Contract Contract { get; set; }
-        [Display(Name = "EO")]
+        [Display(Name = "Expansion Option")]
         [StringLength(2)]
-        private string _EO;
         public string ExpansionObject
         {
             get { return _EO; }
@@ -48,7 +53,7 @@ namespace EPS3.Models
         [Display(Name = "FLAIR Amendment ID")]
         [StringLength(10)]
         public string FlairAmendmentID { get; set; }
-        [Display(Name = "Object")]
+        [Display(Name = "Object Code")]
         [StringLength(6)]
         public string FlairObject { get; set; }
         [Required]

@@ -30,7 +30,7 @@
 }
 
 
-<div class="panel-default">
+<div class="panel panel-default">
     <div class="panel-heading">
         <h3>
             Encumbrance Request @{ if (ViewBag.duplicate != null && ViewBag.duplicate == "true")
@@ -54,7 +54,7 @@
                     <strong>Contract:</strong> @ViewBag.Contract.ContractNumber
                 </div>
                 <div class="col-sm-2">
-                    <strong>Contract Ending Date:</strong> @ViewBag.Contract.EndingDate.ToString("dd/MM/yyyy")
+                    <strong>Contract Ending Date:</strong> @ViewBag.Contract.EndingDate.ToString("MM/dd/yyyy")
                 </div>
                 <div class="col-sm-2">
                     <strong>Budget Ceiling:</strong> @string.Format("{0:C}", @ViewBag.Contract.BudgetCeiling)

@@ -35,7 +35,7 @@
                             @Html.DisplayNameFor(model => model.ContractNumber)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.CurrentStatus)
+                            Request Action
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.ContractType)
@@ -55,7 +55,6 @@
                         <th>
                             @Html.DisplayNameFor(model => model.DescriptionOfWork)
                         </th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,10 +63,16 @@
                     <tr>
                         <td>
                             <a asp-action="View" asp-route-id="@item.ContractID"> @Html.DisplayFor(modelItem => item.ContractNumber)</a> <br />
-                            <a href="https://fdotwp2.dot.state.fl.us/ContractFundsManagement/#/Facts/Contract/@item.ContractNumber" target="_blank">FACTS</a>
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.CurrentStatus)
+                            @if(ViewBag.CurrentUser.UserID == item.UserID)
+                            {
+                                <a href="javascript:requestCloseContract(item.ContractID);">Request to Close the Contract</a>
+                            }
+                            @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) )
+                            {
+                                <a href="javascript:commitCloseContract(item.ContractID);">Close the Contract</a>
+                            }
                         </td>
                         <td>
                             <div class="" data-toggle="tooltip" data-placement="top" title="@item.ContractType.ContractTypeName">

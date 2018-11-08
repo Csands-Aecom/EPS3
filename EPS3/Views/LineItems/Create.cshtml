@@ -25,12 +25,13 @@
             <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.ContractID" />
             <input type="hidden" id="UserID" name="UserID" value="@ViewBag.UserID" />
             <div class="row">
-
+                @if (@ViewBag.Contract != null)
+                {
                 <div class="col-sm-2">
                     <strong>Contract:</strong> @ViewBag.Contract.ContractNumber
                 </div>
                 <div class="col-sm-2">
-                    <strong>Contract Ending Date:</strong> @ViewBag.Contract.EndingDate.ToString("dd/MM/yyyy")
+                    <strong>Contract Ending Date:</strong> @ViewBag.Contract.EndingDate.ToString("MM/dd/yyyy")
                 </div>
                 <div class="col-sm-2">
                     <strong>Budget Ceiling:</strong>  @string.Format("{0:C}", @ViewBag.Contract.BudgetCeiling)
@@ -38,18 +39,19 @@
                 <div class="col-sm-4">
                     <strong>Description of Work:</strong> @ViewBag.Contract.DescriptionOfWork
                 </div>
-                <div class="col-sm-2">
-                @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                {
-                  <a href="/Contracts/View/@ViewBag.ContractID">Edit Contract Details</a>
                 }
+                <div class="col-sm-2">
+                    @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                    {
+                        <a href="/Contracts/View/@ViewBag.ContractID">Edit Contract Details</a>
+                     }
+                        </div>
                 </div>
-            </div>
-            <div class="row">
-                <hr />
-            </div>
-            @if (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-    {
+                <div class="row">
+                    <hr />
+                </div>
+                        @if (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                        {
         <div class="row">
 
             <div class="col-sm-2">
@@ -70,7 +72,7 @@
                     <dd>
                         <!-- Encumbrance Request Status record-->
                         <select id="LineItemType" name="LineItemType">
-                            @foreach (SelectListItem itemType in ViewBag.lineItemTypes)
+                            @foreach (SelectListItem itemType in ViewBag.LineItemTypes)
                             { 
                                 if (itemType.Value.Equals(@ViewBag.lineItemGroup.LineItemType))
                                 {
@@ -121,17 +123,17 @@
                 </dl>
             </div>
         </div>
-}
-else
-{
+                        }
+                        else
+                        {
         <div class="row">
             <div class="col-sm-2">
                 <dl>
                     <dt>
-                        Encumbrance:
+                        @Html.LabelFor(model => model.LineItemGroup.LineID6S)
                     </dt>
                     <dd>
-                        @ViewBag.LineItemGroup.GroupID
+                        @Html.DisplayFor(model => model.LineItemGroup.LineID6S)
                     </dd>
                 </dl>
                 <dl>
@@ -141,7 +143,7 @@ else
                     <dd>
                         <!-- Encumbrance Request Status record-->
                         @Html.DisplayFor(model => model.LineItemType)
-                        <input type="hidden" id="LineItemGroupID" name="LineItemGroupID" value="@ViewBag.LineItemGroup.GroupID" />
+                        <input type="hidden" id="LineItemGroupID" name="LineItemGroupID" value="" />
                     </dd>
                 </dl>
             </div>
@@ -179,7 +181,7 @@ else
                 </dl>
             </div>
         </div>
-}
+                        }
             <div class="row">
                 <div class="col-sm-2">
                     <dl>

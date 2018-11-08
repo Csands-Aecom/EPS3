@@ -148,7 +148,7 @@ namespace EPS3.Controllers
                     
                     if (contract.ContractNumber.IsNullOrEmpty())
                     {
-                        contract.ContractNumber = "Temp"; // placeholder text for pending generation of ContractNumber
+                        contract.ContractNumber = "New"; // placeholder text for pending generation of ContractNumber
                     }
                     contract.ContractNumber = contract.ContractNumber.ToUpper();
                     _context.Contracts.Add(contract);
@@ -184,6 +184,79 @@ namespace EPS3.Controllers
             }
             return View(contract);
         }
+
+        [HttpPost]
+        public JsonResult AddNewContract(string contract)
+        {
+            Contract newContract = JsonConvert.DeserializeObject<Contract>(contract);
+
+            newContract.ContractNumber = newContract.ContractNumber.ToUpper();
+            if(newContract.ContractNumber == null || newContract.ContractNumber == "")
+            {
+                newContract.ContractNumber = "NEW";
+            }
+            // check if contract exists, if so, update it.
+            // if not, add it
+            if (newContract.ContractID > 0)
+            {
+                Contract existingContract = _context.Contracts.AsNoTracking()
+                    .Include(c => c.ContractType)
+                    .Include(c => c.Vendor)
+                    .SingleOrDefault(c => c.ContractID == newContract.ContractID);
+
+                UpdateExistingContract(existingContract, newContract);
+                existingContract.ModifiedDate = DateTime.Now;
+                _context.Contracts.Update(existingContract);
+                _context.SaveChanges();
+            }
+            else if (newContract.UserID > 0)
+            {
+                newContract.CreatedDate = DateTime.Now;
+                newContract.ModifiedDate = DateTime.Now;
+                _context.Contracts.Add(newContract);
+                _context.SaveChanges();
+            }
+            else
+            {
+                return (Json("{\"success\": \"false\"}"));
+            }
+            ExtendedContract wrapperContract = GetExtendedContract(newContract.ContractID);
+            string result = JsonConvert.SerializeObject(wrapperContract);
+            return Json(result);
+        }
+
+        private Contract UpdateExistingContract(Contract existingContract, Contract newContract)
+        {
+            // TODO: for each property, copy from newContract to existingContract
+            if (existingContract.ContractID == newContract.ContractID) {
+                existingContract.BudgetCeiling = newContract.BudgetCeiling;
+                existingContract.CompensationID = newContract.CompensationID;
+                existingContract.ContractFunding = newContract.ContractFunding;
+                existingContract.ContractNumber = newContract.ContractNumber;
+                existingContract.ContractTotal = newContract.ContractTotal;
+                //existingContract.ContractType = newContract.ContractType;
+                existingContract.ContractTypeID = newContract.ContractTypeID;
+                existingContract.CurrentStatus = newContract.CurrentStatus;
+                existingContract.DescriptionOfWork = newContract.DescriptionOfWork;
+                existingContract.EndingDate = newContract.EndingDate;
+                existingContract.IsRenewable = newContract.IsRenewable;
+                existingContract.MaxLoaAmount = newContract.MaxLoaAmount;
+                //existingContract.MethodOfProcurement = newContract.MethodOfProcurement;
+                existingContract.ModifiedDate = newContract.ModifiedDate;
+                existingContract.ProcurementID = newContract.ProcurementID;
+                //existingContract.Recipient = newContract.Recipient;
+                existingContract.RecipientID = newContract.RecipientID;
+                existingContract.ServiceEndingDate = newContract.ServiceEndingDate;
+            }
+            return existingContract;
+        }
+
+        [HttpPost]
+        public JsonResult GetDisplayContract(int contractID)
+        {
+            return Json(JsonConvert.SerializeObject(GetExtendedContract(contractID)));
+        }
+
         [HttpGet]
         // GET: Contracts/Review/5
         public async Task<IActionResult> Review(int id)
@@ -221,6 +294,24 @@ namespace EPS3.Controllers
             ViewBag.myVendor = _context.Vendors.SingleOrDefault(v => v.VendorID == contractVM.Contract.VendorID);
             return View(contractVM);
         }
+
+        [HttpPost]
+        public JsonResult GetContractAmountTotal(string contractInfo)
+        {
+            dynamic lookupInfo = JsonConvert.DeserializeObject(contractInfo);
+            if (contractInfo == "{}") { return Json(0.00m); }
+            int contractID = lookupInfo.contractID;
+
+            List<LineItem> lineItems = _context.LineItems.AsNoTracking().Where(l => l.ContractID == contractID).ToList();
+            decimal total = 0.00M;
+            // TODO: This does not account for Advertisements and Awards. Depending how they are input, we may need to exclude Advertisements.
+            foreach (LineItem item in lineItems)
+            {
+                total += item.Amount;
+            }
+            return Json(total);
+        }
+
         // POST: Contracts/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -289,6 +380,7 @@ namespace EPS3.Controllers
                     .Include(c => c.ContractType)
                     .Include(c => c.MethodOfProcurement)
                     .Include(c => c.ContractFunding)
+                    .Include(c => c.User)
                     .Include(c => c.Vendor)
                     .Include(c => c.Recipient)
                     .SingleOrDefault(c => c.ContractID == id);
@@ -322,8 +414,8 @@ namespace EPS3.Controllers
                 }
                 ViewBag.ContractTotalAmount = contractSum;
                 ViewBag.GroupTotalAmounts = groupSums;
-                ViewBag.lineItemTypes = ConstantStrings.GetLineItemTypeList();
-                ViewBag.ContractStatusSelectionList = ConstantStrings.GetContractStatusList();
+                ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
+                ViewBag.ContractStatusSelectionList = GetContractStatusList(contract, ViewBag.Roles);
                 ViewBag.SelectStatusDropdown = _pu.GetStatusDropdown(contract, (User) ViewBag.CurrentUser);
                 ViewBag.WPReviewers = GetWpReviewersList();
             }
@@ -383,6 +475,7 @@ namespace EPS3.Controllers
             ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
             ViewBag.myContractType = _context.ContractTypes.SingleOrDefault(c => c.ContractTypeID == contractVM.Contract.ContractTypeID);
             ViewBag.myVendor = _context.Vendors.SingleOrDefault(v => v.VendorID == contractVM.Contract.VendorID);
+            ViewBag.ContractStatusSelectionList = GetContractStatusList(contractVM.Contract, ViewBag.Roles);
             return View(contractVM);
         }
 
@@ -402,9 +495,54 @@ namespace EPS3.Controllers
             {
                 try
                 {
+                    // compare old and new contract.CurrentStatus. If it has changed:
+                    Contract oldContract = _context.Contracts.AsNoTracking().SingleOrDefault(c => c.ContractID == contract.ContractID);
+                    // 1. ConstantStrings.LookupConstant( contract.CurrentStatus)
+                    contract.CurrentStatus = ConstantStrings.LookupConstant(contract.CurrentStatus);
+                    bool statusChanged = oldContract.CurrentStatus != contract.CurrentStatus;
+                    if(statusChanged)
+                    {
+                        User currentUser = _context.Users.AsNoTracking().SingleOrDefault(u => u.UserID == CurrentUserID);
+                        // 2. add a new Contract Status record
+                        ContractStatus newStatus = new ContractStatus
+                        {
+                            Comments = Comments,
+                            Contract = contract,
+                            CurrentStatus = contract.CurrentStatus,
+                            User = currentUser,
+                            SubmittalDate = DateTime.Now
+                        };
+                        _context.ContractStatuses.Add(newStatus);
+                        _context.SaveChanges();
+                    }
                     contract.ModifiedDate = DateTime.Now.Date;
                     _context.Update(contract);
                     await _context.SaveChangesAsync();
+
+                    // 3. send any appropriate emails
+                    if (statusChanged)
+                    {
+                        if (contract.CurrentStatus.Equals(ConstantStrings.ContractInFinance))
+                        {
+                            // send receipt to Originator
+                            // send notice to Finance
+                        }
+                        if (contract.CurrentStatus.Equals(ConstantStrings.ContractInWP))
+                        {
+                            // send notice to WP users
+                            // TODO: change to selected users
+                        }
+                        if (contract.CurrentStatus.Equals(ConstantStrings.ContractInCFM))
+                        {
+                            // send notice to CFM users
+                        }
+                        if (contract.CurrentStatus.Equals(ConstantStrings.ContractComplete50) ||
+                            contract.CurrentStatus.Equals(ConstantStrings.ContractComplete50) ||
+                            contract.CurrentStatus.Equals(ConstantStrings.ContractComplete50))
+                        {
+                            // send notice to constatus@dot.state.fl.us
+                        }
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -450,6 +588,7 @@ namespace EPS3.Controllers
             {
                 ContractStatus newStatus = JsonConvert.DeserializeObject<ContractStatus>(contractStatus);
                 newStatus.SubmittalDate = DateTime.Now;
+                newStatus.CurrentStatus = ConstantStrings.LookupConstant(newStatus.CurrentStatus);
                 _context.ContractStatuses.Add(newStatus);
 
                 Contract contract = _context.Contracts.Where(c => c.ContractID == newStatus.ContractID).SingleOrDefault();
@@ -457,7 +596,7 @@ namespace EPS3.Controllers
                 _context.Contracts.Update(contract);
                 _context.SaveChanges();
                 //response = "{\"success\" : \"The Contract Status has been successfully updated.\"}";
-                response = "The Contract Status has been successfully updated.";
+                response = contract.CurrentStatus;
             }
             catch (Exception e)
             {
@@ -656,16 +795,12 @@ namespace EPS3.Controllers
 
         private List<User> GetWpReviewersList()
         {
-            List<int> wpUserIDs = _context.Users.AsNoTracking()
-                .SelectMany(u => u.Roles.Where(r => r.Role.Equals(ConstantStrings.WPReviewer))).Select(r => r.UserID).ToList();
-            List<User> wpUsers = _context.Users.AsNoTracking().Where(Utils.BuildOrExpression<User, int>(u => u.UserID, wpUserIDs.ToArray<int>())).ToList();
-
-            return wpUsers;
+            return _pu.GetUsersByRole(ConstantStrings.WPReviewer);
         }
+
         [HttpPost]
         public JsonResult GetHistory(string contractInfo)
         {
-            var contractInfoID = JsonConvert.DeserializeObject(contractInfo);
             Dictionary<string, int> info = JsonConvert.DeserializeObject<Dictionary<string, int>>(contractInfo);
             int contractID = info["ID"];
             List<ContractStatus> statuses = _context.ContractStatuses
@@ -675,6 +810,75 @@ namespace EPS3.Controllers
                 .OrderByDescending(c => c.SubmittalDate)
                 .ToList();
             return Json(statuses);
+        }
+
+        public List<SelectListItem> GetContractStatusList(Contract contract, string roles)
+        {
+            List<SelectListItem> typeList = new List<SelectListItem>();
+            if (roles.Contains(ConstantStrings.Originator)) {
+                switch (contract.CurrentStatus) {
+                    case ConstantStrings.ContractNew:
+                    case ConstantStrings.ContractDrafted:
+                        typeList.Add(new SelectListItem { Value = "ContractDrafted", Text = "Save Contract as Draft" });
+                        typeList.Add(new SelectListItem { Value = "ContractInFinance", Text = "Submit Contract to Finance" });
+                        break;
+                    case ConstantStrings.ContractInCFM:
+                        typeList.Add(new SelectListItem { Value = "ContractRequest50", Text = "Request contract complete, status 50" });
+                        typeList.Add(new SelectListItem { Value = "ContractRequest52", Text = "Request contract complete, status 52" });
+                        typeList.Add(new SelectListItem { Value = "ContractRequest98", Text = "Request contract complete, status 98" });
+                        break;
+                } // end switch
+            } // end if Originator
+            if (roles.Contains(ConstantStrings.FinanceReviewer))
+            {
+                switch (contract.CurrentStatus)
+                {
+                    case ConstantStrings.ContractInFinance:
+                        typeList.Add(new SelectListItem { Value = "ContractDrafted", Text = "Return to Draft" });
+                        typeList.Add(new SelectListItem { Value = "ContractInFinance", Text = "Keep in Work Finance" });
+                        typeList.Add(new SelectListItem { Value = "ContractInWP", Text = "Submit to Work Program" });
+                        typeList.Add(new SelectListItem { Value = "ContractInCFM", Text = "Ready for CFM" });
+                        break;
+                    case ConstantStrings.ContractInCFM:
+                        typeList.Add(new SelectListItem { Value = "ContractComplete50", Text = "Contract is complete with status 50" });
+                        typeList.Add(new SelectListItem { Value = "ContractComplete52", Text = "Contract is complete with status 52" });
+                        typeList.Add(new SelectListItem { Value = "ContractComplete98", Text = "Contract is complete with status 98" });
+                        typeList.Add(new SelectListItem { Value = "ContractArchived", Text = "Contract has been archived" });
+                        break;
+                } // end switch
+            } // end if FinanceReviewer
+            if (roles.Contains(ConstantStrings.WPReviewer))
+            {
+                switch (contract.CurrentStatus)
+                {
+                    case ConstantStrings.ContractInWP:
+                        typeList.Add(new SelectListItem { Value = "ContractInFinance", Text = "Return to Finance" });
+                        typeList.Add(new SelectListItem { Value = "ContractInWP", Text = "Keep in Work Program" });
+                        typeList.Add(new SelectListItem { Value = "ContractInCFM", Text = "Ready for CFM" });
+                        break;
+                } // end switch
+            } // end if WPReviewer
+            if (roles.Contains(ConstantStrings.CFMSubmitter))
+            {
+                switch (contract.CurrentStatus)
+                {
+                    case ConstantStrings.ContractInCFM:
+                        typeList.Add(new SelectListItem { Value = "ContractDrafted", Text = "Return to Draft" });
+                        typeList.Add(new SelectListItem { Value = "ContractInWP", Text = "Return to Work Program" });
+                        typeList.Add(new SelectListItem { Value = "ContractComplete50", Text = "Contract is complete with status 50" });
+                        typeList.Add(new SelectListItem { Value = "ContractComplete52", Text = "Contract is complete with status 52" });
+                        typeList.Add(new SelectListItem { Value = "ContractComplete98", Text = "Contract is complete with status 98" });
+                        typeList.Add(new SelectListItem { Value = "ContractArchived", Text = "Contract has been archived" }); break;
+                } // end switch
+            } // end if CFMSubmitter
+            return typeList;
+        }
+
+        public ExtendedContract GetExtendedContract(int contractID)
+        {
+            Contract returnContract = _pu.GetDeepContract(contractID);
+            if(returnContract == null) { return null; }
+            return new ExtendedContract(returnContract);
         }
 
     } // end ContractsController class

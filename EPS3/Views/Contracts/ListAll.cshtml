@@ -21,11 +21,18 @@
         </div>
         <div class="col-sm-4">
             <form method="GET" action="/Contracts/ListAll" name="reloadForm">
-                <input type="checkbox" name="includeAll" id="includeAll" onclick="reloadContractList()" /><raw>Include All Contracts</raw>
+                <input type="checkbox" checked name="includeAll" id="includeAll"  onclick="reloadContractList()" /><raw>Include All Contracts</raw>
             </form>
         </div>
         <div class="col-sm-4float-right">
-            Welcome, <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin)
+            @if (ViewBag.CurrentUser is null)
+            {
+                <text>Welcome Guest.</text>
+            }
+            else
+            {
+                <text>Welcome, <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin)</text>
+            }
         </div>
     </div>
     <div class="panel-body">
@@ -56,7 +63,6 @@
                     <th>
                         @Html.DisplayNameFor(model => model.DescriptionOfWork)
                     </th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -65,7 +71,6 @@
                     <tr>
                         <td>
                             <a asp-action="View" asp-route-id="@item.ContractID"> @Html.DisplayFor(modelItem => item.ContractNumber)</a> <br />
-                            <a href="https://fdotwp2.dot.state.fl.us/ContractFundsManagement/#/Facts/Contract/@item.ContractNumber" target="_blank">FACTS</a>
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.CurrentStatus)

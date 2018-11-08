@@ -14,7 +14,7 @@ namespace EPS3.Models
         [Required(ErrorMessage = "Please select a Contract Begin Date")]
         public DateTime BeginningDate { get; set; }
         [Display(Name = "Budget Ceiling")]
-        [DisplayFormat(DataFormatString = "{0:c}")]
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal BudgetCeiling { get; set; }
         [ForeignKey("CompensationID")]
         [Display(Name = "Contract Funding Terms")]
@@ -27,7 +27,7 @@ namespace EPS3.Models
         [StringLength(5)]
         public string ContractNumber { get; set; }
         [Display(Name = "Contract Initial Amount")]
-        [DisplayFormat(DataFormatString = "{0:c}")]
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal ContractTotal { get; set; }
         [ForeignKey("ContractTypeID")]
         [Display(Name = "Contract Type")]
@@ -35,6 +35,7 @@ namespace EPS3.Models
         [Display(Name = "Contract Type")]
         public virtual ContractType ContractType { get; set; }
         [Display(Name ="Created Date")]
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime CreatedDate { get; set; }
         [Display(Name ="Current Status")]
         public string CurrentStatus { get; set; }
@@ -47,9 +48,10 @@ namespace EPS3.Models
         [Display(Name = "Is Contract Renewable?")]
         public byte IsRenewable { get; set; }
         [Display(Name = "Maximum LOA Amount")]
-        [DisplayFormat(DataFormatString = "{0:c}")]
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal MaxLoaAmount { get; set; }
         [Display(Name ="Modified Date")]
+        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime? ModifiedDate { get; set; }
         [ForeignKey("ProcurementID")]
         [Display(Name = "Procurement")]

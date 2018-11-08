@@ -1,0 +1,115 @@
+﻿@model Dictionary<string, List<EPS3.Models.LineItemGroup>>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index of Encumbrance Requests</h2>
+
+<div id="tabs">
+    <ul>
+        @foreach (string key in Model.Keys)
+        {
+            <li><a href="#tabs-@key">@key</a></li>
+        }
+    </ul>
+
+    @foreach (string key in Model.Keys)
+    {
+        <div id="tabs-@key">
+            <table class="table table-striped table-bordered" id="indexTable-@key">
+                <thead>
+                    <tr>
+                        <th>
+                            Encumbrance Request ID
+                        </th>
+                        <th>
+                            Contract
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().FlairAmendmentID)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().UserAssignedID)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().AmendedLineItemID)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().CurrentStatus)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().Description)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().LineItemType)
+                        </th>
+                        <th>
+                            Last Edited
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().LineID6S)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().OriginatedDate)
+                        </th>
+                        <th>
+                            Encumbrance Amount
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (LineItemGroup item in Model[key])
+                    {
+                    <tr>
+                        <td>
+                            <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
+                        </td>
+                        <td>
+                            <a href="/Contracts/View/@item.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => @item.CurrentStatus)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FlairAmendmentID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserAssignedID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AmendedLineItemID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserAssignedID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LineItemType)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LastEditedUser.FullName) <br />
+                            @Html.DisplayFor(modelItem => item.LastEditedDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LineID6S)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OriginatedDate)
+                        </td>
+                        <td>
+                            @ViewBag.EncumbranceAmounts[item.GroupID]
+                        </td>
+                    </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div> <!-- end tab for key -->
+    }
+</div> <!-- end tabs div-->

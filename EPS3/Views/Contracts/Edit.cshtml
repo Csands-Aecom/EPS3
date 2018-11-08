@@ -21,13 +21,11 @@
     <input type="hidden" name="Contract.UserID" id="Contract_UserID" value="@ViewBag.CurrentUser.UserID" />
     <input type="hidden" name="Contract.CurrentStatus" id="Contract_CurrentStatus" value="@Model.Contract.CurrentStatus" />
     <input type="hidden" name="CurrentUserID" id="CurrentUserID" value="@ViewBag.CurrentUser.UserID" />
-    <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+    <div class="panel panel-default" data-toggle="collapse" aria-expanded="true">
         <div class="panel-heading">
             <div class="float-right align-top paddingright">
-                <a href="https://fms.fdot.gov/Anonymous/SendDocumentToClient?documentId=95" target="_blank">Blank FACTS Form</a>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <strong>Originator:</strong> @Model.Contract.User.FirstName  @Model.Contract.User.LastName  -
-                @Model.Contract.CreatedDate.ToShortDateString()
+                <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
+                @DateTime.Now.Date.ToShortDateString()
             </div>
             <h3>
                 Contract - @Html.DisplayFor(model => model.Contract.ContractNumber)
@@ -76,14 +74,10 @@
                         </dt>
                         <dd>
                             <span>
-                                <label for="IsRenewable1" class="radio-inline control-label">
-                                    Yes &nbsp; &nbsp; &nbsp;
-                                    @Html.RadioButtonFor(model => model.Contract.IsRenewable, "1")
-                                </label>
-                                <label for="IsRenewable0" class="radio-inline control-label">
-                                    No &nbsp; &nbsp;
-                                    @Html.RadioButtonFor(model => model.Contract.IsRenewable, "0")
-                                </label>
+                                <label for="IsRenewable1">Yes</label>
+                                <input id="IsRenewable1" name="IsRenewable" type="radio" value="1">
+                                <label for="IsRenewable0">No</label>&nbsp;
+                                <input id="IsRenewable0" name="IsRenewable" type="radio" value="0">
                             </span>
                         </dd>
                     </dl>
@@ -127,6 +121,7 @@
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.Contract.BudgetCeiling, "The default Budget Ceiling is $0.00.")
+                            <div id="budgetCeilingMessage" class="error"></div>
                         </dd>
                         <dt>
                             Amendment Amount
@@ -203,7 +198,7 @@
                             <label for="CompensationID">Contract Funding Terms</label>
                         </dt>
                         <dd>
-                            @Html.DropDownList("Contract.CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationSelector"))
+                            @Html.DropDownList("Contract.CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationSelector"), " ", new { @onchange = "updateBudgetCeiling()" })
 
                             @Html.ValidationMessageFor(model => model.Contract.CompensationID, "")
                             <br />
@@ -235,7 +230,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-4">
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.Contract.DescriptionOfWork)
@@ -243,6 +238,35 @@
                         <dd>
                             @Html.TextAreaFor(model => model.Contract.DescriptionOfWork, new { @rows = 3, @cols = "200" })
                             @Html.ValidationMessageFor(model => model.Contract.DescriptionOfWork, "Please provide a description of the work to be completed under this contract.")
+                        </dd>
+                    </dl>
+                </div> <!-- end  col -->
+                <div class="col-sm-4">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.Contract.CurrentStatus)
+                        </dt>
+                        <dd>
+                            <span id="currentStatusSpan">@Model.Contract.CurrentStatus</span><br />
+
+                        @if (ViewBag.ContractStatusSelectionList != null && ViewBag.ContractStatusSelectionList.Count > 0)
+                        {
+                        <select id="Contract_CurrentStatus" onchange="updateContractStatus()" value="@Model.Contract.CurrentStatus">
+                           @foreach (SelectListItem status in ViewBag.ContractStatusSelectionList)
+                           {
+                               if (status.Value.Equals(Model.Contract.CurrentStatus))
+                               {
+                                <option selected value="@status.Value"> @status.Text </option>
+                               }
+                               else
+                               {
+                                <option value="@status.Value"> @status.Text </option>
+                               }
+                           }
+                        </select>
+                        <br />
+                        }
+                        <div id="UpdateSuccess"></div>
                         </dd>
                     </dl>
                 </div> <!-- end  col -->
@@ -256,7 +280,7 @@
             </div> <!-- end row -->
         </div>
     </div>
-    <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+    <div class="panel panel-default" data-toggle="collapse" aria-expanded="true">
         <div class="panel-heading">
             <h3>Encumbrance Requests</h3>
             <a href="\LineItems\Create\@Model.Contract.ContractID">Add Encumbrance Request</a>
@@ -356,7 +380,7 @@
             </table>
         </div>
     </div>
-    <div class="row panel panel-default" data-toggle="collapse" aria-expanded="true">
+    <div class="panel panel-default" data-toggle="collapse" aria-expanded="true">
         <div class="panel-heading">
             <h3>History</h3>
             <!-- <input type="button" class="btn btn-default" onclick="openContractStatusDialog()" value="Update Contract Status" /> -->

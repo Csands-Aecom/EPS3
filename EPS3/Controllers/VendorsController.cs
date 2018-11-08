@@ -52,5 +52,33 @@ namespace EPS3.Controllers
             return RedirectToAction("Edit", "Contracts", new { id = ContractID });
         }
 
+        public JsonResult AddNewVendor(string vendor)
+        {
+            Vendor newVendor = JsonConvert.DeserializeObject<Vendor>(vendor);
+            
+            if((newVendor.VendorCode != null && newVendor.VendorCode.Length > 0) && (newVendor.VendorName != null && newVendor.VendorName.Length > 0)) {
+                if (VendorExists(newVendor.VendorCode))
+                {
+                    newVendor = _context.Vendors.SingleOrDefault(v => v.VendorCode == newVendor.VendorCode);
+                }else
+                {
+                    _context.Vendors.Add(newVendor);
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                return (Json("{\"success\": \"false\"}"));
+            }
+            string success = "{\"success\": \"true\", \"VendorName\" : \"" + newVendor.VendorName + "\", \"VendorID\" : \"" + newVendor.VendorID + "\", \"VendorCode\": \"" + newVendor.VendorCode + "\"}";
+            return Json(success);
+        }
+
+        public bool VendorExists(string vendorCode)
+        {
+            int vendorCount = _context.Vendors.Count(v => v.VendorCode == vendorCode);
+            return (vendorCount > 0);
+        }
+
     }
 }

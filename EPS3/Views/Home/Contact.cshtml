@@ -1,17 +1,34 @@
 ﻿@{
     ViewData["Title"] = "Contact";
 }
-<h2>@ViewData["Title"]</h2>
-<h3>@ViewData["Message"]</h3>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h2>@ViewData["Title"]</h2>
+    </div>
+    <div class="panel-body">
+        <h5>This is the Encumbrance Processing System (EPS) for the Florida Turnpike.</h5>
+        <h5>@ViewData["Message"]</h5>
+        <h5>To request access to this application, email <a href="mailto:Lorna.Francis@dot.state.fl.us?subject=EPS2%20Access%20Request">Lorna Francis</a>.</h5>
+        <br />
+        <table>
+            <tr>
+                <td>Lorna Francis</td>
+                <td><a href="mailto:lorna.francis@dot.state.fl.us">lorna.francis@dot.state.fl.us</a></td>
+                <td><a href="tel:4072643137">407-264-3137</a></td>
+            </tr>
+            <tr>
+                <td>Troy Williams</td>
+                <td><a href="mailto:troy.williams@dot.state.fl.us">troy.williams@dot.state.fl.us</a></td>
+                <td><a href="tel:4072643984">407-264-3984</a></td>
+            </tr>
+            <tr>
+                <td>Cyndie Hart</td>
+                <td><a href="mailto:cyndie.hart@dot.state.fl.us">cyndie.hart@dot.state.fl.us</a></td>
+                <td><a href="tel:4072643140">407-264-3140</a></td>
+            </tr>
+        </table>
+        <br />
+        You can view EPS Contract information <a href="/Contracts/ListAll">here</a>.
+    </div>
+</div>
 
-<address>
-    One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
-    <abbr title="Phone">P:</abbr>
-    425.555.0100
-</address>
-
-<address>
-    <strong>Support:</strong> <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-</address>

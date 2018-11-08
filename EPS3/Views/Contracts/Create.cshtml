@@ -10,12 +10,10 @@
     <input type="hidden" name="UserID" id="UserID" value="@ViewBag.CurrentUser.UserID" />
     <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="New" />
     <input type="hidden" name="AllowedActions" id="AllowedActions" value="@ViewBag.AllowedActions" />
-    <div class="row panel panel-default">
+    <div class="panel panel-default">
         <div class="panel-heading">
             <div class="float-right align-top paddingright">
-                <a href="https://fms.fdot.gov/Anonymous/SendDocumentToClient?documentId=95" target="_blank">Blank FACTS Form</a>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <strong>Originator:</strong> @ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName -
+                <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
                 @DateTime.Now.Date.ToShortDateString()
             </div>
             <h3>New Contract</h3>
@@ -99,7 +97,7 @@
                                     </label>
                                 </span>
                                 @Html.ValidationMessageFor(model => model.BudgetCeiling, "The default Budget Ceiling is $0.00.")
-                                <div id="budgetCeilingMessage"></div>
+                                <div id="budgetCeilingMessage" class="error"></div>
                             </dd>
                         </dl>
                     </div>
@@ -208,7 +206,7 @@
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="form-group">
-                            <input type="submit" value="Create" class="btn btn-default" onclick="validateContract()"/>
+                            <input type="submit" value="Create" class="btn btn-default" onclick="validateContractDollars()"/>
                         </div> <!-- end form-group -->
                     </div> <!-- end col -->
                 </div> <!-- end row -->

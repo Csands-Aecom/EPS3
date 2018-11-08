@@ -41,7 +41,8 @@ namespace EPS3.Controllers
             }
             else
             {
-                return RedirectToAction("List", "Contracts");
+                //return RedirectToAction("List", "Contracts");
+                return RedirectToAction("List", "LineItems");
             }
             //return View();
         }
@@ -99,6 +100,22 @@ namespace EPS3.Controllers
         {
             // Send an email to the EPS2 Administrator to notify that an error has occurred
             // Include as much debugging information as possible.
+        }
+
+        public IActionResult FAQ()
+        {
+            ViewData["Title"] = "Frequently Asked Questions";
+            ViewData["Message"] = "Your FAQ page.";
+
+            return View();
+        }
+
+        public IActionResult Help()
+        {
+            ViewData["Title"] = "EPS Help";
+            ViewData["Message"] = "Your help page.";
+
+            return View();
         }
     }
 }

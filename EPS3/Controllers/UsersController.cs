@@ -9,6 +9,7 @@ using EPS3.DataContexts;
 using EPS3.Models;
 using EPS3.Helpers;
 using EPS3.ViewModels;
+using Newtonsoft.Json;
 
 namespace EPS3.Controllers
 {
@@ -26,7 +27,7 @@ namespace EPS3.Controllers
         public async Task<IActionResult> Index()
         {
             ViewBag.UserIsAdmin = UserIsAdmin();
-            return View(await _context.Users.Include(u => u.Roles).ToListAsync());
+            return View(await _context.Users.Include(u => u.Roles).Where(u => u.IsDisabled==0).ToListAsync());
         }
 
         // GET: Users/Details/5
@@ -39,6 +40,7 @@ namespace EPS3.Controllers
 
             var user = await _context.Users
                 .Include(u => u.Roles)
+                .Where(u => u.IsDisabled == 0)
                 .SingleOrDefaultAsync(m => m.UserID == id);
             if (user == null)
             {
@@ -111,6 +113,7 @@ namespace EPS3.Controllers
             {
                 UserVM.User = await _context.Users
                 .Include(u => u.Roles)
+                .Where(u => u.IsDisabled == 0)
                 .SingleOrDefaultAsync(u => u.UserID == id);
                 string userRoles = "";
                 foreach (UserRole role in UserVM.User.Roles)
@@ -191,12 +194,13 @@ namespace EPS3.Controllers
             {
                 var userToDelete = await _context.Users
                     .Include(u => u.Roles)
+                    .Where(u => u.IsDisabled == 0)
                     .SingleOrDefaultAsync(m => m.UserID == id);
-                if (user == null)
+                if (userToDelete == null)
                 {
                     return NotFound();
                 }
-                return View(user);
+                return View(userToDelete);
             }
             else
             {
@@ -207,11 +211,17 @@ namespace EPS3.Controllers
         // POST: Users/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(m => m.UserID == id);
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            List<UserRole> roles = _context.UserRoles.Where(r => r.UserID == id).ToList();
+            if (roles != null)
+            {
+                roles.ForEach(r => r.EndDate = DateTime.Now);
+                _context.SaveChanges();
+            }   
+            var user = _context.Users.SingleOrDefault(m => m.UserID == id);
+            user.IsDisabled = 1;
+            _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
 
@@ -242,7 +252,10 @@ namespace EPS3.Controllers
         private bool UserIsAdmin()
         {
             string userLogin = GetLogin();
-            EPS3.Models.User currentUser = _context.Users.Include(u => u.Roles).SingleOrDefault(u => u.UserLogin == userLogin);
+            EPS3.Models.User currentUser = _context.Users
+                .Include(u => u.Roles)
+                .Where(u => u.IsDisabled == 0)
+                .SingleOrDefault(u => u.UserLogin == userLogin);
             foreach(UserRole role in currentUser.Roles)
             {
                 if (role.Role.Equals(ConstantStrings.AdminRole)){
@@ -328,6 +341,13 @@ namespace EPS3.Controllers
                 roles += role.Role;
             }
             return roles;
+        }
+
+        public JsonResult GetWPUsers()
+        {
+            List<User> wpUsers = _pu.GetUsersByRole(ConstantStrings.WPReviewer);
+            //string result = JsonConvert.SerializeObject(wpUsers);
+            return Json(wpUsers);
         }
     }
 }

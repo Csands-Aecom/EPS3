@@ -11,6 +11,7 @@ using EPS3.Helpers;
 using EPS3.ViewModels;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Newtonsoft.Json;
 
 namespace EPS3.Controllers
 {
@@ -76,42 +77,43 @@ namespace EPS3.Controllers
         {
             string userLogin = GetLogin();
             PopulateViewBag(contractID);
-
-            try
+            if (groupID > 0)
             {
-                // id is the LineItemGroup.GroupID 
-                var group =  _context.LineItemGroups.Where(lig => lig.GroupID == groupID).SingleOrDefault();
-                if (group == null)
+                try
                 {
-                    // if it is zero or does not exist, create a new LineItemGroup and set id = its GroupID
-                    LineItemGroup newGroup = new LineItemGroup(ViewBag.Contract, ViewBag.CurrentUser)
+                    // id is the LineItemGroup.GroupID 
+                    var group = _context.LineItemGroups.Where(lig => lig.GroupID == groupID).SingleOrDefault();
+                    if (group == null)
                     {
-                        CurrentStatus = ConstantStrings.Draft,
-                        LastEditedUserID = ViewBag.CurrentUser.UserID,
-                        OriginatorUserID = ViewBag.CurrentUser.UserID
-                    };
-                    _context.LineItemGroups.Add(newGroup);
-                    _context.SaveChanges();
+                        // if it is zero or does not exist, create a new LineItemGroup and set id = its GroupID
+                        LineItemGroup newGroup = new LineItemGroup(ViewBag.Contract, ViewBag.CurrentUser)
+                        {
+                            CurrentStatus = ConstantStrings.Draft,
+                            LastEditedUserID = ViewBag.CurrentUser.UserID,
+                            OriginatorUserID = ViewBag.CurrentUser.UserID
+                        };
+                        _context.LineItemGroups.Add(newGroup);
+                        _context.SaveChanges();
 
-                    group = newGroup;
+                        group = newGroup;
+                    }
+                    ViewBag.lineItemGroup = group;
+                    ViewBag.contractID = ViewBag.Contract.ContractID;
+
+                    // also the View does not use this to populate a selection list yet.
+                    //ViewData["FlairLineIDs"] = GetAmendmentsList(contractID);
                 }
-                ViewBag.lineItemGroup = group;
-                ViewBag.contractID = ViewBag.Contract.ContractID;
+                catch (Exception e)
+                {
 
-                ViewBag.lineItemTypes = ConstantStrings.GetLineItemTypeList();
-                ViewBag.currentFiscalYear = CurrentFiscalYear();
-                ViewData["Categories"] = _context.Categories.OrderBy(v => v.CategoryCode);
-                ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
-                // TODO: This method fails when no related line items are found
-                // also the View does not use this to populate a selection list yet.
-                //ViewData["FlairLineIDs"] = GetAmendmentsList(contractID);
+                    _logger.LogError("ContractsController.Create Error:" + e.GetBaseException());
+                    Log.Error("ContractsController.Create Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                }
             }
-            catch (Exception e)
-            {
-
-                _logger.LogError("ContractsController.Create Error:" + e.GetBaseException());
-                Log.Error("ContractsController.Create Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-            }
+            ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
+            ViewBag.currentFiscalYear = _pu.GetCurrentFiscalYear();
+            ViewData["Categories"] = _context.Categories.OrderBy(v => v.CategoryCode);
+            ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
             return View();
         }
 
@@ -196,8 +198,55 @@ namespace EPS3.Controllers
             return View(lineItem);
         }
 
+        [HttpPost]
+        public JsonResult AddNewLineItem(string lineItem)
+        {
+            LineItem newLineItem = JsonConvert.DeserializeObject<LineItem>(lineItem);
+            // set linenumber correctly
+            if (newLineItem.LineNumber == 0)
+            {
+                int nextLineNumber = _context.LineItems.Where(g => g.LineItemGroupID == newLineItem.LineItemGroupID).Select(g => g.LineNumber).DefaultIfEmpty(0).Max();
+                newLineItem.LineNumber = nextLineNumber + 1;
+            }
+            if(newLineItem.OrgCode.Length > 9 && newLineItem.OrgCode.Contains("55-"))
+            {
+                newLineItem.OrgCode = newLineItem.OrgCode.Replace("55-", "");
+            }
+            if (newLineItem.LineItemID > 0)
+            {
+                //LineItem already exists. This is an update.
+                _context.LineItems.Update(newLineItem);
+            }
+            else
+            {
+                // set lineNumber
+                int numberOfLineItems = _context.LineItems.Where(l => l.LineItemGroupID == newLineItem.LineItemGroupID).Count();
+                //New Line Item. Add it.
+                _context.LineItems.Add(newLineItem);
+            }
+            _context.SaveChanges();
+            ExtendedLineItem wrapperLineItem = GetExtendedLineItem(newLineItem.LineItemID);
+            string result = JsonConvert.SerializeObject(wrapperLineItem);
+            return Json(result);
+        }
 
 
+        [HttpPost]
+        public JsonResult DeleteLineItem(int LineItemID)
+        {
+            try
+            {
+                var lineItem = _context.LineItems.SingleOrDefault(m => m.LineItemID == LineItemID);
+                _context.LineItems.Remove(lineItem);
+                _context.SaveChanges();
+            }catch(Exception e)
+            {
+                _logger.LogError("LineItemsController.DeleteLineItem Error:" + e.GetBaseException());
+                Log.Error("LineItemsController.DeleteLineItem  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                return Json("{\"fail\" : \"Delete failed.\"}");
+            }
+            return Json("{\"success\": \"Line " + LineItemID.ToString() + " successfully deleted.\"}");
+        }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
@@ -212,7 +261,7 @@ namespace EPS3.Controllers
                 if (Request.QueryString.ToString().Contains("duplicate=true")) { ViewBag.duplicate = "true"; }
                 if (RouteData.Values.Keys.Contains("duplicate") && RouteData.Values["duplicate"].ToString() == "true") { ViewBag.duplicate = "true";}
             }
-            ViewBag.lineItemTypes = ConstantStrings.GetLineItemTypeList();
+            ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
             var lineItemVM = new LineItemViewModel();
             var lineItem = await _context.LineItems.SingleOrDefaultAsync(m => m.LineItemID == id);
             var contract = await _context.Contracts.SingleOrDefaultAsync(c => c.ContractID == lineItem.ContractID);
@@ -249,7 +298,7 @@ namespace EPS3.Controllers
             ViewBag.myStateProgram = _context.StatePrograms.SingleOrDefault(p => p.ProgramID == lineItem.StateProgramID);
             ViewBag.LineItemID = lineItem.LineItemID;
             ViewBag.ContractID = contract.ContractID;
-            ViewBag.currentFiscalYear = CurrentFiscalYear();
+            ViewBag.currentFiscalYear = _pu.GetCurrentFiscalYear();
             }
             catch (Exception e)
             {
@@ -552,19 +601,7 @@ namespace EPS3.Controllers
             return orgCode;
         }
 
-        private string CurrentFiscalYear()
-        {
-            int year = DateTime.Now.Year;
-            int month = DateTime.Now.Month;
-            if (month >= 6)
-            {
-                return year.ToString() + " - " + (year + 1).ToString();
-            }
-            else
-            {
-                return (year-1).ToString() + " - " + year.ToString();
-            }
-        }
+
 
         private List<SelectListItem> GetAmendmentsList(int? id)
         {
@@ -614,8 +651,8 @@ namespace EPS3.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("ContractsController.PopulateViewBag Error:" + e.GetBaseException());
-                    Log.Error("ContractsController.PopulateViewBag Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                    _logger.LogError("LineItemsController.PopulateViewBag Error:" + e.GetBaseException());
+                    Log.Error("LineItemsController.PopulateViewBag Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 }
             }
             else
@@ -729,6 +766,14 @@ namespace EPS3.Controllers
                 results.Add(ConstantStrings.CFMSubmitter, cfmLineIDs);
             }
             return results;
+        }
+
+
+        public ExtendedLineItem GetExtendedLineItem(int lineItemID)
+        {
+            LineItem returnLineItem = _pu.GetDeepLineItem(lineItemID);
+            if (returnLineItem == null) { return null; }
+            return new ExtendedLineItem(returnLineItem);
         }
     } // end class
 

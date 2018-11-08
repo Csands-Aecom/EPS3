@@ -17,12 +17,14 @@ namespace EPS3.Helpers
         private readonly EPSContext _context;
         private SmtpConfig _smtpConfig { get; }
         private string _serverpath;
+        private PermissionsUtils _pu;
 
         public MessageService(EPSContext context, SmtpConfig smtpConfig, string url)
         {
             _context = context;
             _smtpConfig = smtpConfig;
             _serverpath = url;
+            _pu = new PermissionsUtils(context);
             //_logger = logger;
         }
 
@@ -36,7 +38,8 @@ namespace EPS3.Helpers
             int msgID = 0;
             List<int> recipientIDs = null;
             decimal encumbranceTotal = 0.0M;
-            string contractViewURL = _serverpath + "/Contracts/View/" + encumbrance.ContractID + "/enc_" + encumbrance.GroupID;
+            //string contractViewURL = _serverpath + "/Contracts/View/" + encumbrance.ContractID + "/enc_" + encumbrance.GroupID;
+            string contractViewURL = _serverpath + "/LineItemGroups/Manage/" + encumbrance.GroupID;
             foreach (LineItem item in encumbrance.LineItems)
             {
                 encumbranceTotal += item.Amount;
@@ -58,12 +61,17 @@ namespace EPS3.Helpers
                         msg.Subject = "Encumbrance Request ID " +  encumbrance.GroupID +  " for contract " + contract.ContractNumber + " has been submitted for Finance Review";
                         msg.Body = "<p>Please process the following encumbrance request: ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " in the amount of $" + encumbranceTotal + ".</p>\n";
 
-                        if (comments.Length > 0)
+                        if (comments != null && comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
                         msg.Body += GetStatusComments(encumbrance);
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "View Contract Page</a>.</p>";
                         recipientIDs = (List<int>) _context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
+                        int receiptID = SendReceipt(encumbrance, submitter, comments);
+                        if (submitter.CanReceiveEmails())
+                        {
+                            SendEmailMessage(receiptID);
+                        }
                         break;
                     case ConstantStrings.FinanceToDraft:
                     case ConstantStrings.CFMToDraft:
@@ -76,7 +84,7 @@ namespace EPS3.Helpers
                         recipientIDs = new List<int> { encumbrance.OriginatorUserID };
                         break;
                     case ConstantStrings.FinanceToWP:
-                        msg.Subject = "An encumbrance request for contract " + contract.ContractNumber + " has been submitted for Work Program Review";
+                        msg.Subject = "Please process the following encumbrance request for contract " + contract.ContractNumber + " has been submitted for Work Program Review";
                         msg.Body = "<p>" + submitter.FullName + " has approved an encumbrance request under contract " + contract.ContractNumber + ".</p>\n";
                         if (comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
@@ -128,20 +136,111 @@ namespace EPS3.Helpers
             return msgID ;
         }
 
+        public int SendReceipt(LineItemGroup encumbrance, User submitter, string comments)
+        {
+            Message msg = new Message
+            {
+                FromUserID = encumbrance.LastEditedUserID,
+                MessageDate = DateTime.Now
+            };
+            msg.Subject = "Encumbrance Request ID " + encumbrance.GroupID; // + " for contract " + contract.ContractNumber
+            msg.Body = GetOriginatorReceipt(encumbrance);
+            msg.MessageDate = DateTime.Now;
+            msg.FromUserID = submitter.UserID;
+            // Save the message to the database
+            try
+            {
+                _context.Messages.Add(msg);
+                _context.SaveChanges();
+                AddRecipient(msg.MessageID, submitter);
+                return msg.MessageID;
+            }
+            catch (Exception e)
+            {
+                return -1;
+            }
+        }
+
+        public string GetOriginatorReceipt(LineItemGroup encumbrance)
+        {
+            Contract contract = _context.Contracts.SingleOrDefault(c => c.ContractID == encumbrance.ContractID);
+            return GetOriginatorReceipt(contract, encumbrance);
+        }
+
+        public string GetOriginatorReceipt(Contract contract, LineItemGroup encumbrance)
+        {
+            string body = "You have submitted the following encumbrance request for Finance Review in the Encumbrance Processing System application.";
+            string contractInfo = "";
+            string encumbranceInfo = "";
+            string linesInfo = "";
+            string url = _serverpath + "/Contracts/View/" + encumbrance.ContractID + "/enc_" + encumbrance.GroupID;
+            if (_pu.IsShallowContract(contract))
+            {
+                contract = _pu.GetDeepContract(contract.ContractID);
+            }
+            if (encumbrance == null)
+            {
+                return null;
+            }
+            else
+            {
+                if (_pu.IsShallowEncumbrance(encumbrance))
+                {
+                    encumbrance = _pu.GetDeepEncumbrance(encumbrance.GroupID);
+                }
+                decimal encumbranceAmount = GetEncumbranceTotal(encumbrance);
+                encumbranceInfo = GetEncumbranceInfo(encumbrance, encumbranceAmount);
+                if (contract == null)
+                {
+                    contract = _pu.GetDeepContract(encumbrance.ContractID);
+                }
+
+                // if encumbrance is populated, start with a row for contract, one row for encumbrance and include all associated Line Items
+                if (encumbrance.LineItemType.Equals(ConstantStrings.NewContract) || 
+                    encumbrance.LineItemType.Equals(ConstantStrings.Advertisement) || 
+                    encumbrance.LineItemType.Equals(ConstantStrings.Award))
+                {
+                    contractInfo = GetContractInfo(contract);
+                }
+                else
+                {
+                    contractInfo += "<strong>Contract: " + contract.ContractNumber + "</strong><br/>";
+                    contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br/>";
+                    //TODO: What other contract information should be included in the email receipt?
+                }
+                List<LineItem> lineItems = _pu.GetDeepLineItems(encumbrance.GroupID);
+                if (lineItems == null || lineItems.Count == 0)
+                {
+                    linesInfo += "There are no line items associated with this encumbrance.";
+                }
+                else
+                {
+                    linesInfo += GetLineItemsInfo(lineItems);
+                }
+            }
+            body += contractInfo + "<br/>" + encumbranceInfo + "<br/>" + linesInfo + "<br/><br/>";
+            body += "You can review your encumbrance request at <a href='" + url +"'> Encumbrance " + encumbrance.GroupID + "</a>";
+            return body;
+        }
+
         public void AddRecipients(int msgID, IEnumerable<User> recipients)
         {
             foreach(User user in recipients)
             {
-                if (user.ReceiveEmails > 0)
+                AddRecipient(msgID, user);
+            }
+        }
+        public void AddRecipient(int msgID, User user)
+        {
+            if (user.ReceiveEmails > 0)
+            {
+                MessageRecipient msgRecipient = new MessageRecipient
                 {
-                    MessageRecipient msgRecipient = new MessageRecipient
-                    {
-                        MessageID = msgID,
-                        UserID = user.UserID
-                    };
-                    _context.MessageRecipients.Add(msgRecipient);
-                    _context.SaveChanges();
-                }
+                    MessageID = msgID,
+                    UserID = user.UserID
+                };
+                _context.MessageRecipients.Add(msgRecipient);
+                _context.SaveChanges();
             }
         }
 
@@ -182,8 +281,8 @@ namespace EPS3.Helpers
             //    MessageRecipient recip = new MessageRecipient(admin);
             //    adminRecipients.Add(recip);
             //}
-            User chrissands = _context.Users.AsNoTracking().SingleOrDefault(u => u.UserLogin.Equals("KNAECCS"));
-            adminRecipients.Add(new MessageRecipient(chrissands));
+            User adminUser = _context.Users.AsNoTracking().SingleOrDefault(u => u.UserLogin.Equals("KNAECCS"));
+            adminRecipients.Add(new MessageRecipient(adminUser));
             Message msg = new Message()
             {
                 FromUser = new User()
@@ -261,6 +360,76 @@ namespace EPS3.Helpers
                 }
             }
             return result;
+        }
+
+        public string GetContractInfo(Contract contract)
+        {
+            // NOTE: This must be a Deep Copy of a contract
+            string contractInfo = "";
+            contractInfo += "<h3>Contract Information</h3>";
+            contractInfo += "<strong>Contract Number:</strong> " + contract.ContractNumber + "<br />";
+            contractInfo += "<strong>Contract Type:</strong> " + contract.ContractType.ContractTypeSelector + "<br />";
+            string canRenew = contract.IsRenewable > 0 ? "Yes" : "No";
+            contractInfo += "<strong>Is Contract Renewable?:</strong> " + canRenew + "<br />";
+            contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br />";
+            contractInfo += "<strong>Maximum LOA Amount:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.MaxLoaAmount.ToString())) + "<br />";
+            contractInfo += "<strong>Budget Ceiling:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.BudgetCeiling.ToString()))  + "<br />";
+            contractInfo += "<strong>Contract Begin Date:</strong> " + contract.BeginningDate.ToString("MM/dd/yyyy") + "<br />";
+            contractInfo += "<strong>Contract End Date:</strong> " + contract.EndingDate.ToString("MM/dd/yyyy") + "<br />";
+            contractInfo += "<strong>Service End Date:</strong> " + contract.ServiceEndingDate.ToString("MM/dd/yyyy") + "<br />";
+            contractInfo += "<strong>Procurement:</strong> " + contract.MethodOfProcurement.ProcurementSelector + "<br />";
+            contractInfo += "<strong>Contract Funding Terms:</strong> " + contract.ContractFunding.CompensationSelector + "<br />";
+            contractInfo += "<strong>Vendor:</strong> " + contract.Vendor.VendorSelector + "<br />";
+            contractInfo += "<strong>Recipient:</strong> " + contract.Recipient.RecipientSelector + "<br />";
+            contractInfo += "<strong>Description of Work:</strong> " + contract.DescriptionOfWork + "<br />";
+
+            return contractInfo;
+        }
+        
+        public string GetEncumbranceInfo(LineItemGroup encumbrance, decimal encumbranceAmount)
+        {
+            string encumbranceInfo = "";
+            encumbranceInfo += "<strong>Encumbrance Type:</strong> " + encumbrance.LineItemType + "<br />";
+            encumbranceInfo += "<strong>Status:</strong>" + encumbrance.CurrentStatus + "<br />";
+            encumbranceInfo += "<strong>Encumbrance Total:</strong>" + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceAmount.ToString())) + "<br />";
+            encumbranceInfo += "<strong>6s:</strong>" + encumbrance.LineID6S + "<br />";
+            encumbranceInfo += "<strong>Original FLAIR Amendment ID:</strong>" + encumbrance.FlairAmendmentID + "<br />";
+            encumbranceInfo += "<strong>User Assigned ID:</strong>" + encumbrance.UserAssignedID + "<br />";
+            encumbranceInfo += "<strong>Corrects FLAIR ID:</strong>" + encumbrance.AmendedLineItemID + "<br />";
+            encumbranceInfo += "<strong>Last Updated:</strong>" + encumbrance.LastEditedDate + " by " + encumbrance.LastEditedUser.FirstName + " " + encumbrance.LastEditedUser.LastName + "<br />";
+
+            return encumbranceInfo;
+        }
+
+        public string GetLineItemsInfo(List<LineItem> lineItems)
+        {
+            string linesInfo = "";
+            linesInfo += "<table><thead><tr><th>Order</th><th>Line</th><th>Organization Code</th><th>Financial Project Number</th><th>State Program</th><th>Category</th><th>Work Activity</th><th>OCA</th><th>EO</th><th>Object Code</th><th>Fund</th><th>Fiscal Year</th><th>Amount</th></tr></thead><tbody>";
+            foreach (LineItem item in lineItems)
+            {
+                linesInfo += "<tr>";
+                linesInfo += "<td>" + item.LineNumber + "</td>";
+                linesInfo += "<td>" + item.LineItemID + "</td>";
+                linesInfo += "<td>55-" + item.OrgCode + "</td>";
+                linesInfo += "<td>" + item.FinancialProjectNumber + "</td>";
+                linesInfo += "<td>" + item.StateProgram.ProgramSelector + "</td>";
+                linesInfo += "<td>" + item.Category.CategorySelector + "</td>";
+                linesInfo += "<td>" + item.WorkActivity + "</td>";
+                linesInfo += "<td>" + item.OCA.OCASelector + "</td>";
+                linesInfo += "<td>" + item.ExpansionObject + "</td>";
+                linesInfo += "<td>" + item.FiscalYearRange + "</td>";
+                linesInfo += "<td>$" + string.Format("{0:#.00}", Convert.ToDecimal(item.Amount.ToString())) + "</td>";
+                linesInfo += "</tr>";
+            }
+            linesInfo += "</tbody></table>";
+            return linesInfo;
+        }
+
+        public decimal GetEncumbranceTotal(LineItemGroup encumbrance)
+        {
+            decimal total = 0;
+            // TODO: get contract total, amount from each line item, add them up and return the value
+            return total;
         }
     }
 }

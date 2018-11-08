@@ -18,7 +18,7 @@ namespace EPS3.Models
         }
 
         [Display(Name = "Amount")]
-        [DisplayFormat(DataFormatString = "{0:c}")]
+        [DisplayFormat(DataFormatString = "{0:C}")]
         public decimal Amount { get; set; }
         public int ContractID { get; set; }
         public virtual Contract Contract { get; set; }

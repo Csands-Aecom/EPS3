@@ -47,6 +47,26 @@ namespace EPS3.Helpers
             return null;
         }
 
+        public User GetUserByID(int userID)
+        {
+            if (userID > 0)
+            {
+                try
+                {
+                    User currentUser = (User)_context.Users
+                    .Where(u => u.UserID == userID)
+                    .AsNoTracking()
+                    .SingleOrDefault();
+                    return currentUser;
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+            return null;
+        }
+
         public string GetUserRoles(string userLoginName)
         {
             // returns a string concatenation of all of the users UserRole.Role names
@@ -71,7 +91,19 @@ namespace EPS3.Helpers
             }
             return roles;
         }
+        public List<User> GetUsersByRole(string role)
+        {
+            try{
+                List<int> userIDs = _context.Users.AsNoTracking()
+                    .SelectMany(u => u.Roles.Where(r => r.Role.Equals(role))).Select(r => r.UserID).ToList();
+                List<User> roleUsers = _context.Users.AsNoTracking().Where(Utils.BuildOrExpression<User, int>(u => u.UserID, userIDs.ToArray<int>())).ToList();
 
+                return roleUsers;
+            }catch(Exception e)
+            {
+                return null;
+            }
+        }
         public Contract GetContractByID(int contractID)
         {
             // returns the Contract with the specified contractID
@@ -129,6 +161,19 @@ namespace EPS3.Helpers
                 throw e;
             }
         }
+        public string GetCurrentFiscalYear()
+        {
+            int year = DateTime.Now.Year;
+            int month = DateTime.Now.Month;
+            if (month >= 6)
+            {
+                return year.ToString() + " - " + (year + 1).ToString();
+            }
+            else
+            {
+                return (year - 1).ToString() + " - " + year.ToString();
+            }
+        }
 
         public string GetStatusDropdown(Contract contract, User user)
         {
@@ -168,5 +213,114 @@ namespace EPS3.Helpers
             return dropdown;
         }
 
+        public bool IsShallowContract(Contract contract)
+        {
+              // return true if contract does not include child elements
+            if(contract.LineItems == null && HasLineItems(contract)) { return true; }
+            if(contract.ProcurementID > 0 && contract.MethodOfProcurement == null) { return true; }
+            return false;
+        }
+        public bool IsShallowEncumbrance(LineItemGroup encumbrance)
+        {
+            // return true if encumbrance does not include child elements (i.e., LineItems)
+            if(encumbrance.LineItems == null && HasLineItems(encumbrance)) { return true; }
+            if(encumbrance.OriginatorUserID > 0 && encumbrance.OriginatorUser == null) { return true; }
+            return false;
+        }
+
+        public bool HasLineItems(Contract contract)
+        {
+            int itemCount = _context.LineItems.Where(li => li.ContractID == contract.ContractID).Count();
+            return (itemCount > 0);
+        }
+        public bool HasLineItems(LineItemGroup encumbrance)
+        {
+            int itemCount = _context.LineItems.Where(li => li.LineItemGroupID == encumbrance.GroupID).Count();
+            return (itemCount > 0);
+        }
+
+        public Contract GetDeepContract(int contractID)
+        {
+            try
+            {
+                Contract contract = _context.Contracts.AsNoTracking()
+                    .Include(c => c.ContractFunding)
+                    .Include(c => c.MethodOfProcurement)
+                    .Include(c => c.Vendor)
+                    .Include(c => c.User)
+                    .Include(c => c.Recipient)
+                    .Include(c => c.ContractType)
+                    .SingleOrDefault(c => c.ContractID == contractID);
+                return contract;
+            }
+            catch (Exception e)
+            {
+                // log exception
+                return null;
+            }
+        }
+
+        public LineItemGroup GetDeepEncumbrance(int groupID)
+        {
+            try
+            {
+                LineItemGroup encumbrance = _context.LineItemGroups.AsNoTracking()
+                    .Include(l => l.LastEditedUser)
+                    .Include(l => l.OriginatorUser)
+                    .Include(l => l.LineItems).ThenInclude(li => li.OCA)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Category)
+                    .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Fund)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Statuses).ThenInclude(lst => lst.User)
+                    .Include(l => l.Statuses).ThenInclude(gst => gst.User)
+                    .SingleOrDefault(l => l.GroupID == groupID);
+                return encumbrance;
+            }
+            catch (Exception e)
+            {
+                // log exception
+                return null;
+            }
+        }
+
+        public LineItem GetDeepLineItem(int lineItemID)
+        {
+            try
+            {
+                LineItem item = _context.LineItems.AsNoTracking()
+                    .Include(l => l.Category)
+                    .Include(l => l.Fund)
+                    .Include(l => l.OCA)
+                    .Include(l => l.StateProgram)
+                    .OrderBy(l => l.LineNumber)
+                    .SingleOrDefault(l => l.LineItemID == lineItemID);
+                return item;
+            }catch(Exception e)
+            {
+                // TODO: log exception
+                return null;
+            }
+        }
+
+        public List<LineItem> GetDeepLineItems(int groupID)
+        {
+            try
+            {
+                List<LineItem> items = _context.LineItems.AsNoTracking()
+                    .Include(l => l.Category)
+                    .Include(l => l.Fund)
+                    .Include(l => l.OCA)
+                    .Include(l => l.StateProgram)
+                    .OrderBy(l => l.LineNumber)
+                    .Where(l => l.LineItemGroupID == groupID)
+                    .ToList();
+                return items;
+            }
+            catch(Exception e)
+            {
+                // TODO: log exception
+                return null;
+            }
+        }
     }
 }

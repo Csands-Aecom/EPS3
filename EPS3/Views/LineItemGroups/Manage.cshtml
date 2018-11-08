@@ -1,0 +1,306 @@
+﻿@model EPS3.Models.LineItemGroup
+
+@{
+    ViewData["Title"] = "Manage Encumbrance";
+}
+
+<p>&nbsp;</p>
+<div id="ContractPanel" class="panel panel-default" style="display: none">
+    <div class="panel-heading">
+        <h3 id="ContractTitle">Contract</h3>
+    </div>
+    <div class="panel-body" id="ContractPanelBody">
+    </div>
+</div>
+<form asp-action="Manage">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" name="UserID" id="UserID" value="@ViewBag.CurrentUser.UserID" />
+    @if (Model != null && Model.CurrentStatus != null)
+    {
+        <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="@Model.CurrentStatus" />
+    }
+    else
+    {
+        <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="New" />
+    }
+    <input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
+    <input type="hidden" name="AllowedActions" id="AllowedActions" value="@ViewBag.AllowedActions" />
+    <div class="ui-dialog ui-front" name="ContractDialog" id="ContractDialog"> </div>
+    <div class="ui-dialog ui-front" name="LineItemDialog" id="LineItemDialog"> </div>
+    <div class="ui-dialog ui-front" name="SubmissionDialog" id="SubmissionDialog"> </div>
+    @{
+        var hideStyle = "display:none";
+        var lineStyle = (@ViewBag.LineItemCount > 0) ? "" : hideStyle;
+        <div class="panel panel-default" id="LineItemsPanel" name="LineItemsPanel" style=@lineStyle>
+            <div class="panel-heading">
+                <h3>Line Items</h3>
+            </div> <!-- end panel-heading -->
+            <div class="panel-body">
+                @if(@ViewBag.Roles.Contains(ConstantStrings.Originator))
+                {
+                    <a href="javascript:openLineItemDialog()">Add Line Item</a>
+                }
+                <table name="LineItemsTable" id="LineItemsTable" style=@lineStyle class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>
+                                Order
+                            </th>
+                            <th>
+                                Line ID
+                            </th>
+                            <th>
+                                Organization Code
+                            </th>
+                            <th>
+                                Financial Project Number
+                            </th>
+                            <th>
+                                State Program
+                            </th>
+                            <th>
+                                Category
+                            </th>
+                            <th>
+                                Work Activity
+                            </th>
+                            <th>
+                                OCA
+                            </th>
+                            <th>
+                                EO
+                            </th>
+                            <th>
+                                Object Code
+                            </th>
+                            <th>
+                                Fund
+                            </th>
+                            <th>
+                                Fiscal Year
+                            </th>
+                            <th>
+                                Amount
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="LineItemsTableBody" >
+                        @if (ViewBag.LineItemCount > 0)
+                        {
+                            foreach (LineItem lineItem in ViewBag.LineItems)
+                            {
+                                <tr class='groupItem' id='row_item_@lineItem.LineItemID'>
+                                    <td id='@lineItem.LineNumber'>
+                                        @lineItem.LineNumber<input type='hidden' id='item_@lineItem.LineItemID' value='@lineItem.LineItemID' /> <br />
+                                        @if(@ViewBag.Roles.Contains(ConstantStrings.Originator)){
+                                            <a href='javascript:editLineItem(@lineItem.LineItemID, false)'> Edit</a> <br />
+                                            <a href='javascript:editLineItem(@lineItem.LineItemID, true)'>Duplicate</a> <br />
+                                            <a href='javascript:deleteLineItem(@lineItem.LineItemID)'>Delete</a> <br />
+                                        }
+                                    </td>
+                                    <td>@lineItem.LineItemID</td>
+                                    <td>55-@lineItem.OrgCode</td>
+                                    <td>@lineItem.FinancialProjectNumber</td>
+                                    <td title="@lineItem.StateProgram.ProgramName">@lineItem.StateProgram.ProgramCode <input type='hidden' id='item_@(lineItem.LineItemID)_StateProgramID' value='@lineItem.StateProgramID' /> </td>
+                                    <td title="@lineItem.Category.CategoryName">@lineItem.Category.CategoryCode<input type='hidden' id='item_@(lineItem.LineItemID)_CategorID' value='@lineItem.CategoryID' /> </td>
+                                    <td>@lineItem.WorkActivity</td>
+                                    <td title="@lineItem.OCA.OCAName">@lineItem.OCA.OCACode<input type='hidden' id='item_@(lineItem.LineItemID)_OCAID' value='@lineItem.OCAID' /> </td>
+                                    <td>@lineItem.ExpansionObject</td>
+                                    <td>@lineItem.FlairObject</td>
+                                    <td title="@lineItem.Fund.FundDescription">@lineItem.Fund.FundCode<input type='hidden' id='item_@(lineItem.LineItemID)_FundID' value='@lineItem.FundID' /> </td>
+                                    @{
+                                        var priorYear = lineItem.FiscalYear - 1;
+                                        <td>@priorYear.ToString() - @lineItem.FiscalYear</td>
+                                    }
+                                    <td>
+                                        $@lineItem.AmountString<input type='hidden' id='item_@(lineItem.LineItemID)_Amount' value='@lineItem.Amount' />
+                                        @{ var lineItemJson = ViewBag.LineItemsMap[@lineItem.LineItemID];
+                                            <input type="hidden" id="json_item_@lineItem.LineItemID" value="@lineItemJson" />
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        <!-- insert new rows here -->
+                    </tbody>
+                </table>
+            </div> <!-- end panel-body -->
+        </div> <!-- end panel -->
+    }
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="float-right align-top paddingright">
+                <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
+                @DateTime.Now.Date.ToShortDateString()
+            </div>
+            <h3>Encumbrance</h3>
+            @{ var groupID = (Model != null && Model.GroupID > 0) ? Model.GroupID : 0;
+                <input type="hidden" id="LineItemGroupID" name="LineItemGroupID" value="@groupID" />
+            }
+        </div> <!-- end panel heading-->
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.LineItemType)
+                        </dt>
+                        <dd>
+                            <!-- Encumbrance Request Status record-->
+                            <select id="LineItemType" name="LineItemType" onchange="updateAddedInfo()">
+                                @foreach (SelectListItem itemType in ViewBag.LineItemTypes)
+                                {
+                                    if (Model != null && Model.LineItemType != null && itemType.Value.Equals(Model.LineItemType))
+                                    {
+                                        <option value="@itemType.Value" selected> @itemType.Text </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@itemType.Value"> @itemType.Text </option>
+                                    }
+                                }
+                            </select>
+                            @Html.ValidationMessageFor(model => model.LineItemType, "An encumbrance type is required.")
+                            <br />
+                            <div name="NewEndDateDiv" class="input-group date hidden">
+                                <input type="text" name="NewEndDate" id="NewEndDate" class="datepicker" />
+                                <span class="input-group-addon">
+                                    <label for="NewEndDate">
+                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                    </label>
+                                </span>
+                            </div>
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.ContractID)
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract from the list of options."></span>
+                        </dt>
+                        <dd>
+                            @if (ViewBag.Contract != null)
+                            {
+                                <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
+                                <input type="text" id="ContractSelector" name="ContractSelector" value="@ViewBag.Contract.ContractNumber" />
+                            }
+                            else
+                            {
+                                <input type="hidden" id="ContractID" name="ContractID" />
+                                <input type="text" id="ContractSelector" name="ContractSelector" />
+                            }
+                        </dd>
+                    </dl>
+                    <dl>
+                        Or
+                        <a href="javascript:openContractDialog();">Create a New Contract</a>
+                    </dl>
+                </div> <!-- end col-->
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.Description)
+                        </dt>
+                        <dd>
+                            @Html.TextAreaFor(model => model.Description)
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+            <div class="row">
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.FlairAmendmentID)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.FlairAmendmentID)
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.UserAssignedID)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.UserAssignedID)
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+                <div class="col-sm-3" id="AmendedIDDiv" style="display: none">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.AmendedLineItemID)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.AmendedLineItemID)
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+            <div class="row">
+                    <div class="col-sm-3">
+                    </div>
+                    <div class="col-sm-3">
+                        <span id="ContractAmountTotal"></span><br />
+                        <span id="EncumbranceTotal"></span>
+                    </div>
+                </div>
+            <div class="row">
+                <div class="col-sm-10" id="buttonDiv">
+                    <input type="button" class=" btn btn-default" id="btnEncumbranceDraft" value="Save As Draft" onclick="javascript:UpdateGroupStatus('Draft')" />
+                    <input type="button" class=" btn btn-default" id="btnEncumbranceFinance" value="Submit to Finance" onclick="javascript:UpdateGroupStatus('Finance')" />
+                    <input type="button" class=" btn btn-default" id="btnEncumbranceRollback" value="Rollback to Draft" onclick="javascript:UpdateGroupStatus('Draft')" />
+                    <input type="button" class=" btn btn-default" id="btnEncumbranceWP" value="Submit to Work Program" onclick="javascript:UpdateGroupStatus('Work Program')" />
+                    <input type="button" class=" btn btn-default" id="btnEncumbranceCFM" value="Submit to CFM" onclick="javascript:UpdateGroupStatus('CFM')" />
+                    <input type="button" class=" btn btn-default" id="btnEncumbranceComplete" value="Mark Complete" onclick="javascript:UpdateGroupStatus('Complete')" />
+                </div>
+                @if (@Model != null)
+                {
+                    <div class="col-sm-10" id="noButtonDiv">
+                        <text>This encumbrance is currently in @Model.CurrentStatus status.</text>
+                    </div>
+                }
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <span id="messageSpan"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <br />
+                    @if (@Model != null){ 
+                        <p><a href="javascript: toggleCommentHistory(@Model.GroupID)" id="commentHistoryToggle">Show Encumbrance History</a></p>
+                    }
+                    @if (@Model != null && @Model.Statuses != null && @Model.Statuses.Count > 0)
+                    {
+                    <h3 class="hidden groupStatus">History</h3>
+                    <table><thead>
+                    <tr class="hidden groupStatus">
+                        <th colspan="2">Date</th>
+                        <th colspan="2">Commenter</th>
+                        <th colspan="2">Status</th>
+                        <th colspan="7">Comment</th>
+                    </tr>
+                        </thead>
+                            <tbody>
+                            @foreach (LineItemGroupStatus gstatus in @Model.Statuses)
+                            {
+                                <tr class="hidden groupStatus">
+                                    <td colspan="2">@gstatus.SubmittalDate</td>
+                                    <td colspan="2">@gstatus.User.FullName</td>
+                                    <td colspan="2">@gstatus.CurrentStatus</td>
+                                    <td colspan="7">@gstatus.Comments</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+            </div> <!-- end panel body-->
+    </div> <!-- end panel-->
+</form>

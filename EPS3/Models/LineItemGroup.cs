@@ -30,14 +30,24 @@ namespace EPS3.Models
         [Key]
         [Display(Name = "Encumbrance ID")]
         public int GroupID { get; set; }
+
         public int ContractID { get; set; }
+
         public virtual Contract Contract { get; set; }
+
+        [Display(Name = "Description")]
+        public string Description { get; set; }
 
         [Display(Name = "Encumbrance Type")]
         public string LineItemType { get; set; }
-        [Display(Name = "User Assigned Amendment ID")]
+
+        [Display(Name = "Amended LOA")]
         [StringLength(10)]
         public string AmendedLineItemID { get; set; }
+
+        [Display(Name = "6s Line ID")]
+        [StringLength(10)]
+        public string LineID6S { get; set; }
 
         [Display(Name = "FLAIR Amendment ID")]
         [StringLength(10)]
@@ -48,13 +58,21 @@ namespace EPS3.Models
         public string UserAssignedID { get; set; }
 
         public DateTime LastEditedDate { get; set; }
+        public DateTime OriginatedDate { get; set; }
+
         public int LastEditedUserID { get; set; }
+
         public virtual User LastEditedUser { get; set; }
 
+        [Display(Name ="Originator")]
         public int OriginatorUserID { get; set; }
+
+        [Display(Name = "Originator")]
         public virtual User OriginatorUser { get; set; }
 
         public byte IsEditable { get; set; }
+
+        public byte IncludesContract { get; set; }
 
         [Display(Name = "Status")]
         public string CurrentStatus { get; set; }
