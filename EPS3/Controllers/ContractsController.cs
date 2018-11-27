@@ -191,34 +191,40 @@ namespace EPS3.Controllers
             Contract newContract = JsonConvert.DeserializeObject<Contract>(contract);
 
             newContract.ContractNumber = newContract.ContractNumber.ToUpper();
-            if(newContract.ContractNumber == null || newContract.ContractNumber == "")
+            try
             {
-                newContract.ContractNumber = "NEW";
-            }
-            // check if contract exists, if so, update it.
-            // if not, add it
-            if (newContract.ContractID > 0)
-            {
-                Contract existingContract = _context.Contracts.AsNoTracking()
-                    .Include(c => c.ContractType)
-                    .Include(c => c.Vendor)
-                    .SingleOrDefault(c => c.ContractID == newContract.ContractID);
+                if (newContract.ContractNumber == null || newContract.ContractNumber == "")
+                {
+                    newContract.ContractNumber = "NEW";
+                }
+                // check if contract exists, if so, update it.
+                // if not, add it
+                if (newContract.ContractID > 0)
+                {
+                    Contract existingContract = _context.Contracts.AsNoTracking()
+                        .Include(c => c.ContractType)
+                        .Include(c => c.Vendor)
+                        .SingleOrDefault(c => c.ContractID == newContract.ContractID);
 
-                UpdateExistingContract(existingContract, newContract);
-                existingContract.ModifiedDate = DateTime.Now;
-                _context.Contracts.Update(existingContract);
-                _context.SaveChanges();
+                    UpdateExistingContract(existingContract, newContract);
+                    existingContract.ModifiedDate = DateTime.Now;
+                    _context.Contracts.Update(existingContract);
+                    _context.SaveChanges();
+                }
+                else if (newContract.UserID > 0)
+                {
+                    newContract.CreatedDate = DateTime.Now;
+                    newContract.ModifiedDate = DateTime.Now;
+                    _context.Contracts.Add(newContract);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return (Json("{\"success\": \"false\"}"));
+                }
             }
-            else if (newContract.UserID > 0)
-            {
-                newContract.CreatedDate = DateTime.Now;
-                newContract.ModifiedDate = DateTime.Now;
-                _context.Contracts.Add(newContract);
-                _context.SaveChanges();
-            }
-            else
-            {
-                return (Json("{\"success\": \"false\"}"));
+            catch (Exception e) {
+                _logger.LogError("ContractsController.AddNewContract Error:" + e.GetBaseException());
             }
             ExtendedContract wrapperContract = GetExtendedContract(newContract.ContractID);
             string result = JsonConvert.SerializeObject(wrapperContract);
@@ -771,6 +777,7 @@ namespace EPS3.Controllers
             }
             catch (Exception e)
             {
+                Log.Error("ContractsController.GetActiveContracts Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
         }
@@ -789,6 +796,7 @@ namespace EPS3.Controllers
             }
             catch (Exception e)
             {
+                Log.Error("ContractsController.GetArchivedContracts Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
         }

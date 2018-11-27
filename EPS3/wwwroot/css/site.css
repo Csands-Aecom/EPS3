@@ -209,8 +209,12 @@ h5, h6 {
 }
 
 
+.panel-default .panel-heading {
+    opacity: 1 !important;
+}
+
 header .content-wrapper {
-    padding-top: 20px;
+    padding-top: 10px;
 }
 
 footer {
@@ -221,6 +225,19 @@ footer {
     padding-left: 50px !important;
 }
 
+.sticky {
+    position: fixed;
+    top: 105px;
+    width: 98%;
+}
+
+.sticky + .content {
+    padding-top: 107px;
+}
+
+.FYWarning{
+    background-color:red;
+}
 
 /* site title
 ----------------------------------------------------------*/
@@ -1091,6 +1108,11 @@ tr.pager td {
     padding: 0px !important;
 }
 
+.ui-dialog {
+    z-index: 1000 !important;
+    position: relative;
+}
+
 #divAddFundingSource table tr td, #divAddRequestDetails table tr td, #divAddLeaseItem table tr td {
     padding: 5px;
 }
@@ -1232,8 +1254,8 @@ section button i {
 
 .container {
     text-align: center;
-    padding-bottom: 15px;
-    padding: 30px;
+    padding-bottom: 5px;
+    padding-top: 5px;
 }
 
 .column2 {
@@ -1407,6 +1429,7 @@ ol.circles-list {
     border-color: #fff !important;
     box-shadow: none !important;
     background-image: none !important;
+    z-index : 50000 !important;
 }
 
 .email-container {

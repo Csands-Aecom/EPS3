@@ -56,8 +56,11 @@ namespace EPS3.Models
         [Display(Name = "User Assigned Amendment ID")]
         [StringLength(10)]
         public string UserAssignedID { get; set; }
+        [Display(Name = "Last Edited Date")]
 
         public DateTime LastEditedDate { get; set; }
+        [Display(Name = "Originated Date")]
+
         public DateTime OriginatedDate { get; set; }
 
         public int LastEditedUserID { get; set; }

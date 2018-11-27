@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace EPS3.Controllers
 {
@@ -168,6 +169,7 @@ namespace EPS3.Controllers
             }catch(Exception e)
             {
                 _logger.LogError("LineItemGroupsController.Delete Error:" + e.GetBaseException());
+                Log.Error("LineItemGroupsController.Delete  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return NotFound();
             }
         }
@@ -348,6 +350,7 @@ namespace EPS3.Controllers
                 catch (Exception e)
                 {
                     _logger.LogError("LineItemGroupsController.PopulateViewBag Error:" + e.GetBaseException());
+                    Log.Error("LineItemGroupsController.PopulateViewBag  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 }
             }
             else
@@ -405,84 +408,93 @@ namespace EPS3.Controllers
         {
             LineItemGroup newLineItemGroup = JsonConvert.DeserializeObject<LineItemGroup>(lineItemGroup);
             EncumbranceComment newComment = JsonConvert.DeserializeObject<EncumbranceComment>(comments);
-
-            int groupID = newLineItemGroup.GroupID;
-            string oldStatus = "";
-            bool isNew = groupID <= 0;
-            Contract contract = _context.Contracts.SingleOrDefault(c => c.ContractID == newLineItemGroup.ContractID);
-            if (isNew)
+            try
             {
-                // add new
-                newLineItemGroup.OriginatorUserID = newLineItemGroup.LastEditedUserID;
-                newLineItemGroup.LastEditedDate = DateTime.Now;
-                newLineItemGroup.OriginatedDate = DateTime.Now;
-                newLineItemGroup.Contract = contract;
-                newLineItemGroup.CurrentStatus = newComment.status;
-                _context.LineItemGroups.Add(newLineItemGroup);
+                int groupID = newLineItemGroup.GroupID;
+                string oldStatus = "";
+                bool isNew = groupID <= 0;
+                Contract contract = _context.Contracts.SingleOrDefault(c => c.ContractID == newLineItemGroup.ContractID);
+                if (isNew)
+                {
+                    // add new
+                    newLineItemGroup.OriginatorUserID = newLineItemGroup.LastEditedUserID;
+                    newLineItemGroup.LastEditedDate = DateTime.Now;
+                    newLineItemGroup.OriginatedDate = DateTime.Now;
+                    newLineItemGroup.Contract = contract;
+                    newLineItemGroup.CurrentStatus = newComment.status;
+                    _context.LineItemGroups.Add(newLineItemGroup);
+                }
+                else
+                {
+                    // update existing
+                    LineItemGroup existingGroup = _context.LineItemGroups
+                        .SingleOrDefault(g => g.GroupID == groupID);
+                    newLineItemGroup.LastEditedDate = DateTime.Now;
+                    existingGroup.AmendedLineItemID = newLineItemGroup.AmendedLineItemID;
+                    existingGroup.ContractID = newLineItemGroup.ContractID;
+                    oldStatus = existingGroup.CurrentStatus;
+                    existingGroup.CurrentStatus = newComment.status;
+                    existingGroup.Description = newLineItemGroup.Description;
+                    existingGroup.FlairAmendmentID = newLineItemGroup.FlairAmendmentID;
+                    existingGroup.IncludesContract = newLineItemGroup.IncludesContract;
+                    existingGroup.IsEditable = newLineItemGroup.IsEditable;
+                    existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
+                    existingGroup.UserAssignedID = newLineItemGroup.UserAssignedID;
+                    existingGroup.Contract = contract;
+                    _context.Update(existingGroup);
+                    newLineItemGroup = existingGroup;
+                }
+                _context.SaveChanges();
+                // add LineItemGroupStatus
+                LineItemGroupStatus newStatus = new LineItemGroupStatus()
+                {
+                    LineItemGroupID = newLineItemGroup.GroupID,
+                    CurrentStatus = newComment.status,
+                    UserID = newComment.userID,
+                    Comments = newComment.comments,
+                    SubmittalDate = DateTime.Now
+                };
+                _context.LineItemGroupStatuses.Add(newStatus);
+                _context.SaveChanges();
+
+                // send receipt and notification if Encumbrance is submitted for review
+                string statusChange = AssessStatusChange(newLineItemGroup.CurrentStatus, oldStatus);
+                int msgID = 0;
+
+                // initialize the message service if necessary
+                if (_messageService == null)
+                {
+                    string url = this.Request.Scheme + "://" + this.Request.Host;
+                    _messageService = new MessageService(_context, SmtpConfig, url);
+                }
+
+                if (newComment.notify)
+                {
+                    // TODO: Add ability to cc: the sender.
+                    //User sender = _pu.GetUserByID(newComment.userID);
+                    //msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, sender);
+
+
+                    // For now, just add the sender to the recipients list
+                    newComment.wpIDs.Add(newComment.userID);
+                    msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
+                }
+                else
+                {
+                    msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
+                }
+                if (newComment.receipt)
+                {
+                    User sender = _pu.GetUserByID(newComment.userID);
+                    _messageService.SendReceipt(newLineItemGroup, sender, newComment.comments);
+                }
             }
-            else
+            catch (Exception e)
             {
-                // update existing
-                LineItemGroup existingGroup = _context.LineItemGroups
-                    .SingleOrDefault(g => g.GroupID == groupID);
-                newLineItemGroup.LastEditedDate = DateTime.Now;
-                existingGroup.AmendedLineItemID = newLineItemGroup.AmendedLineItemID;
-                existingGroup.ContractID = newLineItemGroup.ContractID;
-                oldStatus = existingGroup.CurrentStatus;
-                existingGroup.CurrentStatus = newComment.status;
-                existingGroup.Description = newLineItemGroup.Description;
-                existingGroup.FlairAmendmentID = newLineItemGroup.FlairAmendmentID;
-                existingGroup.IncludesContract = newLineItemGroup.IncludesContract;
-                existingGroup.IsEditable = newLineItemGroup.IsEditable;
-                existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
-                existingGroup.UserAssignedID = newLineItemGroup.UserAssignedID;
-                existingGroup.Contract = contract;
-                _context.Update(existingGroup);
-                newLineItemGroup = existingGroup;
+                _logger.LogError("LineItemGroupsController.AddNewEncumbrance Error:" + e.GetBaseException());
+                Log.Error("LineItemGroupsController.AddNewEncumbrance  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+
             }
-            _context.SaveChanges();
-            // add LineItemGroupStatus
-            LineItemGroupStatus newStatus = new LineItemGroupStatus()
-            {
-                LineItemGroupID = newLineItemGroup.GroupID,
-                CurrentStatus = newComment.status,
-                UserID = newComment.userID,
-                SubmittalDate = DateTime.Now
-            };
-            _context.LineItemGroupStatuses.Add(newStatus);
-            _context.SaveChanges();
-
-            // send receipt and notification if Encumbrance is submitted for review
-            string statusChange = AssessStatusChange(newLineItemGroup.CurrentStatus, oldStatus);
-            int msgID = 0;
-
-            // initialize the message service if necessary
-            if (_messageService == null)
-            {
-                string url = this.Request.Scheme + "://" + this.Request.Host;
-                _messageService = new MessageService(_context, SmtpConfig, url);
-            }
-
-            if (newComment.notify)
-            {
-                // TODO: Add ability to cc: the sender.
-                //User sender = _pu.GetUserByID(newComment.userID);
-                //msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, sender);
-
-
-                // For now, just add the sender to the recipients list
-                newComment.wpIDs.Add(newComment.userID);
-                msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
-            }
-            else {
-                msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
-            }
-            if (newComment.receipt)
-            {
-                User sender = _pu.GetUserByID(newComment.userID);
-                _messageService.SendReceipt(newLineItemGroup, sender, newComment.comments);
-            }
-
             // return complete, updated object (with GroupID, if new)
             // avoid self-referential loop with unnecessary information in Statuses
             newLineItemGroup.Statuses = null;
@@ -509,6 +521,7 @@ namespace EPS3.Controllers
         public IActionResult List()
         {
             Dictionary<string, List<LineItemGroup>> categorizedLineItemGroups = getCategorizedLineItemGroups();
+            categorizedLineItemGroups.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
             Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(categorizedLineItemGroups);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
             return View(categorizedLineItemGroups);
@@ -560,6 +573,20 @@ namespace EPS3.Controllers
             return results;
         }
 
+        private List<LineItemGroup> getAdvertisedLineItemGroups()
+        {
+            // add  Groups that are unawarded Advertisements
+            List<LineItemGroup> adGroups = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.LineItemType.Equals(ConstantStrings.Advertisement))
+                .Include(l => l.Contract)
+                .ToList();
+            List<LineItemGroup> awardGroups = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.LineItemType.Equals(ConstantStrings.Award))
+                .Include(l => l.Contract)
+                .ToList();
+            return adGroups.Except(awardGroups).ToList();
+        }
+
         private Dictionary<int, string> getLineItemGroupAmounts(Dictionary<string, List<LineItemGroup>> encumbrances)
         {
             Dictionary<int, string> EncumbranceAmounts = new Dictionary<int, string>();
@@ -568,21 +595,38 @@ namespace EPS3.Controllers
                 List<LineItemGroup> encumbranceList = encumbrances[key];
                 foreach(LineItemGroup encumbrance in encumbranceList)
                 {
-                    decimal amount = GetEncumbranceAmount(encumbrance);
-                    string amountString = String.Format("{0:C2}", amount); ;
-                    EncumbranceAmounts.Add(encumbrance.GroupID, amountString);
+                    if (!EncumbranceAmounts.Keys.Contains(encumbrance.GroupID))
+                    {
+                        decimal amount = GetEncumbranceAmount(encumbrance);
+                        string amountString = String.Format("{0:C2}", amount); ;
+                        EncumbranceAmounts.Add(encumbrance.GroupID, amountString);
+                    }
                 }
             }
             return EncumbranceAmounts;
         }
 
+        public JsonResult GetEncumbranceTotalAmount(string encumbranceInfo)
+        {
+            dynamic lookupInfo = JsonConvert.DeserializeObject(encumbranceInfo);
+            int groupID = lookupInfo.GroupID;
+            LineItemGroup group = _context.LineItemGroups.AsNoTracking().SingleOrDefault(e => e.GroupID == groupID);
+            return Json(GetEncumbranceAmount(group));
+        }
+
         public decimal GetEncumbranceAmount(LineItemGroup encumbrance)
         {
-            List<LineItem> items = _context.LineItems.Where(l => l.LineItemGroupID == encumbrance.GroupID).ToList();
             decimal amount = 0.0m;
-            foreach (LineItem item in items)
+            try
             {
-                amount += item.Amount;
+                List<LineItem> items = _context.LineItems.Where(l => l.LineItemGroupID == encumbrance.GroupID).ToList();
+                foreach (LineItem item in items)
+                {
+                    amount += item.Amount;
+                }
+            } catch (Exception e) {
+                _logger.LogError("LineItemGroupsController.GetEncumbranceAmount Error:" + e.GetBaseException());
+                Log.Error("LineItemGroupsController.GetEncumbranceAmount  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
             return amount;
         }

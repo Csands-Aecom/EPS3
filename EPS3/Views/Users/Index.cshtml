@@ -4,68 +4,81 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserLogin)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Phone)
-            </th>
-            <th>
-                Roles
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserLogin)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Phone)
-            </td>
-            <td>
-                @foreach(UserRole role in item.Roles)
-                {
-                <p>@role.Role </p>
-                }
-            </td>
-            <td>
-                @if (ViewBag.UserIsAdmin)
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h2>EPS Users</h2>
+
+        @if (ViewBag.UserIsAdmin)
         {
-            <a asp-action="Edit" asp-route-id="@item.UserID">Edit</a> <raw> | </raw>
-            <a asp-action="Details" asp-route-id="@item.UserID"> Details </a> <raw> | </raw>
-            <a asp-action="Delete" asp-route-id="@item.UserID"> Delete </a>
-}
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+            <p>
+                <a asp-action="Create">Create New</a>
+            </p>
+        }
+    </div>
+    <div class="panel-body">
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FirstName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.LastName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UserLogin)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Phone)
+                    </th>
+                    <th>
+                        Roles
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FirstName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LastName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserLogin)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Phone)
+                        </td>
+                        <td>
+                            @foreach (UserRole role in item.Roles)
+                            {
+                                <p>@role.Role </p>
+                            }
+                        </td>
+                        <td>
+                            @if (ViewBag.UserIsAdmin)
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.UserID">Edit</a> <raw> | </raw>
+                                <a asp-action="Details" asp-route-id="@item.UserID"> Details </a> <raw> | </raw>
+                                <a asp-action="Delete" asp-route-id="@item.UserID"> Delete </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>

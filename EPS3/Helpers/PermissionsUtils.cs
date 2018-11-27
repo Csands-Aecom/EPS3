@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using EPS3.Models;
 using EPS3.DataContexts;
+using Serilog;
 
 namespace EPS3.Helpers
 {
@@ -101,6 +102,7 @@ namespace EPS3.Helpers
                 return roleUsers;
             }catch(Exception e)
             {
+                Log.Error("PermissionsUtils.GetUsersByRole Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
         }
@@ -118,6 +120,7 @@ namespace EPS3.Helpers
                     return contract;
                 }catch(Exception e)
                 {
+                    Log.Error("PermissionsUtils.GetContractByID Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                     throw e;
                 }
             }
@@ -139,7 +142,8 @@ namespace EPS3.Helpers
             }
             catch (Exception e)
             {
-                throw e;
+                Log.Error("PermissionsUtils.GetContractsByStatus Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                return null;
             }
         }
 
@@ -158,7 +162,8 @@ namespace EPS3.Helpers
             }
             catch (Exception e)
             {
-                throw e;
+                Log.Error("PermissionsUtils.GetOriginatorOwnedContracts Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                return null;
             }
         }
         public string GetCurrentFiscalYear()
@@ -255,7 +260,7 @@ namespace EPS3.Helpers
             }
             catch (Exception e)
             {
-                // log exception
+                Log.Error("PermissionsUtils.GetDeepContract Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
         }
@@ -278,7 +283,7 @@ namespace EPS3.Helpers
             }
             catch (Exception e)
             {
-                // log exception
+                Log.Error("PermissionsUtils.GetDeepEncumbrance Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
         }
@@ -297,7 +302,7 @@ namespace EPS3.Helpers
                 return item;
             }catch(Exception e)
             {
-                // TODO: log exception
+                Log.Error("PermissionsUtils.GetDeepLineItem Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
         }
@@ -318,7 +323,7 @@ namespace EPS3.Helpers
             }
             catch(Exception e)
             {
-                // TODO: log exception
+                Log.Error("PermissionsUtils.GetDeepLineItems Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
         }

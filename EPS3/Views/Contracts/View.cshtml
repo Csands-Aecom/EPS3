@@ -30,7 +30,7 @@
             <div class="col-sm-2">
                 @if(ViewBag.Roles.Contains("Admin") || ViewBag.Roles.Contains("FinanceReviewer") ||(ViewBag.Roles.Contains("Originator") && ViewBag.CurrentUser.UserID == Model.Contract.UserID))
                 {
-                    <a href="/Contracts/Edit/@Model.Contract.ContractID">Edit Contract</a>
+                    <a href="/Contracts/Edit/@Model.Contract.ContractID">Edit Contract Information</a>
                 }
             </div>
         </div>

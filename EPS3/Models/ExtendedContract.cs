@@ -66,6 +66,7 @@ namespace EPS3.Models
                 this.FormattedContractInitialAmount = contract.ContractTotal.ToString("C", System.Globalization.CultureInfo.CurrentCulture);
 
                 this.FormattedMaxLoaAmount = contract.MaxLoaAmount.ToString("C", System.Globalization.CultureInfo.CurrentCulture);
+                this.BudgetCeiling = contract.BudgetCeiling;
 
                 this.FormattedBudgetCeiling = contract.BudgetCeiling.ToString("C", System.Globalization.CultureInfo.CurrentCulture);
 
@@ -82,7 +83,7 @@ namespace EPS3.Models
         //This is a class for Contract used to pass child properties in a JSON string
         public int ContractID { get; set; }
         public string ContractNumber { get; set; }
-
+        public decimal BudgetCeiling { get; set; }
         public string CompensationName { get; set; }
         public string ContractTypeName { get; set; }
         public string CreatedDate { get; set; }

@@ -177,7 +177,7 @@
       || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
       || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID))
         {
-            <a asp-action="View" asp-route-id="@Model.Contract.ContractID">Edit Contract</a>
+            <a asp-action="View" asp-route-id="@Model.Contract.ContractID">Edit Contract Information</a>
         }
         <a asp-action="List"> Back to Contract List </a>
 

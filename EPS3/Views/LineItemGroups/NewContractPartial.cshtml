@@ -15,7 +15,7 @@
                             @Html.DisplayNameFor(model => model.ContractNumber)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.ContractNumber)
+                            @Html.TextBoxFor(model => model.ContractNumber, new { style = "text-transform:uppercase" })
                             @Html.ValidationMessageFor(model => model.ContractNumber, "A five character Contract Number is required.")
                         </dd>
                     </dl>
@@ -29,10 +29,10 @@
                         <dd>
                             @if (Model != null) {
                                 <input type="hidden" id="ContractTypeID" name="ContractTypeID" value="@Model.ContractTypeID" />
-                                <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" value="@Model.ContractType.ContractTypeSelector" />
+                                <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" value="@Model.ContractType.ContractTypeSelector" style="text-transform:uppercase" />
                             } else {
                                 <input type="hidden" id="ContractTypeID" name="ContractTypeID" />
-                                <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" />
+                                <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" style="text-transform:uppercase" />
                             }
                         </dd>
                     </dl>

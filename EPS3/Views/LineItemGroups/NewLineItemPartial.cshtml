@@ -1,7 +1,7 @@
 ﻿@model EPS3.Models.LineItem
 
 @{
-    ViewData["Title"] = "Line Item";
+    ViewData["Title"] = "Financial Information";
 }
 
 
@@ -14,7 +14,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3>Line Item</h3>
+        <h3>Financial Information</h3>
     </div>
     <div class="panel-body">
 
@@ -30,17 +30,17 @@
                             Line Item ID
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.LineItemID)
+                            <span id="LineItemNumber"name="LineItemNumber"></span>
                         </dd>
                     </dl>
                 </div>
                 <div class="col-sm-2">
                     <dl>
                         <dt>
-                            Order Number
+                            Line Order
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.LineNumber)
+                            @Html.TextBoxFor(model => model.LineNumber, new { style = "text-transform:uppercase" })
                         </dd>
                     </dl>
                 </div>
@@ -52,7 +52,7 @@
                             @Html.LabelFor(model => model.OrgCode)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.OrgCode)
+                            @Html.TextBoxFor(model => model.OrgCode, new { style = "text-transform:uppercase" })
                             @Html.ValidationMessageFor(model => model.OrgCode, "Org Code must be 55- followed by 9 digits")
                         </dd>
                     </dl>
@@ -63,7 +63,7 @@
                             @Html.LabelFor(model => model.FinancialProjectNumber)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.FinancialProjectNumber)
+                            @Html.TextBoxFor(model => model.FinancialProjectNumber, new { style = "text-transform:uppercase" })
                             @Html.ValidationMessageFor(model => model.FinancialProjectNumber, "A Financial Project Number with 11 digits is required.")
                         </dd>
                     </dl>
@@ -89,7 +89,7 @@
                         </dt>
                         <dd>
                             <input type="hidden" id="CategoryID" name="CategoryID" />
-                            <input type="text" id="CategorySelector" name="CategorySelector" />
+                            <input type="text" id="CategorySelector" name="CategorySelector" style="text-transform:uppercase" />
                             <span class="field-validation-valid" data-valmsg-for="CategorySelector" data-valmsg-replace="false">A Category is required. Please begin typing and select one from the list.</span>
                         </dd>
                     </dl>
@@ -100,7 +100,7 @@
                             @Html.LabelFor(model => model.WorkActivity)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.WorkActivity)
+                            @Html.TextBoxFor(model => model.WorkActivity, new { style = "text-transform:uppercase" })
                             @Html.ValidationMessageFor(model => model.WorkActivity, "A Work Activity is required.")
                         </dd>
                     </dl>
@@ -113,7 +113,7 @@
                         </dt>
                         <dd>
                             <input type="hidden" id="OCAID" name="OCAID" value="1" />
-                            <input type="text" id="OCASelector" name="OCASelector" value="00000" />
+                            <input type="text" id="OCASelector" name="OCASelector" value="00000" style="text-transform:uppercase" />
                             <div id="OCAMessage"></div>
                         </dd>
                     </dl>
@@ -124,7 +124,7 @@
                             @Html.LabelFor(model => model.ExpansionObject)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.ExpansionObject)
+                            @Html.TextBoxFor(model => model.ExpansionObject, new { style = "text-transform:uppercase"})
                             @Html.ValidationMessageFor(model => model.ExpansionObject, "An Extension Object with two alphanumeric characters is required.")
                         </dd>
                     </dl>
@@ -137,7 +137,7 @@
                             @Html.LabelFor(model => model.FlairObject)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.FlairObject)
+                            @Html.TextBoxFor(model => model.FlairObject, new { style = "text-transform:uppercase" })
                             @Html.ValidationMessageFor(model => model.FlairObject, "A six digit Flair Object is required.")
                         </dd>
                     </dl>
@@ -150,7 +150,7 @@
                         </dt>
                         <dd>
                             <input type="hidden" id="FundID" name="FundID" />
-                            <input type="text" id="FundSelector" name="FundSelector" />
+                            <input type="text" id="FundSelector" name="FundSelector" style="text-transform:uppercase" />
                             <span class="field-validation-valid" data-valmsg-for="FundSelector" data-valmsg-replace="false">A Fund is required. Please begin typing and select one from the list.</span>
                         </dd>
                     </dl>
@@ -194,7 +194,7 @@
                             @Html.LabelFor(model => model.Comments)
                         </dt>
                         <dd>
-                            @Html.TextAreaFor(model => model.Comments)
+                            @Html.TextAreaFor(model => model.Comments, new { @class="LineItemComment"})
                         </dd>
                     </dl>
                 </div>

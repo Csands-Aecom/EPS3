@@ -50,8 +50,8 @@ namespace EPS3.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("ContractsController.Create Error:" + e.GetBaseException());
-                    Log.Error("ContractsController.Create Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                    _logger.LogError("FileAttachmentsController.Add Error:" + e.GetBaseException());
+                    Log.Error("FileAttachmentsController.Add Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 }
             }
             return View();

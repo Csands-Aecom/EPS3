@@ -8,6 +8,7 @@ using EPS3.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols;
+using Serilog;
 
 namespace EPS3.Helpers
 {
@@ -129,7 +130,7 @@ namespace EPS3.Helpers
                     }
                 }catch(Exception e)
                 {
-
+                    Log.Error("MessageService.AddMessage Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                     return -1;
                 }
             }
@@ -157,6 +158,7 @@ namespace EPS3.Helpers
             }
             catch (Exception e)
             {
+                Log.Error("MessageService.SendReceipt Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return -1;
             }
         }
@@ -169,11 +171,11 @@ namespace EPS3.Helpers
 
         public string GetOriginatorReceipt(Contract contract, LineItemGroup encumbrance)
         {
-            string body = "You have submitted the following encumbrance request for Finance Review in the Encumbrance Processing System application.";
+            string body = "<p>You have submitted the following encumbrance request for Finance Review in the Encumbrance Processing System application.</p><br\\>";
             string contractInfo = "";
             string encumbranceInfo = "";
             string linesInfo = "";
-            string url = _serverpath + "/Contracts/View/" + encumbrance.ContractID + "/enc_" + encumbrance.GroupID;
+            string url = _serverpath + "/LineItemGroups/Manage/" + encumbrance.GroupID;
             if (_pu.IsShallowContract(contract))
             {
                 contract = _pu.GetDeepContract(contract.ContractID);
@@ -204,7 +206,7 @@ namespace EPS3.Helpers
                 }
                 else
                 {
-                    contractInfo += "<strong>Contract: " + contract.ContractNumber + "</strong><br/>";
+                    contractInfo += "<strong>Contract: </strong>" + contract.ContractNumber + "<br/>";
                     contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br/>";
                     //TODO: What other contract information should be included in the email receipt?
                 }
@@ -252,22 +254,28 @@ namespace EPS3.Helpers
 
         public void SendEmailMessage(int msgID)
         {
-            if (msgID == 0) { return; }
-            Message msg = _context.Messages.AsNoTracking()
-                .Include(m => m.FromUser)
-                .Include(m => m.Recipients)
-                .SingleOrDefault(m => m.MessageID == msgID);
-            List<User> recipients = new List<User>();
-            foreach(MessageRecipient recip in msg.Recipients)
+            try
             {
-                User user = _context.Users.AsNoTracking()
-                    .SingleOrDefault(u => u.UserID == recip.UserID);
-                if (user.Email != null && user.Email.Length > 0 && user.ReceiveEmails > 0)
+                if (msgID == 0) { return; }
+                Message msg = _context.Messages.AsNoTracking()
+                    .Include(m => m.FromUser)
+                    .Include(m => m.Recipients)
+                    .SingleOrDefault(m => m.MessageID == msgID);
+                List<User> recipients = new List<User>();
+                foreach (MessageRecipient recip in msg.Recipients)
                 {
-                    recipients.Add(user);
+                    User user = _context.Users.AsNoTracking()
+                        .SingleOrDefault(u => u.UserID == recip.UserID);
+                    if (user.Email != null && user.Email.Length > 0 && user.ReceiveEmails > 0)
+                    {
+                        recipients.Add(user);
+                    }
                 }
+                SendMail(msg, recipients);
+            }catch(Exception e)
+            {
+                Log.Error("MessageService.SendEmailMessage Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
-            SendMail(msg, recipients);
         }
 
         public void SendErrorNotification(string errorInfo)
@@ -327,10 +335,11 @@ namespace EPS3.Helpers
 
                 client.Send(mail);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 //_logger.LogError(ex.StackTrace);
-                Console.Write(ex.StackTrace);
+                Log.Error("MessageService.SendEmail Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                Console.Write(e.StackTrace);
                 //throw ex;
             }
         }
@@ -390,13 +399,25 @@ namespace EPS3.Helpers
         {
             string encumbranceInfo = "";
             encumbranceInfo += "<strong>Encumbrance Type:</strong> " + encumbrance.LineItemType + "<br />";
-            encumbranceInfo += "<strong>Status:</strong>" + encumbrance.CurrentStatus + "<br />";
-            encumbranceInfo += "<strong>Encumbrance Total:</strong>" + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceAmount.ToString())) + "<br />";
-            encumbranceInfo += "<strong>6s:</strong>" + encumbrance.LineID6S + "<br />";
-            encumbranceInfo += "<strong>Original FLAIR Amendment ID:</strong>" + encumbrance.FlairAmendmentID + "<br />";
-            encumbranceInfo += "<strong>User Assigned ID:</strong>" + encumbrance.UserAssignedID + "<br />";
-            encumbranceInfo += "<strong>Corrects FLAIR ID:</strong>" + encumbrance.AmendedLineItemID + "<br />";
-            encumbranceInfo += "<strong>Last Updated:</strong>" + encumbrance.LastEditedDate + " by " + encumbrance.LastEditedUser.FirstName + " " + encumbrance.LastEditedUser.LastName + "<br />";
+            encumbranceInfo += "<strong>Status:</strong> " + encumbrance.CurrentStatus + "<br />";
+            encumbranceInfo += "<strong>Encumbrance Total:</strong> " + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceAmount.ToString())) + "<br />";
+            if (encumbrance.LineID6S != null && encumbrance.LineID6S != "")
+            {
+                encumbranceInfo += "<strong>6s:</strong> " + encumbrance.LineID6S + "<br />";
+            }
+            if (encumbrance.FlairAmendmentID != null && encumbrance.FlairAmendmentID != "")
+            {
+                encumbranceInfo += "<strong>Original FLAIR Amendment ID:</strong> " + encumbrance.FlairAmendmentID + "<br />";
+            }
+            if (encumbrance.UserAssignedID != null && encumbrance.UserAssignedID != "")
+            {
+                encumbranceInfo += "<strong>User Assigned ID:</strong> " + encumbrance.UserAssignedID + "<br />";
+            }
+            if (encumbrance.AmendedLineItemID != null && encumbrance.AmendedLineItemID != "")
+            {
+                encumbranceInfo += "<strong>Corrects FLAIR ID:</strong> " + encumbrance.AmendedLineItemID + "<br />";
+            }
+            encumbranceInfo += "<strong>Last Updated:</strong> " + encumbrance.LastEditedDate + " by " + encumbrance.LastEditedUser.FirstName + " " + encumbrance.LastEditedUser.LastName + "<br />";
 
             return encumbranceInfo;
         }
@@ -417,6 +438,8 @@ namespace EPS3.Helpers
                 linesInfo += "<td>" + item.WorkActivity + "</td>";
                 linesInfo += "<td>" + item.OCA.OCASelector + "</td>";
                 linesInfo += "<td>" + item.ExpansionObject + "</td>";
+                linesInfo += "<td>" + item.FlairObject + "</td>";
+                linesInfo += "<td>" + item.Fund.FundSelector + "</td>";
                 linesInfo += "<td>" + item.FiscalYearRange + "</td>";
                 linesInfo += "<td>$" + string.Format("{0:#.00}", Convert.ToDecimal(item.Amount.ToString())) + "</td>";
                 linesInfo += "</tr>";

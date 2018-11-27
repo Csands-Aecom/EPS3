@@ -42,7 +42,7 @@ namespace EPS3.Controllers
             else
             {
                 //return RedirectToAction("List", "Contracts");
-                return RedirectToAction("List", "LineItems");
+                return RedirectToAction("List", "LineItemGroups");
             }
             //return View();
         }

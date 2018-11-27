@@ -106,8 +106,8 @@ namespace EPS3.Controllers
                 catch (Exception e)
                 {
 
-                    _logger.LogError("ContractsController.Create Error:" + e.GetBaseException());
-                    Log.Error("ContractsController.Create Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                    _logger.LogError("LineItemsController.Create Error:" + e.GetBaseException());
+                    Log.Error("LineItemsController.Create Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 }
             }
             ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
@@ -202,29 +202,34 @@ namespace EPS3.Controllers
         public JsonResult AddNewLineItem(string lineItem)
         {
             LineItem newLineItem = JsonConvert.DeserializeObject<LineItem>(lineItem);
-            // set linenumber correctly
-            if (newLineItem.LineNumber == 0)
-            {
-                int nextLineNumber = _context.LineItems.Where(g => g.LineItemGroupID == newLineItem.LineItemGroupID).Select(g => g.LineNumber).DefaultIfEmpty(0).Max();
-                newLineItem.LineNumber = nextLineNumber + 1;
+            try {
+                _logger.LogDebug("New line item for Contract " + newLineItem.ContractID);
+                // set linenumber correctly
+                if (newLineItem.LineNumber == 0)
+                {
+                    int nextLineNumber = _context.LineItems.Where(g => g.LineItemGroupID == newLineItem.LineItemGroupID).Select(g => g.LineNumber).DefaultIfEmpty(0).Max();
+                    newLineItem.LineNumber = nextLineNumber + 1;
+                }
+                if (newLineItem.OrgCode.Length > 9 && newLineItem.OrgCode.Contains("55-"))
+                {
+                    newLineItem.OrgCode = newLineItem.OrgCode.Replace("55-", "");
+                }
+                if (newLineItem.LineItemID > 0)
+                {
+                    //LineItem already exists. This is an update.
+                    _context.LineItems.Update(newLineItem);
+                }
+                else
+                {
+                    // set lineNumber
+                    int numberOfLineItems = _context.LineItems.Where(l => l.LineItemGroupID == newLineItem.LineItemGroupID).Count();
+                    //New Line Item. Add it.
+                    _context.LineItems.Add(newLineItem);
+                }
+                _context.SaveChanges();
+            } catch (Exception e) {
+                _logger.LogError("LineItemsController.AddNewLineItem Error:" + e.GetBaseException());
             }
-            if(newLineItem.OrgCode.Length > 9 && newLineItem.OrgCode.Contains("55-"))
-            {
-                newLineItem.OrgCode = newLineItem.OrgCode.Replace("55-", "");
-            }
-            if (newLineItem.LineItemID > 0)
-            {
-                //LineItem already exists. This is an update.
-                _context.LineItems.Update(newLineItem);
-            }
-            else
-            {
-                // set lineNumber
-                int numberOfLineItems = _context.LineItems.Where(l => l.LineItemGroupID == newLineItem.LineItemGroupID).Count();
-                //New Line Item. Add it.
-                _context.LineItems.Add(newLineItem);
-            }
-            _context.SaveChanges();
             ExtendedLineItem wrapperLineItem = GetExtendedLineItem(newLineItem.LineItemID);
             string result = JsonConvert.SerializeObject(wrapperLineItem);
             return Json(result);

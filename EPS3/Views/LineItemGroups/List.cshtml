@@ -21,37 +21,16 @@
                 <thead>
                     <tr>
                         <th>
-                            Encumbrance Request ID
+                            Contract
                         </th>
                         <th>
-                            Contract
+                            Encumbrance ID
                         </th>
                         <th>
                             Status
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model[key].First().FlairAmendmentID)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model[key].First().UserAssignedID)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model[key].First().AmendedLineItemID)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model[key].First().CurrentStatus)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model[key].First().Description)
-                        </th>
-                        <th>
                             @Html.DisplayNameFor(model => model[key].First().LineItemType)
-                        </th>
-                        <th>
-                            Last Edited
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model[key].First().LineID6S)
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model[key].First().OriginatedDate)
@@ -66,38 +45,16 @@
                     {
                     <tr>
                         <td>
-                            <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
+                            <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
                         </td>
                         <td>
-                            <a href="/Contracts/View/@item.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
+                            <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => @item.CurrentStatus)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.FlairAmendmentID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.UserAssignedID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AmendedLineItemID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.UserAssignedID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Description)
-                        </td>
-                        <td>
                             @Html.DisplayFor(modelItem => item.LineItemType)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.LastEditedUser.FullName) <br />
-                            @Html.DisplayFor(modelItem => item.LastEditedDate)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.LineID6S)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.OriginatedDate)

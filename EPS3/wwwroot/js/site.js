@@ -39,6 +39,14 @@ function initForms() {
     //initialize tabs
     $("#tabs").tabs();
 
+    // make EncumbrancePanel header above EncumbrancePanelBody
+    //var panelIndex = $("#EncumbrancePanelBody").css("z-index");
+    $("#EncumbrancePanelHeading").css("z-index", "200");
+    $("#ContractSelector").css("z-index", "102");
+    // TODO: This fails because zIndex is "auto". To make it work, .css has to set zIndex to a numeric value
+    // I can add numeric zIndex and manipulate accordingly, but will require much testing.
+    //$("#ContractSelector").css("zIndex", $("#EncumbrancePanelBody").css("zIndex") + 1);
+
     //initialize datepickers
     $(function () {
         $(".datepicker").datepicker({
@@ -56,6 +64,9 @@ function initForms() {
         //$("#FundSelector").autocomplete("search"); // won't execute in page load
         $("#FundSelector").val("");
     }
+
+    // show Encumbrance Type and Amount
+    displayLineItemsPanelOrMessage();
 
     //initialize tooltips
     //$(function () {
@@ -102,6 +113,7 @@ function initForms() {
     $("#ExpansionObject").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/LineItems/ListEOs",
                 type: "POST",
                 dataType: "json",
@@ -119,6 +131,7 @@ function initForms() {
     $("#WorkActivity").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/LineItems/ListWorkActivities",
                 type: "POST",
                 dataType: "json",
@@ -136,6 +149,7 @@ function initForms() {
     $("#FlairObject").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/LineItems/ListFlairObj",
                 type: "POST",
                 dataType: "json",
@@ -153,6 +167,7 @@ function initForms() {
     $("#FinancialProjectNumber").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/LineItems/ListFinProjNums",
                 type: "POST",
                 dataType: "json",
@@ -170,6 +185,7 @@ function initForms() {
     $("#VendorSelector").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/Contracts/ListVendors",
                 type: "POST",
                 dataType: "json",
@@ -194,6 +210,7 @@ function initForms() {
     $("#ContractTypeSelector").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/Contracts/ListContractTypes",
                 type: "POST",
                 dataType: "json",
@@ -218,6 +235,7 @@ function initForms() {
     $("#OCASelector").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/LineItems/ListOCAs",
                 type: "POST",
                 dataType: "json",
@@ -242,6 +260,7 @@ function initForms() {
     $("#FundSelector").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/LineItems/ListFunds",
                 type: "POST",
                 dataType: "json",
@@ -266,6 +285,7 @@ function initForms() {
     $("#CategorySelector").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/LineItems/ListCategories",
                 type: "POST",
                 dataType: "json",
@@ -290,6 +310,7 @@ function initForms() {
     $("#ContractSelector").autocomplete({
         source: function (request, response) {
             $.ajax({
+                autoFocus: true,
                 url: "/LineItemGroups/ListContracts",
                 type: "POST",
                 dataType: "json",
@@ -311,7 +332,7 @@ function initForms() {
                 showContractPanel(ui.item.ContractID);
             }
             if ($("#LineItemsPanel")) {
-                $("#LineItemsPanel").show();
+                displayLineItemsPanelOrMessage();
             }
             return false;
         }
@@ -378,7 +399,7 @@ function addDialogs() {
         autoOpen: false,
         width: 1200,
         resizable: false,
-        title: 'New Contract',
+        title: 'Contract Information',
         modal: true,
         open: function (event, ui) {
             var url = "/LineItemGroups/NewContractPartial";
@@ -412,7 +433,7 @@ function addDialogs() {
         autoOpen: false,
         width: 1200,
         resizable: false,
-        title: 'New Line Item',
+        title: 'Financial Information',
         modal: true,
         open: function (event, ui) {
             // put autocorrect controls on top of dialog
@@ -472,12 +493,45 @@ function showHideButtons() {
         return false;
     }
     $("#noButtonDiv").show();
-}
-// ContractSelector is showing when modal is open, so I explicitly show and hide it when LineItemDialog is opened/closed
-$("#LineItemDialog").on('dialogclose', function (event) {
-    $("#ContractSelector").show();
-});
 
+    // show LineItemsPanel if the contract is selected
+
+    if (($("#ContractID").val() && $("#ContractID").val() > 0) && ($("#LineItemGroupID").val() && $("#LineItemGroupID").val() > 0)) {
+        $("#LineItemsPanel").show();
+    }
+    // ContractSelector is showing when modal is open, so I explicitly show and hide it when LineItemDialog is opened/closed
+    $("#LineItemDialog").on('dialogclose', function (event) {
+        $("#ContractSelector").show();
+    });
+}
+
+function displayLineItemsPanelOrMessage() {
+    // $("#AddedInfoDiv").html();
+    var encumbranceType = $("#LineItemType").val();
+    //update encumbrance panel header
+    if (encumbranceType != null && encumbranceType.length > 0 && encumbranceType != "None") {
+        $("#EncHeaderEncType").html("Type: <h4>" + encumbranceType + "</h4>");
+    }
+    var groupID = $("#LineItemGroupID").val();
+    if (groupID === "") { groupID = 0; }
+    if (groupID > 0) {
+        $("#EncHeaderEncID").html("Encumbrance: <h4>" + groupID + "</h4>");
+    }
+    var contractID = $("#ContractID").val();
+    if (contractID > 0) {
+        getEncumbranceCount(encumbranceType, contractID) + 1;
+    }
+    setEncumbranceTotal();
+    //$("#EncHeaderEncAmount").html("Amount: <h4>" + getEncumbranceAmount() + "</h4>");
+
+    if (contractID > 0
+        && encumbranceType.length > 0 && encumbranceType != "None"
+        && groupID > 0) {
+        $("#LineItemsPanel").show();
+    } else {
+        $("#messageSpan").text("Save to enable inputting Financial Information.");
+    }
+}
 function collapseSection() {
     $(this).nextUntil("tr.groupHeader").toggle();
 }
@@ -670,7 +724,9 @@ function getSubmissionDetails() {
         jsonString = jsonString.replace(/,\s*$/, "");
         jsonString += "], ";
     }
-    jsonString += "\"comments\" : \"" + $("#commentText").val() + "\"";
+    var commentText = $("#commentText").val();
+    //if (commentText.length > 0) { commentText = commentText.replace(/'/g, "&#39;"); }
+    jsonString += "\"comments\" : \"" + commentText + "\"";
     jsonString += "}";
 
     return jsonString;
@@ -693,6 +749,36 @@ function toggleEncumbrance(header) {
         $("#toggleLink_" + header).text("Hide encumbrance items");
     } else {
         if (linkText === "Hide encumbrance items") $("#toggleLink_" + header).text("Show encumbrance items");
+    }
+}
+
+function toggleEncumbrancePanel() {
+    if ($("#EncumbranceToggleDiv").text().indexOf("Collapse") >= 0) {
+        $("#EncumbrancePanelBody").addClass("collapse");
+        $("#EncumbranceToggleDiv").html("<a href='javascript:toggleEncumbrancePanel()'>Expand</a>");
+    } else {
+        $("#EncumbrancePanelBody").removeClass("collapse");
+        $("#EncumbranceToggleDiv").html("<a href='javascript:toggleEncumbrancePanel()'>Collapse</a>");
+    }
+}
+
+function toggleContractPanel() {
+    if ($("#ContractToggleDiv").text().indexOf("Collapse") >= 0) {
+        $("#ContractPanelBody").addClass("collapse");
+        $("#ContractToggleDiv").html("<a href='javascript:toggleContractPanel()'>Expand</a>");
+    } else {
+        $("#ContractPanelBody").removeClass("collapse");
+        $("#ContractToggleDiv").html("<a href='javascript:toggleContractPanel()'>Collapse</a>");
+    }
+}
+
+function toggleLineItemsPanel() {
+    if ($("#LineItemsToggleDiv").text().indexOf("Collapse") >= 0) {
+        $("#LineItemsPanelBody").addClass("collapse");
+        $("#LineItemsToggleDiv").html("<a href='javascript:toggleLineItemsPanel()'>Expand</a>");
+    } else {
+        $("#LineItemsPanelBody").removeClass("collapse");
+        $("#LineItemsToggleDiv").html("<a href='javascript:toggleLineItemsPanel()'>Collapse</a>");
     }
 }
 
@@ -842,8 +928,6 @@ function getFormattedDateNow() {
     return thedate;
 }
 
-
-
 function showContractHistory(contractID) {
     // fetch all ContractStatus records for contractID and display them in a table in the contractHistoryDiv
     // change the Show History link text to Hide History
@@ -950,18 +1034,28 @@ function validateContractDollars() {
         var warnString = "Budget Ceiling must be more than Contract Initial Amount.";
         $("#budgetCeilingMessage").text(warnString);
     }
+    displayLineItemsPanelOrMessage();
     return false;
 }
 
-function updateAddedInfo() {
-   // $("#AddedInfoDiv").html();
-    var encumbranceType = $("#LineItemType").val();
-    var contractID = $("#ContractID").val();
-    if (contractID > 0) {
-        getEncumbranceCount(encumbranceType, contractID) + 1;
+function getEncumbranceAmount(encumbranceID) {
+    if (encumbranceID > 0)
+    {
+        var EncumbranceInfo = {};
+        EncumbranceInfo.groupID = encumbranceID;
+        $.ajax({
+            type: "POST",
+            ContentType: "application/json; charset=utf-8",
+            dataType: 'html',
+            data: { encumbranceInfo: JSON.stringify(EncumbranceInfo) },
+            url: '/LineItemGroups/GetEncumbranceAmount/',
+            success: function (response) { }
+        });
+        return formatCurrency(amount)
+    } else {
+        return formatCurrency(0.00);
     }
 }
-
 function getEncumbranceCount(encumbranceType, contractID) {
     var EncumbranceInfo = {};
     EncumbranceInfo.encumbranceType = encumbranceType;
@@ -993,7 +1087,7 @@ function getEncumbranceCount(encumbranceType, contractID) {
                 $("#AmendedLOA").show();
             }
             if (prefix.length > 0) {
-                $("#UserAssignedID").val(prefix + encNumber);
+                $("#UserAssignedID").val(prefix); // at client request, changed from (prefix + encNumber);
             }
             if (encumbranceType === "Advertisement") {
                 displayMessage("Please add Letting Date to the description.");
@@ -1024,6 +1118,7 @@ function openContractDialogExisting(id) {
 }
 
 function openLineItemDialog(callback) {
+    // TODO: Save the LineItemGroup first
     var userID = $("#UserID").val();
     var contractID = $("#ContractID").val();
     var lineItemGroupID = $("#LineItemGroupID").val();
@@ -1069,14 +1164,16 @@ function editLineItem(lineItemID, isDuplicate) {
         $("#StateProgramID").val(lineItem.StateProgramID);
         $("#FinancialProjectNumber").val(lineItem.FinancialProjectNumber);
         $("#WorkActivity").val(lineItem.WorkActivity);
-        $("#Comments").text(lineItem.Comments);
+        $("#Comments").val(lineItem.Comments);
         $("#ExpansionObject").val(lineItem.ExpansionObject);
         if (isDuplicate) {
             // #LineNumber val gets set in the callback
             getNextLineNumber("{\"groupID\" : " + lineItem.LineItemGroupID + "}");
+            $("#LineItemNumber").text("");
             $("#LineItemID").val(0);
         } else {
             $("#LineItemID").val(lineItem.LineItemID);
+            $("#LineItemNumber").text(lineItem.LineItemID);
             $("#LineNumber").val(lineItem.LineNumber);
         }
         populateFiscalYearList(lineItem.FiscalYear);
@@ -1110,7 +1207,7 @@ function deleteLineItem(lineItemID) {
             alert(result.success);
             // remove the line item from the table
             $("#row_item_" + lineItemID).remove();
-        },
+            setEncumbranceTotal();        },
         fail: function (data) {
             var result = JSON.parse(data);
             alert(result.fail);
@@ -1255,6 +1352,7 @@ function SaveLineItemModal() {
             // reset the encumbrance total amount
             setEncumbranceTotal();
             setContractAmountTotal();
+            clearLineItemsDialog();
             // show the line items table
             $("#LineItemsTable").show();
         }
@@ -1272,7 +1370,7 @@ function getNewLineItemRow(lineItem) {
     if ($("#UserRoles").val().indexOf("Originator") >= 0 ) {
         tableText += "<a href='javascript:editLineItem(" + lineItem.LineItemID + ", false)' > Edit</a > <br />";
         tableText += "<a href='javascript:editLineItem(" + lineItem.LineItemID + ", true)'>Duplicate</a> <br />";
-        tableText += "<a href='LineItems/Delete /" + lineItem.LineItemID + "'>Delete</a> <br />";
+        tableText += "<a href='javascript:deleteLineItem(" + lineItem.LineItemID + ")'>Delete</a> <br />";
     }
     tableText += "</td>";
     tableText += "<td>" + lineItem.LineItemID + "</td>";
@@ -1289,7 +1387,12 @@ function getNewLineItemRow(lineItem) {
     tableText += "<td>" + lineItem.FlairObject + "</td>";
     var fund_array = lineItem.FundName.split("-");
     tableText += "<td title='" + fund_array[1].trim() + "'>" + fund_array[0].trim() + "<input type='hidden' id='" + itemKey + "_FundID' value='" + lineItem.FundID + "'/> </td>";
-    tableText += "<td>" + (FY - 1) + " - " + FY + "</td>";
+    tableText += "<td>" + (FY - 1) + " - " + FY;
+    if ($("#EndingFY").val() < FY) {
+        tableText += "<span id='FYWarning_" + lineItem.LineItemID + "' name='FYWarning_" + lineItem.LineItemID + "' class='FYWarning' title='This item occurs after the ending date of the contract.'>*</span>";
+        $("[name^='FYWarning_']").css({ 'background-color': 'red' })
+    }
+    tableText +=  "</td>";
     tableText += "<td>" + lineItem.Amount.toLocaleString() + "<input type='hidden' id='" + itemKey + "_Amount' value='" + lineItem.Amount + "'/>";
 
     //fixes to lineItem before stringifying
@@ -1313,6 +1416,7 @@ function getNewLineItemRow(lineItem) {
     lineItem.StateProgram = StateProgram;
     lineItem.ExpansionObject = lineItem.EO;
     lineItem.Amount = parseFloat(lineItem.Amount.replace(",", "").replace("$", ""));
+    lineItem.Comments = lineItem.Comments.replace(/'/g,"&#39;");
     lineItem.LineNumber = lineItem.LineItemNumber;
     var jsonString = JSON.stringify(lineItem);
 
@@ -1320,6 +1424,14 @@ function getNewLineItemRow(lineItem) {
     tableText += "</tr>";
     return tableText;
 }
+
+function clearLineItemsDialog() {
+    $("#LineItemNumber").text("");
+    $("#LineItemDialog *").filter(':input').each(function () {
+        $(this).val("");
+    });
+}
+
 
 function formatDate(dateString) {
     return dateString.mm + "/" + dateString.dd + "/" + dateString.yyyy
@@ -1369,12 +1481,13 @@ function populateContractPanel(contract) {
     //write contract details to ContractPanel
     if (!contract) { return false; }
     $("#ContractTitle").text("Contract - " + contract.ContractNumber);
+    $("#EncHeaderContract").html("Contract: <h4>" + contract.ContractNumber + "</h4>");
+    $("#EditContractLink").html("<a href= 'javascript:openContractDialogExisting(" + contract.ContractID + ")'>Edit Contract Information</a> ");
     var contractHtml = "";
     contractHtml += "<div class='row'>";
     contractHtml += "<div class='col-sm-4'><strong>Originated by:</strong> <a href='mailto:" + contract.OriginatorEmail + "'>" + contract.OriginatorName + "</a> (" + contract.OriginatorLogin + ") " + contract.OriginatorPhone + "</div>";
     contractHtml += "<div class='col-sm-3'><strong>Created Date:</strong> " + contract.CreatedDate + "</div>";
     contractHtml += "<div class='col-sm-3'><strong>Modified Date:</strong> " + contract.ModifiedDate + "</div>";
-    contractHtml += "<div class='col-sm-2'><dl><dt> <a href= 'javascript:openContractDialogExisting(" + contract.ContractID + ")'>Edit Contract</a> </div>";
     contractHtml += "</div><div class='row'>";
     contractHtml += "<div class='col-sm-2'><dl><dt>Contract Number:</dt><dd> " + contract.ContractNumber;
     contractHtml += "<input type='hidden' name='ContractID' id='ContractID' value='" + contract.ContractID + "'/>";
@@ -1385,13 +1498,13 @@ function populateContractPanel(contract) {
     contractHtml += "<div class='col-sm-2'><dl><dt> Contract Initial Amount:</dt><dd> " + contract.FormattedContractInitialAmount + "</dd></dl></div>";
     contractHtml += "<div class='col-sm-2'><dl><dt> Contract Begin Date:</dt><dd> " + contract.FormattedBeginningDate + "</dd></dl></div>";
     contractHtml += "<div class='col-sm-3'><dl><dt> Contract Procurement:</dt><dd> " + contract.ProcurementName + "</dd></dl></div>";
-    contractHtml += "<div class='col-sm-3'><dl><dt> Contract Funding Terms:</dt><dd> " + contract.CompensationName + "</dd></dl></div>";
+    contractHtml += "<div class='col-sm-3'><dl><dt> <input type='hidden' id='Compensation' name='Compensation' value='" + contract.CompensationID + "'/> Contract Funding Terms:</dt><dd> " + contract.CompensationName + "</dd></dl></div>";
     contractHtml += "</div><div class='row'>";
     contractHtml += "<div class='col-sm-2'><dl><dt> Maximum LOA Amount:</dt><dd> " + contract.FormattedMaxLoaAmount + "</dd></dl></div>";
-    contractHtml += "<div class='col-sm-2'><dl><dt> Contract End Date:</dt><dd> " + contract.FormattedEndingDate + "</dd></dl></div>";
+    contractHtml += "<div class='col-sm-2'><dl><dt> <input type='hidden' id='EndingFY' name='EndingFY' value='" + getEndingFY(contract.FormattedEndingDate) + "'/> Contract End Date:</dt><dd> " + contract.FormattedEndingDate + "</dd></dl></div>";
     contractHtml += "<div class='col-sm-3'><dl><dt> Vendor:</dt><dd> " + contract.VendorName + "</dd></dl></div>";
     contractHtml += "</div><div class='row'>";
-    contractHtml += "<div class='col-sm-2'><dl><dt> Budget Ceiling:</dt><dd> " + contract.FormattedBudgetCeiling + "</dd></dl></div>";
+    contractHtml += "<div class='col-sm-2'><dl><dt> <input type='hidden' id='BudgetCeiling' name='BudgetCeiling' value='" + contract.BudgetCeiling + "'/> Budget Ceiling:</dt> <dd> " + contract.FormattedBudgetCeiling + "</dd></dl ></div > ";
     contractHtml += "<div class='col-sm-2'><dl><dt> Service End Date:</dt><dd> " + contract.FormattedServiceEndingDate + "</dd></dl></div>";
     contractHtml += "<div class='col-sm-3'><dl><dt> Recipient:</dt><dd> " + contract.RecipientName + "</dd></dl></div>";
     contractHtml += "</div><div class='row'>";
@@ -1402,7 +1515,15 @@ function populateContractPanel(contract) {
     $("#ContractPanelBody").html(contractHtml);
     $("#ContractPanel").show();
 }
-
+function getEndingFY(formattedDate) {
+    var m = formattedDate.indexOf("/")
+    var n = formattedDate.lastIndexOf("/");
+    var year = formattedDate.substring(n + 1);
+    var month = formattedDate.substring(m + 1, n)
+    var FY = year;
+    if (month > 7) { FY++; }
+    return FY;
+}
 function UpdateGroupStatus(status) {
     if (ValidateEncumbrance()) {
         if (status === "Work Program") {
@@ -1598,6 +1719,8 @@ function SaveEncumbrance(commentJson) {
             var result = JSON.parse(data);
             // return the completed Contract object to the calling form and use it to populate ContractPanel div
             updateEncumbrance(result);
+            // show LineItems panel
+            displayLineItemsPanelOrMessage();
             if (result.CurrentStatus===("Draft")) {
                 displayMessage("Encumbrance successfully saved as draft.");
             } else if (result.CurrentStatus===("Finance")){
@@ -1644,6 +1767,16 @@ function setEncumbranceTotal() {
     });
     var encumbranceTotal = formatCurrency(total);
     $("#EncumbranceTotal").html("<strong>Encumbrance Total: </strong>" + encumbranceTotal);
+    $("#EncumbranceTotalAmount").html("<strong>Encumbrance Total: </strong>" + encumbranceTotal);
+    if (total > 0) {
+        $("#EncHeaderEncAmount").html("Amount: <h4>" + encumbranceTotal + "</h4>");
+    }
+    var budgetCeiling = $("#BudgetCeiling").val();
+    var compensation = $("#Compensation").val();
+    var toggle = "hide";
+    var compsWithCeilings = "3,4,5,7"
+    if (compsWithCeilings.indexOf(compensation) > 0 && total > budgetCeiling) { toggle = "show"; }
+    toggleBudgetCeilingWarning(toggle);
 }
 
 function setContractAmountTotal() {
@@ -1664,6 +1797,16 @@ function setContractAmountTotal() {
             $("#ContractAmountTotal").html("<strong>Contract Total: </strong>" + totalAmount);
         }
     });
+}
+function toggleBudgetCeilingWarning(action) {
+    // TODO: if contract requires a budget ceiling (Contract Funding in {3, 4, 5, 7}) 
+    // and Budget Ceiling > $0
+    // and Encumbrance Total > Budget Ceiling, then show the warning
+    if (action === "show") {
+        $("#budgetCeilingWarningSpan").text("Encumbrance total exceeds Budget Ceiling.");
+    } else {
+        $("#budgetCeilingWarningSpan").text("");
+    }
 }
 
 function displayLineItemMessage(msg) {

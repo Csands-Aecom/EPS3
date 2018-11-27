@@ -10,6 +10,7 @@ using EPS3.Models;
 using EPS3.Helpers;
 using EPS3.ViewModels;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace EPS3.Controllers
 {
@@ -310,7 +311,7 @@ namespace EPS3.Controllers
                 _context.SaveChanges();
             }catch(Exception e)
             {
-                throw;
+                Log.Error("UsersController.AddRole Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
         }
         private void RemoveRole(User user, string roleName)
