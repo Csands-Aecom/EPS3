@@ -15,14 +15,20 @@ namespace EPS3.Models
         {
             this.ContractID = contract.ContractID;
             this.LastEditedUserID = user.UserID;
+            this.OriginatorUserID = user.UserID;
             this.LastEditedDate = DateTime.Now;
+            this.OriginatedDate = DateTime.Now;
+            this.CurrentStatus = ConstantStrings.Draft;
             this.IsEditable = 1;
         }
         public LineItemGroup(int contractID, int userID)
         {
             this.ContractID = contractID;
             this.LastEditedUserID = userID;
+            this.OriginatorUserID = userID;
             this.LastEditedDate = DateTime.Now;
+            this.OriginatedDate = DateTime.Now;
+            this.CurrentStatus = ConstantStrings.Draft;
             this.IsEditable = 1;
         }
 

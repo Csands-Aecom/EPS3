@@ -10,6 +10,29 @@ namespace EPS3.Models
     public class LineItem
     {
         private string _EO;
+        public LineItem() { }
+        public LineItem(LineItem lineItem)
+        {
+            this.AmendedLineItemID = lineItem.AmendedLineItemID;
+            this.Amount = lineItem.Amount;
+            this.CategoryID = lineItem.CategoryID;
+            this.Comments = lineItem.Comments;
+            this.ContractID = lineItem.ContractID;
+            this.ExpansionObject = lineItem.ExpansionObject;
+            this.FinancialProjectNumber = lineItem.FinancialProjectNumber;
+            this.FiscalYear = lineItem.FiscalYear;
+            this.FlairAmendmentID = lineItem.FlairAmendmentID;
+            this.FlairObject = lineItem.FlairObject;
+            this.FundID = lineItem.FundID;
+            this.LineItemGroupID = lineItem.LineItemGroupID;
+            this.LineItemType = lineItem.LineItemType;
+            this.LineNumber = lineItem.LineNumber;
+            this.OCAID = lineItem.OCAID;
+            this.OrgCode = lineItem.OrgCode;
+            this.StateProgramID = lineItem.StateProgramID;
+            this.UserAssignedID = lineItem.UserAssignedID;
+            this.WorkActivity = lineItem.WorkActivity;
+        }
 
         [Display(Name = "Corrects FLAIR Amendment ID")]
         [StringLength(10)]
@@ -96,6 +119,11 @@ namespace EPS3.Models
             int millenium = 2000;
             string formattedFY = priorYear.ToString() + " - " + (FiscalYear - millenium).ToString();
             return formattedFY;
+        }
+
+        public LineItem ShallowCopy()
+        {
+            return (LineItem)this.MemberwiseClone();
         }
 
     }

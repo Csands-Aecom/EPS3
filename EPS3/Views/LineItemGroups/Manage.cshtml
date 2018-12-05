@@ -28,6 +28,9 @@
                 <span id="EncHeaderEncID"></span>
             </div>
             <div class="col-sm-2">
+                <span id="EncHeaderEncStatus"></span>
+            </div>
+            <div class="col-sm-2">
                 <span id="EncHeaderEncType"></span>
             </div>
             <div class="col-sm-2">
@@ -163,6 +166,7 @@
                 {
                     <br />
                     <div class="col-sm-10" id="noButtonDiv">
+                        <input type="hidden" id="GroupStatus" name="GroupStatus" value="@Model.CurrentStatus" />
                         <text>This encumbrance is currently in @Model.CurrentStatus status.</text>
                     </div>
                 }
@@ -328,7 +332,11 @@
                                     <td title="@lineItem.Fund.FundDescription">@lineItem.Fund.FundCode<input type='hidden' id='item_@(lineItem.LineItemID)_FundID' value='@lineItem.FundID' /> </td>
                                     @{
                                         var priorYear = lineItem.FiscalYear - 1;
-                                        <td>@priorYear.ToString() - @lineItem.FiscalYear</td>
+                                    <td>
+                                        @priorYear.ToString() - @lineItem.FiscalYear
+                                        <input type="hidden" id="FY_@(lineItem.LineItemID)" name="FY_@(lineItem.LineItemID)"  value="@(lineItem.FiscalYear)">
+                                        <span id='FYWarning_@(lineItem.LineItemID)' name='FYWarning_@(lineItem.LineItemID)' class='FYWarning' style='display: none' title='This item occurs after the ending date of the contract.'>*</span>
+                                    </td>
                                     }
                                     <td>
                                         $@lineItem.AmountString<input type='hidden' id='item_@(lineItem.LineItemID)_Amount' value='@lineItem.Amount' />

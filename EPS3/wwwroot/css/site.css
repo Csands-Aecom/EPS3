@@ -213,6 +213,10 @@ h5, h6 {
     opacity: 1 !important;
 }
 
+.panel-body{
+    font-size: 1.1em;
+}
+
 header .content-wrapper {
     padding-top: 10px;
 }

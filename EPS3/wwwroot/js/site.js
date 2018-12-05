@@ -508,9 +508,13 @@ function showHideButtons() {
 function displayLineItemsPanelOrMessage() {
     // $("#AddedInfoDiv").html();
     var encumbranceType = $("#LineItemType").val();
+    var encumbranceStatus = $("#GroupStatus").val();
     //update encumbrance panel header
     if (encumbranceType != null && encumbranceType.length > 0 && encumbranceType != "None") {
         $("#EncHeaderEncType").html("Type: <h4>" + encumbranceType + "</h4>");
+    }
+    if (encumbranceStatus != null && encumbranceStatus.length > 0) {
+        $("#EncHeaderEncStatus").html("Status: <h4>" + encumbranceStatus + "</h4>");
     }
     var groupID = $("#LineItemGroupID").val();
     if (groupID === "") { groupID = 0; }
@@ -1388,10 +1392,8 @@ function getNewLineItemRow(lineItem) {
     var fund_array = lineItem.FundName.split("-");
     tableText += "<td title='" + fund_array[1].trim() + "'>" + fund_array[0].trim() + "<input type='hidden' id='" + itemKey + "_FundID' value='" + lineItem.FundID + "'/> </td>";
     tableText += "<td>" + (FY - 1) + " - " + FY;
-    if ($("#EndingFY").val() < FY) {
-        tableText += "<span id='FYWarning_" + lineItem.LineItemID + "' name='FYWarning_" + lineItem.LineItemID + "' class='FYWarning' title='This item occurs after the ending date of the contract.'>*</span>";
-        $("[name^='FYWarning_']").css({ 'background-color': 'red' })
-    }
+    tableText += "<input type='hidden' id='FY_" + lineItem.LineItemID + "' name='FY_" + lineItem.LineItemID + "' value=" + lineItem.FiscalYear + "'>";
+    tableText += "<span id='FYWarning_" + lineItem.LineItemID + "' name='FYWarning_" + lineItem.LineItemID + "' class='FYWarning' style=\"display: none\" title='This item occurs after the ending date of the contract.'>*</span>";
     tableText +=  "</td>";
     tableText += "<td>" + lineItem.Amount.toLocaleString() + "<input type='hidden' id='" + itemKey + "_Amount' value='" + lineItem.Amount + "'/>";
 
@@ -1511,6 +1513,8 @@ function populateContractPanel(contract) {
     var description = (contract.DescriptionOfWork) ? contract.DescriptionOfWork : "";
     contractHtml += "<div class='col-sm-4'><dl><dt> Description of Work:</dt><dd> " + description + "</dd></dl></div>";
     contractHtml += "</div>";
+    
+    setEncumbranceTotal();
 
     $("#ContractPanelBody").html(contractHtml);
     $("#ContractPanel").show();
@@ -1777,10 +1781,11 @@ function setEncumbranceTotal() {
     var compsWithCeilings = "3,4,5,7"
     if (compsWithCeilings.indexOf(compensation) > 0 && total > budgetCeiling) { toggle = "show"; }
     toggleBudgetCeilingWarning(toggle);
+    showHideFYWarnings();
 }
 
 function setContractAmountTotal() {
-    // TODO: get total value of all line items in all encumbrances for this contract
+    // get total value of all line items in all encumbrances for this contract
     // make ajax call to GetContractAmountTotal with contractID as parameter
     var contractID = $("#ContractID").val();
     if (!contractID) { contractID = 0;}
@@ -1807,6 +1812,23 @@ function toggleBudgetCeilingWarning(action) {
     } else {
         $("#budgetCeilingWarningSpan").text("");
     }
+}
+
+function showHideFYWarnings() {
+    var endingFY = $("#EndingFY").val();
+    $("[name^='FYWarning_']").each( function(){
+        var thisID = $(this).id;
+        if (thisID && thisID.length > 0) {
+            var lineNum = parseInt(thisID.substring(thisID.indexOf("_") + 1));
+            var thisFY = $("#FY_" + lineNum).val();
+            // if thisFY > endingFY then show FYWarning_thisID else hide it.
+            if (thisFY > endingFY) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        }
+    });
 }
 
 function displayLineItemMessage(msg) {

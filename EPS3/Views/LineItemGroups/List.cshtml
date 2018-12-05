@@ -46,6 +46,11 @@
                     <tr>
                         <td>
                             <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
+                            @if (key == ConstantStrings.Advertisement)
+                            {
+                               <span class="float-right"><a href="/LineItemGroups/Award?id=@item.GroupID">Award</a></span> 
+
+                            }
                         </td>
                         <td>
                             <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>

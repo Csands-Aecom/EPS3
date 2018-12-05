@@ -116,7 +116,7 @@ namespace EPS3.Controllers
 
             List<LineItem> LineList = _pu.GetDeepLineItems(groupID);
             ViewBag.LineItems = LineList;
-            ViewBag.LineItemCount = LineList.Count();
+            ViewBag.LineItemCount = LineList == null ? 0 : LineList.Count();
             ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
             // ViewBag.LineItemsMap = Map of LineItemID, JSONString of serialized object
             Dictionary<int, string> lineItemsMap = new Dictionary<int, string>();
@@ -501,6 +501,71 @@ namespace EPS3.Controllers
             string result = JsonConvert.SerializeObject(newLineItemGroup);
             return Json(result);
         }
+
+        [HttpGet]
+        public IActionResult Award(int id)
+        {
+            /*TODO: The id is GroupID for the Advertisement Encumbrance request
+            *   This method Awards that request in the following way:
+            *   1. Create a new encumbrance with the same contract of type ConstantStrings.Award
+            *   2. Duplicate each LineItem from the Advertisement with identical information except NEGATIVE values for the Amounts
+            *   3. Open the new Award encumbrance in the Manage page.
+            *   This Award will replicate the Advertisement, but counter all of it's amounts, leaving the net balance on the contract at $0.00
+            */
+
+            /* Verify there is an existing advertisement */
+            LineItemGroup advertisement = _context.LineItemGroups.AsNoTracking().SingleOrDefault(g => g.GroupID == id);
+            if(advertisement == null)
+            {
+                ViewBag.AwardMessage = "This is not a valid advertisement.";
+                return RedirectToAction("List");
+            }
+            /* Verify the contract has not already been awarded.
+             * If it has, open Manage() to the prior award. */
+            List<LineItemGroup> priorAwards = _context.LineItemGroups.AsNoTracking()
+                .Where(g => g.ContractID == advertisement.ContractID && g.LineItemType.Equals(ConstantStrings.Award))
+                .ToList();
+            if(priorAwards != null && priorAwards.Count() > 0)
+            {
+                LineItemGroup priorAward = priorAwards[0];
+                return RedirectToAction("Manage", new { id = priorAward.GroupID } );
+            }
+
+            int newAwardID = 0;
+            try
+            {
+                // Make the new Award LineItemGroup record
+                LineItemGroup newAward = new LineItemGroup(advertisement.ContractID, _pu.GetUser(GetLogin()).UserID);
+                newAward.LineItemType = ConstantStrings.Award;
+                newAward.CurrentStatus = ConstantStrings.Draft;
+                newAward.IncludesContract = 1;
+
+                _context.LineItemGroups.Add(newAward);
+                _context.SaveChanges();
+                newAwardID = newAward.GroupID;
+
+                // Make a new Status record
+
+                // Make LineItems with negative values to cancel the value of the Advertisement
+                List<LineItem> priorLines = _context.LineItems.AsNoTracking().Where(l => l.LineItemGroupID == id).ToList();
+                foreach(LineItem priorLine in priorLines)
+                {
+                    LineItem newLine = new LineItem(priorLine);
+                    newLine.Amount = priorLine.Amount * (-1);
+                    newLine.LineItemGroupID = newAward.GroupID;
+                    newLine.LineItemType = ConstantStrings.Award;
+                    _context.LineItems.Add(newLine);
+                    _context.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("LineItemGroupsController.Award Error:" + e.GetBaseException());
+                Log.Error("LineItemGroupsController.Award Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+            }
+            return RedirectToAction("Manage", new { id = newAwardID } );
+        }
+
 
         [HttpPost]
         public JsonResult ListContracts(string searchString)
