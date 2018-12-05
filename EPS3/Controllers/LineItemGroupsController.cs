@@ -545,6 +545,18 @@ namespace EPS3.Controllers
                 newAwardID = newAward.GroupID;
 
                 // Make a new Status record
+                Contract contract = _context.Contracts.AsNoTracking()
+                    .SingleOrDefault(c => c.ContractID == newAward.ContractID);
+                LineItemGroupStatus status = new LineItemGroupStatus()
+                {
+                    CurrentStatus = ConstantStrings.Draft,
+                    LineItemGroupID = newAward.GroupID,
+                    SubmittalDate = DateTime.Now,
+                    Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + ".",
+                    UserID = newAward.OriginatorUserID
+                };
+                _context.LineItemGroupStatuses.Add(status);
+                _context.SaveChanges();
 
                 // Make LineItems with negative values to cancel the value of the Advertisement
                 List<LineItem> priorLines = _context.LineItems.AsNoTracking().Where(l => l.LineItemGroupID == id).ToList();
@@ -645,11 +657,21 @@ namespace EPS3.Controllers
                 .Where(l => l.LineItemType.Equals(ConstantStrings.Advertisement))
                 .Include(l => l.Contract)
                 .ToList();
-            List<LineItemGroup> awardGroups = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.LineItemType.Equals(ConstantStrings.Award))
-                .Include(l => l.Contract)
-                .ToList();
-            return adGroups.Except(awardGroups).ToList();
+            // For each adGroup, if the contract has a matching, submitted, Award group, then add it to Award groups
+            List<LineItemGroup> awardedGroups = new List<LineItemGroup>();
+            foreach (LineItemGroup adGroup in adGroups)
+            {
+                int contractID = adGroup.ContractID;
+                List<LineItemGroup> awardGroups = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.LineItemType.Equals(ConstantStrings.Award) && l.ContractID == contractID && l.CurrentStatus != ConstantStrings.Draft)
+                    .ToList();
+                if (awardGroups.Count > 0)
+                {
+                    awardedGroups.Add(adGroup);
+                }
+            }
+            // return adGroups minus awardedGroups, which contains Advertisement encumbrances minus those with already-submitted Awards
+            return adGroups.Except(awardedGroups).ToList();
         }
 
         private Dictionary<int, string> getLineItemGroupAmounts(Dictionary<string, List<LineItemGroup>> encumbrances)

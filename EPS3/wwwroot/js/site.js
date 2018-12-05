@@ -1758,6 +1758,7 @@ function updateEncumbrance(encumbrance) {
     $("#FlairAmendmentID").val(encumbrance.FlairAmendmentID);
     $("#UserAssignedID").val(encumbrance.UserAssignedID);
     $("#AmendedLineItemID").val(encumbrance.AmendedLineItemID);
+    $("#GroupStatus").val(encumbrance.CurrentStatus);
 }
 
 function setEncumbranceTotal() {
