@@ -4,70 +4,84 @@
     ViewData["Title"] = "Edit";
 }
 
-<h2>Edit</h2>
-
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="User.UserID" />
-            <div class="form-group">
-                <label asp-for="User.FirstName" class="control-label"></label>
-                <input asp-for="User.FirstName" class="form-control" />
-                <span asp-validation-for="User.FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="User.LastName" class="control-label"></label>
-                <input asp-for="User.LastName" class="form-control" />
-                <span asp-validation-for="User.LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="User.UserLogin" class="control-label"></label>
-                <input asp-for="User.UserLogin" class="form-control" />
-                <span asp-validation-for="User.UserLogin" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="User.Email" class="control-label"></label>
-                <input asp-for="User.Email" class="form-control" />
-                <span asp-validation-for="User.Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="User.Phone" class="control-label"></label>
-                <input asp-for="User.Phone" class="form-control" />
-                <span asp-validation-for="User.Phone" class="text-danger"></span>
-            </div>
-            <div>
-                <select id="ReceiveEmails" name="ReceiveEmails">
-                    <option value="0">Use Message Center Only</option>
-                    <option value="1">Send Email Notifications</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <strong>Roles</strong><br />
-                @foreach (string role in ViewBag.RolesList)
-        {
-            if (ViewBag.UserRoles.Contains(role))
-            {
-                <input type="checkbox" name="role_@role" id="role_@role" value="@role" onchange="concatenateSelectedRoles()" checked />@role<br />
-    }
-    else
-    {
-        <input type="checkbox" name="role_@role" id="role_@role" value="@role" onchange="concatenateSelectedRoles()" />@role<br />
-}
-}
-                <input type="hidden" name="userRoles" id="userRoles" />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
-            </div>
-        </form>
+<p>&nbsp;</p>
+<div class="panel panel-default" id="UserPanel" name="UserPanel">
+    <div class="panel-heading" id="UserPanelHeading" name="UserPanelHeading">
+        <h2>Edit User</h2>
     </div>
-</div>
+    <div class="panel-body" id="UserPanelBody" name="UserPanelBody">
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="User.UserID" />
+                    <div class="form-group">
+                        <label asp-for="User.FirstName" class="control-label"></label>
+                        <input asp-for="User.FirstName" class="form-control" />
+                        <span asp-validation-for="User.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="User.LastName" class="control-label"></label>
+                        <input asp-for="User.LastName" class="form-control" />
+                        <span asp-validation-for="User.LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="User.UserLogin" class="control-label"></label>
+                        <input asp-for="User.UserLogin" class="form-control" />
+                        <span asp-validation-for="User.UserLogin" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="User.Email" class="control-label"></label>
+                        <input asp-for="User.Email" class="form-control" />
+                        <span asp-validation-for="User.Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="User.Phone" class="control-label"></label>
+                        <input asp-for="User.Phone" class="form-control" />
+                        <span asp-validation-for="User.Phone" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <input type="hidden" id="User_ReceiveEmails" name="User.ReceiveEmails" value="@Model.User.ReceiveEmails" />
+                        <select id="ReceiveEmailsOption" name="ReceiveEmails" onchange="updateReceiveEmails()">
+                            @if (Model.User.ReceiveEmails > 0)
+                            {
+                                <option value="0">Use Message Center Only</option>
+                                <option value="1" selected>Send Email Notifications</option>
+                            }
+                            else
+                            {
+                                <option value="0" selected>Use Message Center Only</option>
+                                <option value="1">Send Email Notifications</option>
+                            }
+                        </select>
+                        <br />
+                    </div>
+                    <div class="form-group">
+                        <strong>Roles</strong><br />
+                        @foreach (string role in ViewBag.RolesList)
+                        {
+                            if (ViewBag.UserRoles.Contains(role))
+                            {
+                                <input type="checkbox" name="role_@role" id="role_@role" value="@role" onchange="concatenateSelectedRoles()" checked />@role<br />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="role_@role" id="role_@role" value="@role" onchange="concatenateSelectedRoles()" />@role<br />
+                            }
+                        }
+                        <input type="hidden" name="userRoles" id="userRoles" value="@ViewBag.UserRoles" />
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-default" />
+                    </div>
+                </form>
+            </div>
+        </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

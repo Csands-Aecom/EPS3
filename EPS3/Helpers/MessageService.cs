@@ -59,59 +59,71 @@ namespace EPS3.Helpers
                 switch (updateType)
                 {
                     case ConstantStrings.DraftToFinance:
-                        msg.Subject = "Encumbrance Request ID " +  encumbrance.GroupID +  " for contract " + contract.ContractNumber + " has been submitted for Finance Review";
+                        msg.Subject = "Encumbrance Request# " +  encumbrance.GroupID +  " for contract " + contract.ContractNumber + " has been submitted for Finance Review";
                         msg.Body = "<p>Please process the following encumbrance request: ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " in the amount of $" + encumbranceTotal + ".</p>\n";
 
                         if (comments != null && comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
                         msg.Body += GetStatusComments(encumbrance);
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
-                            "View Contract Page</a>.</p>";
+                            "EPS Application</a>.</p>";
                         recipientIDs = (List<int>) _context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
                         int receiptID = SendReceipt(encumbrance, submitter, comments);
-                        if (submitter.CanReceiveEmails())
-                        {
+                        // All users should have CanReceiveEmails = TRUE
+                        //if (submitter.CanReceiveEmails())
+                        //{
                             SendEmailMessage(receiptID);
-                        }
+                        //}
                         break;
                     case ConstantStrings.FinanceToDraft:
                     case ConstantStrings.CFMToDraft:
-                        msg.Subject = "Encumbrance ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned.";
+                        msg.Subject = "Encumbrance Request#" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned to the Originator";
                         msg.Body = "<p>Encumbrance ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned for the following reason:</p>\n";
                         if (comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
-                            "View Contract Page</a>.</p>";
+                            "EPS Application</a>.</p>";
                         recipientIDs = new List<int> { encumbrance.OriginatorUserID };
                         break;
                     case ConstantStrings.FinanceToWP:
-                        msg.Subject = "Please process the following encumbrance request for contract " + contract.ContractNumber + " has been submitted for Work Program Review";
-                        msg.Body = "<p>" + submitter.FullName + " has approved an encumbrance request under contract " + contract.ContractNumber + ".</p>\n";
+                        msg.Subject = "Please review encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " for Work Program Evaluation";
+                        msg.Body = "<p>" + submitter.FullName + " has completed a Finance Review for encumbrance request #" + encumbrance.GroupID + " under contract " + contract.ContractNumber + ".</p>\n";
                         if (comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
-                            "View Contract Page</a>.</p>";
+                            "EPS Application</a>.</p>";
                         recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.WPReviewer)).Select(u => u.UserID).ToList();
                         break;
                     case ConstantStrings.WPToCFM:
-                        msg.Subject = "An encumbrance request for contract " + contract.ContractNumber + " has been approved in Work Program Review";
-                        msg.Body = "<p>" + submitter.FullName + " has approved an encumbrance request in Work Program review under contract " + contract.ContractNumber + ".</p>\n";
+                        msg.Subject = "Please review encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " is ready for CFM Input";
+                        msg.Body = "<p>" + submitter.FullName + " has completed a Work Program review for encumbrance request #" + encumbrance.GroupID + " in Work Program review under contract " + contract.ContractNumber + ".</p>\n";
                         if (comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
-                            "View Contract Page</a>.</p>";
+                            "EPS Application</a>.</p>";
                         recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.CFMSubmitter)).Select(u => u.UserID).ToList();
                         break;
                     case ConstantStrings.CFMComplete:
-                        msg.Subject = "An encumbrance request for contract " + contract.ContractNumber + " has been input into CFM";
-                        msg.Body = "<p>" + submitter.FullName + " has completed an encumbrance request in Work Program review under contract " + contract.ContractNumber + ".</p>\n";
+                        msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been input into CFM";
+                        msg.Body = "<p>" + submitter.FullName + " has input encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " into CFM.</p>\n";
                         if (comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
-                        msg.Body += "<p>View this encumbrance request in the <a href='" + contractViewURL + "'>" +
-                            "View Contract Page</a>.</p>";
+                        msg.Body += "<p>No further action is required. You may view this encumbrance request in the <a href='" + contractViewURL + "'>" +
+                            "EPS Application</a>.</p>";
                         recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
                         break;
-                     default:
+                    case ConstantStrings.RequestClose:
+                        msg.Subject = "Request to Close Contract #" + contract.ContractNumber;
+                        msg.Body = "<p>" + submitter.FullName + " requests closure of the contract " + contract.ContractNumber + " (" + contract.ContractID + "), closure type " + encumbrance.LineItemType + " </p>";
+                        msg.Body += "<p>Review this closure request in the <a href='" + contractViewURL + "'>" + "EPS Application</a>.</p>";
+                        recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
+                        break;
+                    case ConstantStrings.CloseContract:
+                        msg.Subject = "Contract #" + contract.ContractNumber + " has been closed";
+                        msg.Body = "<p>" + submitter.FullName + " has closed the contract " + contract.ContractNumber + " (" + contract.ContractID + "), closure type " + encumbrance.LineItemType + " </p>";
+                        recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
+                        break; 
+                    default:
                         break;
                 }
                 // Save the message to the database
@@ -134,9 +146,11 @@ namespace EPS3.Helpers
                     return -1;
                 }
             }
+            // TODO: Move the send email to a more appropriate location
+            SendEmailMessage(msgID);
             return msgID ;
         }
-
+        
         public int SendReceipt(LineItemGroup encumbrance, User submitter, string comments)
         {
             Message msg = new Message
@@ -385,7 +399,10 @@ namespace EPS3.Helpers
             contractInfo += "<strong>Budget Ceiling:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.BudgetCeiling.ToString()))  + "<br />";
             contractInfo += "<strong>Contract Begin Date:</strong> " + contract.BeginningDate.ToString("MM/dd/yyyy") + "<br />";
             contractInfo += "<strong>Contract End Date:</strong> " + contract.EndingDate.ToString("MM/dd/yyyy") + "<br />";
-            contractInfo += "<strong>Service End Date:</strong> " + contract.ServiceEndingDate.ToString("MM/dd/yyyy") + "<br />";
+            if (contract.ServiceEndingDate != null && contract.ServiceEndingDate > new DateTime(2000, 01, 01))
+            {
+                contractInfo += "<strong>Service End Date:</strong> " + contract.ServiceEndingDate?.ToString("MM/dd/yyyy") + "<br />";
+            }
             contractInfo += "<strong>Procurement:</strong> " + contract.MethodOfProcurement.ProcurementSelector + "<br />";
             contractInfo += "<strong>Contract Funding Terms:</strong> " + contract.ContractFunding.CompensationSelector + "<br />";
             contractInfo += "<strong>Vendor:</strong> " + contract.Vendor.VendorSelector + "<br />";

@@ -29,12 +29,14 @@ namespace EPS3
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString("EPSTestContext");
+            string legacyString = Configuration.GetConnectionString("EPSTestLegacyContext");
             string smtpSetup = Configuration.GetSection("Smtp").ToString();
             Log.Information("Connection String: " + connectionString);
             Log.Information("Smtp Setup: " + smtpSetup);
 
             services.Configure<SmtpConfig>(Configuration.GetSection("Smtp"));
             services.AddDbContext<EPSContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<LegacyContext>(options => options.UseSqlServer(legacyString));
             services.AddMvc(options =>
             {
             }).AddSessionStateTempDataProvider();

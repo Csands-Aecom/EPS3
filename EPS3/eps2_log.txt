@@ -6696,3 +6696,682 @@ Error Number:544,State:1,Class:16
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 336
+2018-12-06 09:35:40.136 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 336
+2018-12-10 09:55:33.501 -05:00 [ERR] LineItemGroupsController.AddNewEncumbrance  Error:System.Data.SqlClient.SqlException (0x80131904): Cannot insert the value NULL into column 'CurrentStatus', table 'EPSNew.dbo.LineItemGroups'; column does not allow nulls. INSERT fails.
+The statement has been terminated.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at System.Data.Common.DbCommand.ExecuteReader()
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.Execute(IRelationalConnection connection, DbCommandMethod executeMethod, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+ClientConnectionId:5aba7f07-c8be-4e87-b5ef-3f3347524858
+Error Number:515,State:2,Class:16
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(Tuple`2 parameters)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__DisplayClass12_0`2.<Execute>b__0(DbContext c, TState s)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, Func`2 operation, Func`2 verifySucceeded, TState state)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChanges(IReadOnlyList`1 entries)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IReadOnlyList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges()
+   at EPS3.Controllers.LineItemGroupsController.AddNewEncumbrance(String lineItemGroup, String comments) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 447
+2018-12-10 10:02:02.883 -05:00 [ERR] LineItemGroupsController.AddNewEncumbrance  Error:System.Data.SqlClient.SqlException (0x80131904): Cannot insert explicit value for identity column in table 'LineItemGroups' when IDENTITY_INSERT is set to OFF.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at System.Data.Common.DbCommand.ExecuteReader()
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.Execute(IRelationalConnection connection, DbCommandMethod executeMethod, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+ClientConnectionId:88614884-2166-4a9f-8cbd-c843edf99801
+Error Number:544,State:1,Class:16
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(Tuple`2 parameters)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__DisplayClass12_0`2.<Execute>b__0(DbContext c, TState s)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, Func`2 operation, Func`2 verifySucceeded, TState state)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChanges(IReadOnlyList`1 entries)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IReadOnlyList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges()
+   at EPS3.Controllers.LineItemGroupsController.AddNewEncumbrance(String lineItemGroup, String comments) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 447
+2019-01-10 13:18:16.187 -05:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 186
+   at EPS3.Controllers.ContractsController.<View>d__16.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 434
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 186
+   at EPS3.Controllers.ContractsController.<View>d__16.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 434
+2019-01-10 13:23:43.628 -05:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 186
+   at EPS3.Controllers.ContractsController.<View>d__16.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 434
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 186
+   at EPS3.Controllers.ContractsController.<View>d__16.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 434
+2019-01-10 13:24:04.940 -05:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 186
+   at EPS3.Controllers.ContractsController.<View>d__16.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 434
+   at EPS3.Helpers.PermissionsUtils.GetStatusDropdown(Contract contract, User user) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\PermissionsUtils.cs:line 186
+   at EPS3.Controllers.ContractsController.<View>d__16.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 434
+2019-01-10 16:58:18.622 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients)
+2019-01-11 00:48:44.966 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 337
+2019-01-11 10:28:26.398 -05:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.ContractsController.GetContractStatusList(Contract contract, String roles) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 869
+   at System.Dynamic.UpdateDelegates.UpdateAndExecute3[T0,T1,T2,TRet](CallSite site, T0 arg0, T1 arg1, T2 arg2)
+   at EPS3.Controllers.ContractsController.<View>d__16.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 433
+   at EPS3.Controllers.ContractsController.GetContractStatusList(Contract contract, String roles) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 869
+   at System.Dynamic.UpdateDelegates.UpdateAndExecute3[T0,T1,T2,TRet](CallSite site, T0 arg0, T1 arg1, T2 arg2)
+   at EPS3.Controllers.ContractsController.<View>d__16.MoveNext() in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\ContractsController.cs:line 433
+2019-01-15 11:51:30.876 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 337
+2019-01-15 11:53:46.292 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 337
+2019-01-15 11:54:07.397 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 337
+2019-01-15 12:08:03.538 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 337
+2019-01-15 12:43:06.920 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 337
+2019-01-16 15:58:52.222 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 337
+2019-01-16 15:59:13.335 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 337
+2019-01-18 08:48:18.861 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 339
+2019-01-18 08:48:42.366 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 339
+2019-01-29 09:25:44.648 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 09:25:44.648 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 09:33:06.173 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Mail.SmtpException: The operation has timed out.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 09:33:06.176 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Mail.SmtpException: The operation has timed out.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 09:33:28.660 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 09:33:28.660 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 09:33:49.783 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 09:33:49.783 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 10:22:35.602 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 10:24:52.379 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Mail.SmtpException: The operation has timed out.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 10:25:26.717 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 10:26:03.391 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 10:26:32.613 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 10:41:42.367 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 10:42:03.420 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 11:10:04.560 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 11:10:25.617 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 11:17:08.191 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 11:17:53.533 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 11:19:32.633 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 11:19:53.733 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 11:21:00.941 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 11:21:22.048 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350
+2019-01-29 16:36:11.547 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 851
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 851
+2019-01-29 16:38:32.512 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract)
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract)
+2019-01-29 16:45:19.131 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.InvalidCastException: Unable to cast object of type 'Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[EPS3.Models.Contract]' to type 'EPS3.Models.Contract'.
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 867
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 867
+2019-01-29 16:46:42.314 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.Data.SqlClient.SqlException (0x80131904): Cannot insert explicit value for identity column in table 'Users' when IDENTITY_INSERT is set to OFF.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at System.Data.Common.DbCommand.ExecuteReader()
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.Execute(IRelationalConnection connection, DbCommandMethod executeMethod, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+ClientConnectionId:df286578-f862-455e-a6cb-18c3d98f46b9
+Error Number:544,State:1,Class:16
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(Tuple`2 parameters)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__DisplayClass12_0`2.<Execute>b__0(DbContext c, TState s)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, Func`2 operation, Func`2 verifySucceeded, TState state)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChanges(IReadOnlyList`1 entries)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IReadOnlyList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges()
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 871
+2019-01-29 16:49:51.950 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.Data.SqlClient.SqlException (0x80131904): Cannot insert explicit value for identity column in table 'Users' when IDENTITY_INSERT is set to OFF.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at System.Data.Common.DbCommand.ExecuteReader()
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.Execute(IRelationalConnection connection, DbCommandMethod executeMethod, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+ClientConnectionId:df286578-f862-455e-a6cb-18c3d98f46b9
+Error Number:544,State:1,Class:16
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(Tuple`2 parameters)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__DisplayClass12_0`2.<Execute>b__0(DbContext c, TState s)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, Func`2 operation, Func`2 verifySucceeded, TState state)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChanges(IReadOnlyList`1 entries)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IReadOnlyList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges()
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 871
+2019-01-29 17:01:09.477 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.Data.SqlClient.SqlException (0x80131904): Cannot insert explicit value for identity column in table 'Users' when IDENTITY_INSERT is set to OFF.
+   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, SqlDataReader ds)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean asyncWrite, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at System.Data.Common.DbCommand.ExecuteReader()
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.Execute(IRelationalConnection connection, DbCommandMethod executeMethod, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.RelationalCommand.ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary`2 parameterValues)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+ClientConnectionId:aabace74-4673-435e-a8ca-cb93ee4aa81a
+Error Number:544,State:1,Class:16
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.Execute(IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(Tuple`2 parameters)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__DisplayClass12_0`2.<Execute>b__0(DbContext c, TState s)
+   at Microsoft.EntityFrameworkCore.Storage.Internal.SqlServerExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, Func`2 operation, Func`2 verifySucceeded, TState state)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.Execute(IEnumerable`1 commandBatches, IRelationalConnection connection)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChanges(IReadOnlyList`1 entries)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(IReadOnlyList`1 entriesToSave)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChanges()
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 872
+2019-01-29 17:04:22.628 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 882
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 882
+2019-01-29 17:16:06.311 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 872
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 872
+2019-01-29 17:18:04.194 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 872
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 872
+2019-01-29 17:18:18.968 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 872
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 872
+2019-01-30 13:22:06.546 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 876
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 876
+2019-01-30 14:55:04.005 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 350

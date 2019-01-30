@@ -53,7 +53,7 @@ namespace EPS3.Models
         [Key]
         public int LineItemID { get; set; }
         public int LineNumber { get; set; }
-        [Display(Name = "Comments")]
+        [Display(Name = "Line Comments")]
         public string Comments { get; set; }
         [ForeignKey("ContractID")]
         public int ContractID { get; set; }
@@ -76,6 +76,11 @@ namespace EPS3.Models
         [Display(Name = "FLAIR Amendment ID")]
         [StringLength(10)]
         public string FlairAmendmentID { get; set; }
+
+        [Display(Name = "6s Line ID")]
+        [StringLength(10)]
+        public string LineID6S { get; set; }
+
         [Display(Name = "Object Code")]
         [StringLength(6)]
         public string FlairObject { get; set; }

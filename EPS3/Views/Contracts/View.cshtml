@@ -28,7 +28,7 @@
             </div>
 
             <div class="col-sm-2">
-                @if(ViewBag.Roles.Contains("Admin") || ViewBag.Roles.Contains("FinanceReviewer") ||(ViewBag.Roles.Contains("Originator") && ViewBag.CurrentUser.UserID == Model.Contract.UserID))
+                @if(ViewBag.Roles.Contains(ConstantStrings.AdminRole) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) ||(ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == Model.Contract.UserID))
                 {
                     <a href="/Contracts/Edit/@Model.Contract.ContractID">Edit Contract Information</a>
                 }
@@ -247,126 +247,16 @@
         <table class="table table-striped table-bordered" id="indexTable" style="width: 100%">
             <thead>
                 <tr>
-                    <th colspan="11">
+                    <th colspan="13">
                         <h3>Encumbrances</h3>
                     </th>
-                    <td colspan="2">
-                        @if (ViewBag.CurrentUser != null)
-                        {
-                        <a href="/LineItemGroups/Manage/?contractID=@Model.Contract.ContractID">Add Encumbrance Request</a>
-                        }
-                    </td>
                 </tr>
             </thead>
             <tbody>
    @foreach (LineItemGroup group in Model.LineItemGroups)
     {
-        if ((group.CurrentStatus == ConstantStrings.Draft)
-            && ((ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserID == group.OriginatorUserID) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
-        {
-            <tr class="groupHeader" style="background-color: #a6dbed;" id="groupHeader_@group.GroupID">
-                <td id="EncumbranceToggle_@group.GroupID">
-                    <a name="enc_@group.GroupID"> </a>
-                    <a href="javascript: toggleEncumbrance('@group.GroupID')" id="toggleLink_@group.GroupID">Hide encumbrance items</a>
-                </td>
-                <td>
-                    <strong>Contract: </strong>@Model.Contract.ContractNumber <br /><br />
-                    <strong>Encumbrance (6s): </strong>@group.LineID6S <br /><br />
-                    @if (ViewBag.CurrentUser != null)
-                    {
-                    <a href="/LineItems/Create/?contractID=@Model.Contract.ContractID&groupID=@group.GroupID">Add New Line</a>
-                    }
-                </td>
-                <td>
-                    <strong>Encumbrance Type:</strong>
-                    <!-- Encumbrance Request Status record-->
-                    <select id="LineItemType_@group.GroupID" name="LineItemType_@group.GroupID">
-               @foreach (SelectListItem itemType in ViewBag.LineItemTypes)
-                {
-                    if (itemType.Value.Equals(@group.LineItemType))
-                    {
-                        <option selected value="@itemType.Value"> @itemType.Text </option>
-                    }
-                    else
-                    {   
-                    <option value="@itemType.Value"> @itemType.Text </option>
-                    }
-                }
-                    </select>
-                </td>
-                <td>
-                    <strong>Status:</strong> @group.CurrentStatus <br />
-                    <strong>Encumbrance Total:</strong> $@string.Format("{0:C}", ViewBag.GroupTotalAmounts[group.GroupID].ToString("#,##0.00"))
-                </td>
-                <td>
-                    <strong>Original FLAIR Amendment ID:</strong>
-                    <input type="text" id="FlairAmendmentID_@group.GroupID" value="@group.FlairAmendmentID" />
-                </td>
-                <td>
-                    <strong>User Assigned ID:</strong>
-                    <input type="text" id="UserAssignedID_@group.GroupID" value="@group.UserAssignedID" />
-                </td>
-                <td>
-                    <strong>Corrects FLAIR Amendment ID:</strong>
-                    <input type="text" id="AmendedLineItemID_@group.GroupID" value="@group.AmendedLineItemID" />
-                </td>
-                <td>Last Updated @String.Format("{0:d}", @group.LastEditedDate) by @group.LastEditedUser.FullName</td>
-
-                <td colspan="3">
-                    <strong>Description:</strong>
-                    <textarea id="Description_@group.GroupID" name="Description" cols="20"></textarea>
-                    @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && @group.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-                    {
-                        foreach (User wpuser in ViewBag.WPReviewers)
-                        {
-                            string thisID = "wp_" + @wpuser.UserID + "_" + @group.GroupID;
-                            <input type="checkbox" id="@thisID" value="@wpuser.UserID" />@wpuser.FirstName @wpuser.LastName <br />
-                        }
-                    }
-                </td>
-                <td colspan="2">
-           @if (@group.CurrentStatus.Equals(ConstantStrings.Draft))
-            {
-                if (ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                {
-                    <input type="submit" class="btn btn-default" value="Save as Draft" onclick="submitEncumbrance(@group.GroupID, 'Draft')" /><br />
-                    <input type="submit" class="btn btn-default" value="Submit to Finance" onclick="submitEncumbrance(@group.GroupID, 'SubmittedFinance')" />
-                }
-            }
-           @if (@group.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-            {
-                if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                {
-                    <input type="submit" class="btn btn-default" value="Return to Draft" onclick="submitEncumbrance(@group.GroupID, 'Draft')" /><br />
-                    <input type="submit" class="btn btn-default" value="Keep in Finance" onclick="submitEncumbrance(@group.GroupID, 'SubmittedFinance')" /><br />
-                    <input type="submit" class="btn btn-default" value="Bypass Work Program" onclick="submitEncumbrance(@group.GroupID, 'CFMReady')" /><br />
-                    <input type="submit" class="btn btn-default" value="Send to Work Program" onclick="submitEncumbrance(@group.GroupID, 'SubmittedWP')" />
-                }
-            }
-           @if (@group.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
-            {
-                if (ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
-                {
-                    <input type="submit" class="btn btn-default" value="Return to Finance" onclick="submitEncumbrance(@group.GroupID, 'SubmittedFinance')" /><br />
-                    <input type="submit" class="btn btn-default" value="Keep in Work Program" onclick="submitEncumbrance(@group.GroupID, 'SubmittedWP')" /><br />
-                    <input type="submit" class="btn btn-default" value="Ready for CFM" onclick="submitEncumbrance(@group.GroupID, 'CFMReady')" />
-                }
-            }
-           @if (@group.CurrentStatus.Equals(ConstantStrings.CFMReady))
-            {
-                if (ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
-                {
-                    <input type="submit" class="btn btn-default" value="Return to Finance" onclick="submitEncumbrance(@group.GroupID, 'SubmittedFinance')" /><br />
-                    <input type="submit" class="btn btn-default" value="Keep in CFM Ready" onclick="submitEncumbrance(@group.GroupID, 'CFMReady')" /><br />
-                    <input type="submit" class="btn btn-default" value="CFM Complete" onclick="submitEncumbrance(@group.GroupID, 'CFMComplete')" />
-                }
-            }
-                    </td>
-                </tr>
-
-        }
-        else
-        {
+        
+        
 
             <tr class="groupHeader" style="background-color: #a6dbed;" id="groupHeader_@group.GroupID">
                 <td id="EncumbranceToggle_@group.GroupID">
@@ -384,10 +274,6 @@
                 <td>
                     <strong>Contract: </strong>@Model.Contract.ContractNumber <br />
                     <strong>Encumbrance (6s): </strong>@group.LineID6S <br /><br />
-                    @if (ViewBag.CurrentUser != null)
-                    {
-                    <a href="/LineItems/Create/?contractID=@Model.Contract.ContractID&groupID=@group.GroupID">Add New Line</a>
-                    }
                 </td>
                 <td>
                     <strong>Encumbrance Type:</strong> <br /> @group.LineItemType
@@ -420,14 +306,6 @@
                     <strong>Description:</strong>
                     @group.Description
                     }
-                    @if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && @group.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-                    {
-                        foreach (User wpuser in ViewBag.WPReviewers)
-                        {
-                            string thisID = "wp_" + @wpuser.UserID + "_" + @group.GroupID;
-                                <input type="checkbox" id="@thisID" value="@wpuser.UserID" />@wpuser.FirstName @wpuser.LastName <br />
-                        }
-                    }
                     <input type="hidden" id="LineItemType_@group.GroupID" value="@group.LineItemType" />
                     <input type="hidden" id="CurrentStatus_@group.GroupID" value="@group.CurrentStatus" />
                     <input type="hidden" id="FlairAmendmentID_@group.GroupID" value="@group.FlairAmendmentID" />
@@ -443,46 +321,14 @@
                     }
                 </td>
                 <td colspan="2">
-            @if (@group.CurrentStatus.Equals(ConstantStrings.Draft))
-            {
-                if (ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                {
-                    <input type="submit" class="btn btn-default" value="Save as Draft" onclick="submitEncumbrance(@group.GroupID, 'Draft')" /><br />
-                    <input type="submit" class="btn btn-default" value="Submit to Finance" onclick="submitEncumbrance(@group.GroupID, 'SubmittedFinance')" />
-                }
-            }
-            @if (@group.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-            {
-                if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                {
-                    <input type="submit" class="btn btn-default" value="Return to Draft" onclick="submitEncumbrance(@group.GroupID, 'Draft')" /><br />
-                    <input type="submit" class="btn btn-default" value="Keep in Finance" onclick="submitEncumbrance(@group.GroupID, 'SubmittedFinance')" /><br />
-                    <input type="submit" class="btn btn-default" value="Bypass Work Program" onclick="submitEncumbrance(@group.GroupID, 'CFMReady')" /><br />
-                    <input type="submit" class="btn btn-default" value="Send to Work Program" onclick="submitEncumbrance(@group.GroupID, 'SubmittedWP')" />
-                }
-            }
-            @if (@group.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
-             {
-                if (ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
-                {
-                    <input type="submit" class="btn btn-default" value="Return to Finance" onclick="submitEncumbrance(@group.GroupID, 'SubmittedFinance')" /><br />
-                    <input type="submit" class="btn btn-default" value="Keep in Work Program" onclick="submitEncumbrance(@group.GroupID, 'SubmittedWP')" /><br />
-                    <input type="submit" class="btn btn-default" value="Ready for CFM" onclick="submitEncumbrance(@group.GroupID, 'CFMReady')" />
-                 }
-             }
-            @if (@group.CurrentStatus.Equals(ConstantStrings.CFMReady))
-            {
-                 if (ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
-                 {
-                    <input type="submit" class="btn btn-default" value="Return to Finance" onclick="submitEncumbrance(@group.GroupID, 'SubmittedFinance')" /><br />
-                    <input type="submit" class="btn btn-default" value="Keep in CFM Ready" onclick="submitEncumbrance(@group.GroupID, 'CFMReady')" /><br />
-                    <input type="submit" class="btn btn-default" value="CFM Complete" onclick="submitEncumbrance(@group.GroupID, 'CFMComplete')" />
-                 }
-            }
+                    @if (ViewBag.CurrentUser != null)
+                    {
+                    <a href="/LineItemGroups/Manage/@group.GroupID">Manage Encumbrance</a>
+                    }
                 </td>
             </tr>
            
-        }
+        
             @if (group.Statuses != null && group.Statuses.Count > 0)
             {
             <tr>
@@ -553,17 +399,9 @@
             @foreach (LineItem item in group.LineItems)
             {
             <tr class="groupItem">
-                <td>@item.LineNumber <br />
-                    
-                    @if (ViewBag.CurrentUser != null)
-                    {
-                    <a href="/LineItems/Edit/@item.LineItemID">Edit</a> <br />
-                    <a href="/LineItems/Edit/@item.LineItemID?duplicate=true">Duplicate</a>  <br />
-                    <a href="/LineItems/Delete/@item.LineItemID">Delete</a>
-                    }
-                </td>
+                <td>@item.LineNumber <br /></td>
                 <td>
-                    <a name="lineitem_@item.LineItemID">@item.LineItemID</a>
+                    @item.LineItemID
                 </td>
                 <td>55-@item.OrgCode</td>
                 <td>@item.FinancialProjectNumber</td>

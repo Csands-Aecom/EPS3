@@ -1,4 +1,6 @@
-﻿@font-face {
+﻿@import "~lib/dist/css/bootstrap.css";
+
+@font-face {
     font-family: 'bebas_neueregular';
     src: url('../fonts/bebasneue-webfont.woff2') format('woff2'), url('../fonts/bebasneue-webfont.woff') format('woff');
     font-weight: normal;
@@ -211,6 +213,8 @@ h5, h6 {
 
 .panel-default .panel-heading {
     opacity: 1 !important;
+    padding-top: 10px !important;
+    padding-bottom: 0px !important;
 }
 
 .panel-body{
@@ -218,7 +222,8 @@ h5, h6 {
 }
 
 header .content-wrapper {
-    padding-top: 10px;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
 }
 
 footer {
@@ -231,12 +236,12 @@ footer {
 
 .sticky {
     position: fixed;
-    top: 105px;
+    top: 85px;
     width: 98%;
 }
 
 .sticky + .content {
-    padding-top: 107px;
+    padding-top: 87px;
 }
 
 .FYWarning{
@@ -825,7 +830,7 @@ tr.pager td {
 
     /* menu */
     nav {
-        margin-bottom: 5px;
+        margin-bottom: 0px;
     }
 
     ul#menu {
@@ -1433,7 +1438,9 @@ ol.circles-list {
     border-color: #fff !important;
     box-shadow: none !important;
     background-image: none !important;
-    z-index : 50000 !important;
+    z-index: 50000 !important;
+    padding-bottom: 20px !important;
+    padding-top: 50px !important;
 }
 
 .email-container {

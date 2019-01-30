@@ -22,6 +22,7 @@ namespace EPS3.Models
         [Display(Name = "Contract Funding Terms")]
         public virtual Compensation ContractFunding { get; set; }
         [Key]
+        [Display(Name = "Contract ID")]
         public int ContractID { get; set; }
         [Display(Name = "Contract Number")]
         [StringLength(5)]
@@ -69,8 +70,8 @@ namespace EPS3.Models
         public virtual User User { get; set; }
         [Display(Name = "Service End Date")]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
-        [Required(ErrorMessage = "Please select a Service End Date")]
-        public DateTime ServiceEndingDate { get; set; }
+        //[Required(ErrorMessage = "Please select a Service End Date")]
+        public DateTime? ServiceEndingDate { get; set; }
         [Required]
         [ForeignKey("VendorID")]
         [Display(Name = "Vendor")]

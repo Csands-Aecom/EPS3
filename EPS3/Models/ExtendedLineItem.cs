@@ -30,6 +30,10 @@ namespace EPS3.Models
             this.WorkActivity= lineItem.WorkActivity;
 
             this.Comments = lineItem.Comments == null ? "" : lineItem.Comments;
+            this.LineID6S = lineItem.LineID6S == null ? "" : lineItem.LineID6S;
+            this.FlairAmendmentID = lineItem.FlairAmendmentID == null ? "" : lineItem.FlairAmendmentID;
+            this.UserAssignedID = lineItem.UserAssignedID == null ? "" : lineItem.UserAssignedID;
+            this.AmendedLineItemID = lineItem.AmendedLineItemID == null ? "" : lineItem.AmendedLineItemID;
         }
         public int LineItemID { get; set; }
         public string LineItemNumber { get; set; }
@@ -44,8 +48,10 @@ namespace EPS3.Models
         public int OcaID { get; set; }
         public string StateProgramName { get; set; }
         public int StateProgramID { get; set; }
-
-
+        public string LineID6S { get; set; }
+        public string FlairAmendmentID { get; set; }
+        public string UserAssignedID { get; set; }
+        public string AmendedLineItemID { get; set; }
 
         public string EO { get; set; }
         public string FinancialProjectNumber { get; set; }

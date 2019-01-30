@@ -110,33 +110,83 @@ namespace EPS3.Controllers
         [HttpGet]
         public  IActionResult Manage(int? id)
         {
-            PopulateViewBag(0);
+            int contractID = 0;
+            if (id != null && id > 0)
+            {
+                LineItemGroup selectedEncumbrance = (LineItemGroup) _context.LineItemGroups.SingleOrDefault(g => g.GroupID == id);
+                contractID = selectedEncumbrance.ContractID;
+            }
+            PopulateViewBag(contractID);
+            if((id == null || id == 0) && !(ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
+            {
+                //user does not have proper role to create a new request
+                //redirect to list
+                return RedirectToAction("List");
+            }
 
             int groupID = (id == null) ? 0 : (int)id;
 
             List<LineItem> LineList = _pu.GetDeepLineItems(groupID);
             ViewBag.LineItems = LineList;
             ViewBag.LineItemCount = LineList == null ? 0 : LineList.Count();
-            ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
-            // ViewBag.LineItemsMap = Map of LineItemID, JSONString of serialized object
-            Dictionary<int, string> lineItemsMap = new Dictionary<int, string>();
-            foreach (LineItem lineItem in LineList) {
-                lineItemsMap.Add(lineItem.LineItemID, JsonConvert.SerializeObject(lineItem));
-            }
-            ViewBag.LineItemsMap = lineItemsMap;
             if (groupID > 0)
             {
                 LineItemGroup Encumbrance = _pu.GetDeepEncumbrance(groupID);
                 if (Encumbrance != null)
                 {
                     Contract Contract = _pu.GetDeepContract(Encumbrance.ContractID);
+
+                    // select the LineItemTypes list to display:
+
+                    if (AllEncumbrancesAreComplete(ViewBag.Contract) 
+                        && Contract.CurrentStatus.Contains("Request")
+                        && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                    {
+                        // originator can request to close the Contract
+                        ViewBag.LineItemTypes = ConstantStrings.GetCloseList();
+                    }
+                    else if (AllEncumbrancesAreComplete(ViewBag.Contract) 
+                        && ViewBag.CurrentUser.UserID == Encumbrance.OriginatorUser.UserID)
+                    {
+                        // finance reviewer can close the Contract
+                        ViewBag.LineItemTypes = ConstantStrings.GetRequestCloseList();
+                    }
+                    else { 
+                        ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
+                    }
+                    // ViewBag.LineItemsMap = Map of LineItemID, JSONString of serialized object
+                    Dictionary<int, string> lineItemsMap = new Dictionary<int, string>();
+                    foreach (LineItem lineItem in LineList)
+                    {
+                        lineItemsMap.Add(lineItem.LineItemID, JsonConvert.SerializeObject(lineItem));
+                    }
+                    ViewBag.LineItemsMap = lineItemsMap;
+
+
                     ViewBag.Contract = Contract;
                     return View(Encumbrance);
                 }
             }
-                return View();
+            else
+            {
+                ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
+            }
+            return View();
         }
-
+        public Boolean AllEncumbrancesAreComplete(Contract contract)
+        {
+            Boolean isComplete = true;
+            List<LineItemGroup> encumbrances = _context.LineItemGroups.Where(g => g.ContractID == contract.ContractID).AsNoTracking().ToList();
+            foreach(LineItemGroup encumbrance in encumbrances)
+            {
+                if(encumbrance.CurrentStatus != ConstantStrings.CFMComplete)
+                {
+                    isComplete = false;
+                    break;
+                }
+            }
+            return isComplete;
+        }
         [HttpPost]
         public  IActionResult Manage([Bind("GroupID,ContractID,LineItemType,AmendedLineItemID,FlairAmendmentID,UserAssignedID,LastEditedUserID,OriginatorUserID,CurrentStatus,Description")] LineItemGroup group, string Comments, int CurrentUserID)
         {
@@ -256,11 +306,7 @@ namespace EPS3.Controllers
             }
             // 4. send appropriate notifications
             int msgID = 0;
-            if (_messageService == null)
-            {
-                string url = this.Request.Scheme + "://" + this.Request.Host;
-                _messageService = new MessageService(_context, SmtpConfig, url);
-            }
+            initializeMessageService();
             if (workProgramUserIds != null && workProgramUserIds.Count > 0)
             {
                 msgID = _messageService.AddMessage(AssessStatusChange(newGroup.CurrentStatus, oldStatus), existingGroup, newStatus.Comments, workProgramUserIds);
@@ -406,6 +452,7 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult AddNewEncumbrance(string lineItemGroup, string comments)
         {
+            string statusChange = ConstantStrings.NoChange;
             LineItemGroup newLineItemGroup = JsonConvert.DeserializeObject<LineItemGroup>(lineItemGroup);
             EncumbranceComment newComment = JsonConvert.DeserializeObject<EncumbranceComment>(comments);
             try
@@ -458,16 +505,11 @@ namespace EPS3.Controllers
                 _context.SaveChanges();
 
                 // send receipt and notification if Encumbrance is submitted for review
-                string statusChange = AssessStatusChange(newLineItemGroup.CurrentStatus, oldStatus);
+                statusChange = AssessStatusChange(newLineItemGroup.CurrentStatus, oldStatus);
                 int msgID = 0;
 
                 // initialize the message service if necessary
-                if (_messageService == null)
-                {
-                    string url = this.Request.Scheme + "://" + this.Request.Host;
-                    _messageService = new MessageService(_context, SmtpConfig, url);
-                }
-
+                initializeMessageService();
                 if (newComment.notify)
                 {
                     // TODO: Add ability to cc: the sender.
@@ -476,13 +518,18 @@ namespace EPS3.Controllers
 
 
                     // For now, just add the sender to the recipients list
-                    newComment.wpIDs.Add(newComment.userID);
+
+                    if (newComment.notify)
+                    {
+                        newComment.wpIDs.Add(newComment.userID);
+                    }
                     msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
                 }
                 else
                 {
                     msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
                 }
+                _messageService.SendEmailMessage(msgID);
                 if (newComment.receipt)
                 {
                     User sender = _pu.GetUserByID(newComment.userID);
@@ -495,11 +542,22 @@ namespace EPS3.Controllers
                 Log.Error("LineItemGroupsController.AddNewEncumbrance  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
 
             }
-            // return complete, updated object (with GroupID, if new)
-            // avoid self-referential loop with unnecessary information in Statuses
-            newLineItemGroup.Statuses = null;
-            string result = JsonConvert.SerializeObject(newLineItemGroup);
-            return Json(result);
+            // return to List if no change in status
+            if (statusChange != ConstantStrings.NoChange)
+            {
+                string url = this.Request.Scheme + "://" + this.Request.Host;
+                string redirectURL = url + "/LineItemGroups/List/";
+                string redirect = "{\"redirect\" : \"" + redirectURL + "\"}";
+                return Json(redirect);
+            }
+            else
+            {
+                // return complete, updated object (with GroupID, if new)
+                // avoid self-referential loop with unnecessary information in Statuses
+                newLineItemGroup.Statuses = null;
+                string result = JsonConvert.SerializeObject(newLineItemGroup);
+                return Json(result);
+            }
         }
 
         [HttpGet]
@@ -508,7 +566,7 @@ namespace EPS3.Controllers
             /*TODO: The id is GroupID for the Advertisement Encumbrance request
             *   This method Awards that request in the following way:
             *   1. Create a new encumbrance with the same contract of type ConstantStrings.Award
-            *   2. Duplicate each LineItem from the Advertisement with identical information except NEGATIVE values for the Amounts
+            *   2. Duplicate each LineItem in the Advertisement with identical information except NEGATIVE values for the Amounts
             *   3. Open the new Award encumbrance in the Manage page.
             *   This Award will replicate the Advertisement, but counter all of it's amounts, leaving the net balance on the contract at $0.00
             */
@@ -544,18 +602,30 @@ namespace EPS3.Controllers
                 _context.SaveChanges();
                 newAwardID = newAward.GroupID;
 
-                // Make a new Status record
                 Contract contract = _context.Contracts.AsNoTracking()
                     .SingleOrDefault(c => c.ContractID == newAward.ContractID);
-                LineItemGroupStatus status = new LineItemGroupStatus()
+                // Make a new Status record for the Award referencing the Advertisement ID
+                LineItemGroupStatus awStatus = new LineItemGroupStatus()
                 {
                     CurrentStatus = ConstantStrings.Draft,
                     LineItemGroupID = newAward.GroupID,
                     SubmittalDate = DateTime.Now,
-                    Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + ".",
+                    Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + " for Advertisement #" + advertisement.GroupID + ".",
                     UserID = newAward.OriginatorUserID
                 };
-                _context.LineItemGroupStatuses.Add(status);
+                _context.LineItemGroupStatuses.Add(awStatus);
+
+                // Make a new Ststus record for the Advertisement with the Award ID
+                LineItemGroupStatus adStatus = new LineItemGroupStatus()
+                {
+                    CurrentStatus = ConstantStrings.Draft,
+                    LineItemGroupID = advertisement.GroupID,
+                    SubmittalDate = DateTime.Now,
+                    Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + " Award #" + newAward.GroupID + ".",
+                    UserID = newAward.OriginatorUserID
+                };
+                _context.LineItemGroupStatuses.Add(adStatus);
+
                 _context.SaveChanges();
 
                 // Make LineItems with negative values to cancel the value of the Advertisement
@@ -564,7 +634,7 @@ namespace EPS3.Controllers
                 {
                     LineItem newLine = new LineItem(priorLine);
                     newLine.Amount = priorLine.Amount * (-1);
-                    newLine.LineItemGroupID = newAward.GroupID;
+                    newLine.LineItemGroupID = advertisement.GroupID;
                     newLine.LineItemType = ConstantStrings.Award;
                     _context.LineItems.Add(newLine);
                     _context.SaveChanges();
@@ -599,6 +669,7 @@ namespace EPS3.Controllers
         {
             Dictionary<string, List<LineItemGroup>> categorizedLineItemGroups = getCategorizedLineItemGroups();
             categorizedLineItemGroups.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
+            categorizedLineItemGroups.Add(ConstantStrings.CFMComplete, getCompletedLineItemGroups());
             Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(categorizedLineItemGroups);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
             return View(categorizedLineItemGroups);
@@ -610,7 +681,13 @@ namespace EPS3.Controllers
             PopulateViewBag(0);
             User user = ViewBag.CurrentUser;
 
-            if (ViewBag.Roles.Contains(ConstantStrings.Originator))
+            // These originally depended on roles. 
+            // New approach is to return all results from non-archived contracts
+            // and use roles to determine if links are included in the View
+            // This method does NOT return Encumbrances that are CFMComplete
+            // TEMPFIX: add || 1==1 for all role-based conditionals
+
+            if (ViewBag.Roles.Contains(ConstantStrings.Draft) || 1==1)
             {
                 // add Group IDs for Groups in Draft where user is the originator
                 List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
@@ -618,34 +695,34 @@ namespace EPS3.Controllers
                     .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
                     .Include(l => l.Contract)
                     .ToList();
-                results.Add(ConstantStrings.Originator, origLineIDs);
+                results.Add(ConstantStrings.Draft, origLineIDs);
             }
-            if (ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+            if (ViewBag.Roles.Contains(ConstantStrings.SubmittedFinance) || 1 == 1)
             {
                 // add Line IDs for Groups in Draft where user is the originator
                 List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
                     .Include(l => l.Contract)
                     .ToList();
-                results.Add(ConstantStrings.FinanceReviewer, finLineIDs);
+                results.Add("Finance", finLineIDs);
             }
-            if (ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
+            if (ViewBag.Roles.Contains(ConstantStrings.SubmittedWP) || 1 == 1)
             {
                 // add Line IDs for Groups in Draft where user is the originator
                 List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
                     .Include(l => l.Contract)
                     .ToList();
-                results.Add(ConstantStrings.WPReviewer, wpLineIDs);
+                results.Add("WP", wpLineIDs);
             }
-            if (ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
+            if (ViewBag.Roles.Contains(ConstantStrings.CFMReady) || 1 == 1)
             {
                 // add Line IDs for Groups in Draft where user is the originator
                 List<LineItemGroup> cfmLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
                     .Include(l => l.Contract)
                     .ToList();
-                results.Add(ConstantStrings.CFMSubmitter, cfmLineIDs);
+                results.Add("CFM", cfmLineIDs);
             }
             return results;
         }
@@ -654,7 +731,9 @@ namespace EPS3.Controllers
         {
             // add  Groups that are unawarded Advertisements
             List<LineItemGroup> adGroups = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.LineItemType.Equals(ConstantStrings.Advertisement))
+                .Where(l => l.LineItemType.Equals(ConstantStrings.Advertisement) 
+                    &&  l.CurrentStatus.Equals(ConstantStrings.CFMComplete)
+                    && l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                 .Include(l => l.Contract)
                 .ToList();
             // For each adGroup, if the contract has a matching, submitted, Award group, then add it to Award groups
@@ -672,6 +751,17 @@ namespace EPS3.Controllers
             }
             // return adGroups minus awardedGroups, which contains Advertisement encumbrances minus those with already-submitted Awards
             return adGroups.Except(awardedGroups).ToList();
+        }
+
+        private List<LineItemGroup> getCompletedLineItemGroups()
+        {
+            // add  Groups that are have completed
+            List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
+                .Include(l => l.Contract)
+                .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived) 
+                .ToList();
+            return cfmGroups;
         }
 
         private Dictionary<int, string> getLineItemGroupAmounts(Dictionary<string, List<LineItemGroup>> encumbrances)
@@ -737,6 +827,65 @@ namespace EPS3.Controllers
                 nextLineNumber = _context.LineItems.Where(g => g.LineItemGroupID == groupID).Select(g => g.LineNumber).DefaultIfEmpty(0).Max();
             }
             return Json(nextLineNumber);
+        }
+
+        [HttpPost]
+        public JsonResult CloseContract(string closeContract)
+        {
+            if(closeContract == null) { return Json("{ \"fail\" : \"No information\"}"); }
+            ContractClosure closure = JsonConvert.DeserializeObject<ContractClosure>(closeContract);
+
+            string response = "";
+            int contractID = int.Parse(closure.ContractID);
+            int groupID = int.Parse(closure.LineItemGroupID);
+            PopulateViewBag(contractID);
+            User user = ViewBag.CurrentUser;
+            try
+            {
+                // if this is a closure request
+                // if this is an encumbrance request closure request
+                // ... Not sure
+                // if this is a contract closure request
+                // set up a new encumbrance
+                LineItemGroup encumbrance = _context.LineItemGroups
+                    .SingleOrDefault(li => li.GroupID == groupID);
+                // update contract status
+                Contract contract = (Contract)_context.Contracts
+                    .SingleOrDefault(c => c.ContractID == contractID);
+                ContractStatus status = new ContractStatus(user, contract, closure.LineItemType);
+                status.Comments = closure.Comments;
+                _context.ContractStatuses.Add(status);
+                contract.CurrentStatus = closure.LineItemType;
+                _context.Contracts.Update(contract);
+                _context.SaveChanges();
+
+                // have not added an encumbrance and probably don't want to.
+                //LineItemGroup encumbrance = (LineItemGroup)_context.LineItemGroups.Where(li => li.GroupID == groupID);
+
+                // if this is a request, send a notification to finance to Close the Contract
+                string updateType = ConstantStrings.CloseContract;
+                if (closure.LineItemType.Contains("Request")) {
+                    updateType = ConstantStrings.RequestClose;
+                }
+                initializeMessageService();
+                _messageService.AddMessage(updateType, encumbrance, closure.Comments);
+
+
+            }catch(Exception e)
+            {
+                _logger.LogError("LineItemGroupsController.CloseContract Error:" + e.GetBaseException());
+                Log.Error("LineItemGroupsController.CloseContract  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+            }
+            return Json(response);
+        }
+
+        private void initializeMessageService()
+        {
+            if (_messageService == null)
+            {
+                string url = this.Request.Scheme + "://" + this.Request.Host;
+                _messageService = new MessageService(_context, SmtpConfig, url);
+            }
         }
     }
 }

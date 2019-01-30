@@ -11,121 +11,122 @@
         <div class="float-right">Welcome, <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin)</div>
     </div>
     <div class="panel-body">
-    </div>
-    <table class="table table-striped table-bordered" id="indexTable" style="width: 100%">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.CurrentStatus)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ContractNumber)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ContractType)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.IsRenewable)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ContractTotal)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.MaxLoaAmount)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.BudgetCeiling)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.BeginningDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.EndingDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ServiceEndingDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ContractFunding)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.MethodOfProcurement)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Vendor)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.DescriptionOfWork)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+        <table class="table table-striped table-bordered" id="indexTable" style="width: 100%">
+            <thead>
                 <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.CurrentStatus)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ContractNumber)
-                    </td>
-                    <td>
-                        <div class="" data-toggle="tooltip" data-placement="top" title="@item.ContractType.ContractTypeName">
-                            @Html.DisplayFor(modelItem => item.ContractType.ContractTypeCode) - 
-                            @Html.DisplayFor(modelItem => item.ContractType.ContractTypeName)
-                        </div>
-                    </td>
-                    <td>
-                        @(item.IsRenewable.ToString().Equals("0") ? "No" : "Yes")
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ContractTotal, "{0:C}")
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.MaxLoaAmount, "{0:C}")
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.BudgetCeiling, "{0:C}")
-                    </td>
-                    <td>
-                        @String.Format("{0:d}", item.BeginningDate)
-                    </td>
-                    <td>
-                        @String.Format("{0:d}", item.EndingDate)
-                    </td>
-                    <td>
-                        @String.Format("{0:d}", item.ServiceEndingDate)
-                    </td>
-                    <td>
-                        <div class="" data-toggle="tooltip" data-placement="top" title="@item.ContractFunding.CompensationType">
-                            @Html.DisplayFor(modelItem => item.ContractFunding.CompensationID) - 
-                            @Html.DisplayFor(modelItem => item.ContractFunding.CompensationType)
-                        </div>
-                    </td>
-                    <td>
-                        <div class="" data-toggle="tooltip" data-placement="top" title="@item.MethodOfProcurement.ProcurementDescription">
-                            @Html.DisplayFor(modelItem => item.MethodOfProcurement.ProcurementCode) - 
-                            @Html.DisplayFor(modelItem => item.MethodOfProcurement.ProcurementDescription)
-                        </div>
-                    </td>
-                    <td>
-                        <div class="" data-toggle="tooltip" data-placement="top" title="@item.Vendor.VendorName">
-                            @Html.DisplayFor(modelItem => item.Vendor.VendorCode) - 
-                            @Html.DisplayFor(modelItem => item.Vendor.VendorName)
-                        </div>
-                    </td>
-                    <td>
-                        <div class="text-truncate" style="max-width: 150px;" data-toggle="tooltip" data-placement="top" title="@item.DescriptionOfWork">
-                            @Html.DisplayFor(modelItem => item.DescriptionOfWork)
-                        </div>
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.ContractID">Edit</a> <br />                        
-                        <a asp-action="Details" asp-route-id="@item.ContractID">Details</a> <br />
-                    </td>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CurrentStatus)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ContractNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ContractType)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.IsRenewable)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ContractTotal)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.MaxLoaAmount)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BudgetCeiling)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BeginningDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.EndingDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ServiceEndingDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ContractFunding)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.MethodOfProcurement)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Vendor)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DescriptionOfWork)
+                    </th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CurrentStatus)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ContractNumber)
+                        </td>
+                        <td>
+                            <div class="" data-toggle="tooltip" data-placement="top" title="@item.ContractType.ContractTypeName">
+                                @Html.DisplayFor(modelItem => item.ContractType.ContractTypeCode) -
+                                @Html.DisplayFor(modelItem => item.ContractType.ContractTypeName)
+                            </div>
+                        </td>
+                        <td>
+                            @(item.IsRenewable.ToString().Equals("0") ? "No" : "Yes")
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ContractTotal, "{0:C}")
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.MaxLoaAmount, "{0:C}")
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.BudgetCeiling, "{0:C}")
+                        </td>
+                        <td>
+                            @String.Format("{0:d}", item.BeginningDate)
+                        </td>
+                        <td>
+                            @String.Format("{0:d}", item.EndingDate)
+                        </td>
+                        <td>
+                            @String.Format("{0:d}", item.ServiceEndingDate)
+                        </td>
+                        <td>
+                            <div class="" data-toggle="tooltip" data-placement="top" title="@item.ContractFunding.CompensationType">
+                                @Html.DisplayFor(modelItem => item.ContractFunding.CompensationID) -
+                                @Html.DisplayFor(modelItem => item.ContractFunding.CompensationType)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="" data-toggle="tooltip" data-placement="top" title="@item.MethodOfProcurement.ProcurementDescription">
+                                @Html.DisplayFor(modelItem => item.MethodOfProcurement.ProcurementCode) -
+                                @Html.DisplayFor(modelItem => item.MethodOfProcurement.ProcurementDescription)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="" data-toggle="tooltip" data-placement="top" title="@item.Vendor.VendorName">
+                                @Html.DisplayFor(modelItem => item.Vendor.VendorCode) -
+                                @Html.DisplayFor(modelItem => item.Vendor.VendorName)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 150px;" data-toggle="tooltip" data-placement="top" title="@item.DescriptionOfWork">
+                                @Html.DisplayFor(modelItem => item.DescriptionOfWork)
+                            </div>
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ContractID">Edit</a> <br />
+                            <a asp-action="Details" asp-route-id="@item.ContractID">Details</a> <br />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
 </div>

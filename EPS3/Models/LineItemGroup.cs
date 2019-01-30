@@ -35,8 +35,9 @@ namespace EPS3.Models
 
         [Key]
         [Display(Name = "Encumbrance ID")]
-        public int GroupID { get; set; }
-
+        public int GroupID { get; set;
+        }
+        [Display(Name = "Contract ID")]
         public int ContractID { get; set; }
 
         public virtual Contract Contract { get; set; }
@@ -88,5 +89,11 @@ namespace EPS3.Models
         public virtual ICollection<LineItem> LineItems { get; set; }
         public virtual ICollection<LineItemGroupStatus> Statuses { get; set; }
 
+        [Display(Name = "Advertised Date")]
+        public DateTime? AdvertisedDate { get; set; }
+
+        [Display(Name = "Letting Date")]
+        public DateTime? LettingDate { get; set; }
+            
     }
 }

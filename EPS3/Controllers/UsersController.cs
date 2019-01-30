@@ -94,7 +94,7 @@ namespace EPS3.Controllers
                 //user.ReceiveEmails = 1;
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Edit", new { id = user.UserID });
             }
             return View(user);
         }
@@ -280,7 +280,7 @@ namespace EPS3.Controllers
             {
                 if (existingRoles.Contains(role))
                 {
-                    if (!userRoles.Contains(role))
+                    if (existingRoles.Contains(role) && (userRoles == null || !(userRoles.Contains(role))))
                     {
                         //delete the role
                         RemoveRole(user, role);
@@ -289,7 +289,7 @@ namespace EPS3.Controllers
                 else
                 {
                     //not an existing role
-                    if (userRoles.Contains(role))
+                    if (userRoles != null && userRoles.Contains(role))
                     {
                         //add the role
                         AddRole(user, role);

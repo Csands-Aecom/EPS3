@@ -58,9 +58,13 @@ namespace EPS3.Models
             {
                 this.FormattedEndingDate = contract.EndingDate.ToString("MM/dd/yyyy");
             }
-            if (contract.ServiceEndingDate != null)
+            if (contract.ServiceEndingDate != null && contract.ServiceEndingDate > new DateTime(2000, 01, 01))
             {
-                this.FormattedServiceEndingDate = contract.ServiceEndingDate.ToString("MM/dd/yyyy");
+                this.FormattedServiceEndingDate = contract.ServiceEndingDate?.ToString("MM/dd/yyyy");
+            }
+            else
+            {
+                this.FormattedServiceEndingDate = "none";
             }
 
                 this.FormattedContractInitialAmount = contract.ContractTotal.ToString("C", System.Globalization.CultureInfo.CurrentCulture);

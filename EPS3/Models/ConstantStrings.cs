@@ -15,12 +15,12 @@ namespace EPS3.Models
         public const string ContractInFinance = "Contract Submitted to Finance";
         public const string ContractInWP = "Contract sent to Work Program";
         public const string ContractInCFM = "Contract has been input to CFM";
-        public const string ContractRequest50 = "Request contract complete, status 50";
-        public const string ContractRequest52 = "Request contract complete, status 52";
-        public const string ContractRequest98 = "Request contract complete, status 98";
-        public const string ContractComplete50 = "Contract is complete with status 50";
-        public const string ContractComplete52 = "Contract is complete with status 52";
-        public const string ContractComplete98 = "Contract is complete with status 98";
+        public const string ContractRequest50 = "Request Close 50";
+        public const string ContractRequest52 = "Request Close 52";
+        public const string ContractRequest98 = "Request Close 98";
+        public const string ContractComplete50 = "Close 50";
+        public const string ContractComplete52 = "Close 52";
+        public const string ContractComplete98 = "Close 98";
         public const string ContractArchived = "Contract has been archived";
 
         // Encumbrance Status values
@@ -33,9 +33,9 @@ namespace EPS3.Models
         // Roles
         public const string AdminRole = "Admin";
         public const string Originator = "Originator";
-        public const string FinanceReviewer = "FinanceReviewer";
-        public const string WPReviewer = "WPReviewer";
-        public const string CFMSubmitter = "CFMSubmitter";
+        public const string FinanceReviewer = "Finance Reviewer";
+        public const string WPReviewer = "WP Reviewer";
+        public const string CFMSubmitter = "CFM Submitter";
 
         // status changes
         public const string NoChange = "NoChange";
@@ -44,6 +44,8 @@ namespace EPS3.Models
         public const string CFMToDraft = "CFMToDraft";
         public const string FinanceToWP = "FinanceToWP";
         public const string WPToCFM = "WPToCFM";
+        public const string RequestClose = "RequestCloseContract";
+        public const string CloseContract = "CloseContract";
 
 
         // LineItemTypes
@@ -115,8 +117,37 @@ namespace EPS3.Models
             typeList.Add(new SelectListItem { Text = "Overrun", Value = Overrun });
             typeList.Add(new SelectListItem { Text = "Settlement", Value = Settlement });
             typeList.Add(new SelectListItem { Text = "Correction", Value = Correction });
-           // typeList.Add(new SelectListItem { Text = "Emergency", Value = Emergency });
-           // typeList.Add(new SelectListItem { Text = "Fast Response", Value = FastResponse });
+            // typeList.Add(new SelectListItem { Text = "Emergency", Value = Emergency });
+            // typeList.Add(new SelectListItem { Text = "Fast Response", Value = FastResponse });
+            return typeList;
+        }
+
+
+        public static List<SelectListItem> GetRequestCloseList()
+        {
+            List<SelectListItem> typeList = new List<SelectListItem>();
+            typeList.Add(new SelectListItem { Text = "Request Close 50", Value = ContractRequest50 });
+            typeList.Add(new SelectListItem { Text = "Request Close 98", Value = ContractRequest98 });
+            return typeList;
+        }
+        public static List<SelectListItem> GetCloseList()
+        {
+            List<SelectListItem> typeList = new List<SelectListItem>();
+            typeList.Add(new SelectListItem { Text = "Close 50", Value = ContractComplete50 });
+            typeList.Add(new SelectListItem { Text = "Close 98", Value = ContractComplete98 });
+            return typeList;
+        }
+
+        public static List<SelectListItem> GetLineItemTypeListPlusRequestClose()
+        {
+            List<SelectListItem> typeList = GetLineItemTypeList();
+            typeList.AddRange(GetRequestCloseList());
+            return typeList;
+        }
+        public static List<SelectListItem> GetLineItemTypeListPlusClose()
+        {
+            List<SelectListItem> typeList = GetLineItemTypeList();
+            typeList.AddRange(GetCloseList());
             return typeList;
         }
     }

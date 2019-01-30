@@ -45,15 +45,37 @@
                     {
                     <tr>
                         <td>
-                            <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
-                            @if (key == ConstantStrings.Advertisement)
-                            {
-                               <span class="float-right"><a href="/LineItemGroups/Award?id=@item.GroupID">Award</a></span> 
-
-                            }
+	                        @Html.DisplayFor(modelItem => item.Contract.ContractNumber)
+	                        @if (key == ConstantStrings.Advertisement) { 
+		                        @if (item.CurrentStatus == ConstantStrings.CFMReady || item.CurrentStatus == ConstantStrings.CFMComplete)
+		                        {
+		                           <span class="float-right"><a href = "/LineItemGroups/Award?id=@item.GroupID" > Award </a ></span >
+		                        }
+		                        else
+		                        {
+			                        <span class="float-right" title="Advertisement does not exist.">Award</span>
+		                        }
+	                        }
                         </td>
                         <td>
-                            <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
+                            @if (
+                                (key == ConstantStrings.Draft && ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
+                              ||(key == "Finance" && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                              ||(key == "WP" && ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
+                              ||(key == "CFM" && ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
+                              ||(key == "Complete"
+                                  && (
+                                        (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
+                                      || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                      )
+                              )
+                            {
+                                <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.GroupID)
+                            }
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => @item.CurrentStatus)

@@ -12,7 +12,7 @@
         });
     </script>
 
-<div class="panel panel-default">
+<div class="panel panel-default" id="FinancialInformationFormPanel">
     <div class="panel-heading">
         <h3>Financial Information</h3>
     </div>
@@ -179,7 +179,7 @@
                             <span class="input-group-addon">
                                 <label for="Amount">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.Amount)
+                                    @Html.TextBoxFor(model => model.Amount, new { onchange = "showHideNegativeAmountOptions();" })
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.Amount, "Amounts must be numeric values.")
@@ -188,17 +188,37 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-8">
+                <div class="col-sm-4">
                     <dl>
                         <dt>
                             @Html.LabelFor(model => model.Comments)
                         </dt>
                         <dd>
-                            @Html.TextAreaFor(model => model.Comments, new { @class="LineItemComment"})
+                            @Html.TextAreaFor(model => model.Comments, new { @class = "LineItemComment", @style = "width : 100%" })
                         </dd>
                     </dl>
                 </div>
-            </div>
+                <div class="col-sm-2" id="LineItemFlairIDCell"> 
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.FlairAmendmentID)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.FlairAmendmentID)
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2" id="LineItemID6SCell">
+                    <dl>
+                        <dt>
+                            @Html.LabelFor(model => model.LineID6S)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.LineID6S)
+                        </dd>
+                    </dl>
+                </div>
+            </div> <!-- end row -->
             <div class="row">
                 <div class="col-sm-8">
                     <span id="messageSpanLineItem"></span>

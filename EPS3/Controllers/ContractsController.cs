@@ -189,7 +189,12 @@ namespace EPS3.Controllers
         public JsonResult AddNewContract(string contract)
         {
             Contract newContract = JsonConvert.DeserializeObject<Contract>(contract);
-
+            if(newContract.ServiceEndingDate < new DateTime(2000, 01, 01))
+            {
+                // ServiceEndingDate is empty or prior to Y2k so set to null
+                newContract.ServiceEndingDate = null;
+            }
+            
             newContract.ContractNumber = newContract.ContractNumber.ToUpper();
             try
             {
@@ -197,6 +202,10 @@ namespace EPS3.Controllers
                 {
                     newContract.ContractNumber = "NEW";
                 }
+                // set Vendor
+                Vendor vendor = _context.Vendors.SingleOrDefault(v => v.VendorID == newContract.VendorID);
+                newContract.Vendor = vendor;
+
                 // check if contract exists, if so, update it.
                 // if not, add it
                 if (newContract.ContractID > 0)
