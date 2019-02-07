@@ -41,7 +41,7 @@
                         <dd>
                             @if (Model.Contract.CurrentStatus.Equals(ConstantStrings.ContractDrafted) || Model.Contract.CurrentStatus.Equals(ConstantStrings.ContractNew))
                             {
-                                @Html.TextBoxFor(model => model.Contract.ContractNumber)
+                                @Html.TextBoxFor(model => model.Contract.ContractNumber, new { style="text-transform:uppercase" })
                             }
                             else
                             {
@@ -60,7 +60,7 @@
                         <dd>
                             <div>
                                 <input type="hidden" id="Contract_ContractTypeID" name="Contract.ContractTypeID" value="@Model.Contract.ContractTypeID" />
-                                <input type="text" size="50" class="form-control" id="ContractTypeSelector" name="ContractTypeSelector" value="@ViewBag.myContractType.ContractTypeSelector" />
+                                <input type="text" size="50" class="form-control" id="ContractTypeSelector" name="ContractTypeSelector" value="@ViewBag.myContractType.ContractTypeSelector"  style="text-transform:uppercase" />
                                 <span id="ContractTypeClear" class="glyphicon glyphicon-remove-circle float-right" style="margin-right : 10px; vertical-align: text-bottom"></span>
                                 @Html.ValidationMessageFor(model => model.Contract.ContractTypeID, "A Contract Type is required.")
                             </div>

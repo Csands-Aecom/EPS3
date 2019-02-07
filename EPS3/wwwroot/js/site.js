@@ -408,7 +408,11 @@ function addDialogs() {
     $('#addVendorDialog').dialog({
         autoOpen: false,
         height: 350,
-        width: 800
+        width: 800,
+        close: function (event, ui) {
+            $("#VendorSelector").show();
+            $("#ContractTypeSelector").show();
+        }
     });
     $('#addVendorLink').click(function () {
         $('#addVendorDialog').dialog("open");
@@ -735,6 +739,8 @@ function updateContractStatus() {
 }
 function openAddVendorDialog() {
     $("#addVendorDialog").dialog("open");
+    $("#VendorSelector").hide();
+    $("#ContractTypeSelector").hide();
 }
 
 function openAddVendorPanel() {
@@ -747,7 +753,7 @@ function addVendor() {
     // make sure all values are populated
     // submit to /ContractStatus/Create controller
     $("AddVendorForm").submit();
-    // close dialog and return focus to /Contracts/Edit
+    // close dialog and return focus to parent form
 }
 function addNewVendor() {
     Vendor = {};

@@ -48,7 +48,7 @@
                             <td>
                                 @if (key == ConstantStrings.CFMComplete || key.Equals("Closed"))
                                 {
-                                <a href="/Contracts/Edit/id=@item.Contract.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
+                                <a href="/Contracts/Details?id=@item.Contract.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
                                 }
                                 else
                                 {
