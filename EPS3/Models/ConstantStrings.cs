@@ -18,9 +18,9 @@ namespace EPS3.Models
         public const string ContractRequest50 = "Request Close 50";
         public const string ContractRequest52 = "Request Close 52";
         public const string ContractRequest98 = "Request Close 98";
-        public const string ContractComplete50 = "Close 50";
-        public const string ContractComplete52 = "Close 52";
-        public const string ContractComplete98 = "Close 98";
+        public const string ContractComplete50 = "Closed 50";
+        public const string ContractComplete52 = "Closed 52";
+        public const string ContractComplete98 = "Closed 98";
         public const string ContractArchived = "Contract has been archived";
 
         // Encumbrance Status values
@@ -36,6 +36,7 @@ namespace EPS3.Models
         public const string FinanceReviewer = "Finance Reviewer";
         public const string WPReviewer = "WP Reviewer";
         public const string CFMSubmitter = "CFM Submitter";
+        public const string Closer = "Closer";
 
         // status changes
         public const string NoChange = "NoChange";
@@ -133,8 +134,8 @@ namespace EPS3.Models
         public static List<SelectListItem> GetCloseList()
         {
             List<SelectListItem> typeList = new List<SelectListItem>();
-            typeList.Add(new SelectListItem { Text = "Close 50", Value = ContractComplete50 });
-            typeList.Add(new SelectListItem { Text = "Close 98", Value = ContractComplete98 });
+            typeList.Add(new SelectListItem { Text = "Closed 50", Value = ContractComplete50 });
+            typeList.Add(new SelectListItem { Text = "Closed 98", Value = ContractComplete98 });
             return typeList;
         }
 

@@ -112,17 +112,12 @@ namespace EPS3.Helpers
                             "EPS Application</a>.</p>";
                         recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
                         break;
-                    case ConstantStrings.RequestClose:
+                    case ConstantStrings.CloseContract:
                         msg.Subject = "Request to Close Contract #" + contract.ContractNumber;
                         msg.Body = "<p>" + submitter.FullName + " requests closure of the contract " + contract.ContractNumber + " (" + contract.ContractID + "), closure type " + encumbrance.LineItemType + " </p>";
                         msg.Body += "<p>Review this closure request in the <a href='" + contractViewURL + "'>" + "EPS Application</a>.</p>";
-                        recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
+                        recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.Closer)).Select(u => u.UserID).ToList();
                         break;
-                    case ConstantStrings.CloseContract:
-                        msg.Subject = "Contract #" + contract.ContractNumber + " has been closed";
-                        msg.Body = "<p>" + submitter.FullName + " has closed the contract " + contract.ContractNumber + " (" + contract.ContractID + "), closure type " + encumbrance.LineItemType + " </p>";
-                        recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
-                        break; 
                     default:
                         break;
                 }
@@ -264,6 +259,41 @@ namespace EPS3.Helpers
         {
             List<User> users = _context.Users.Where(Utils.BuildOrExpression<User, int>(u => u.UserID, recipientIDs.ToArray<int>())).ToList();
             AddRecipients(msgID, users);
+        }
+
+        public void SendClosingRequest(ContractClosure closure, User submitter)
+        {
+            int groupID = closure.LineItemGroupID != null ? int.Parse(closure.LineItemGroupID) : 0;
+            int contractID = closure.ContractID != null ? int.Parse(closure.ContractID) : 0;
+            int closeStatus = closure.ClosureType.Contains("50") ? 50 : 98;
+            if (groupID > 0) {
+                LineItemGroup encumbrance = (LineItemGroup)_context.LineItemGroups.AsNoTracking().SingleOrDefault(e => e.GroupID == groupID);
+            }
+            Contract contract = (Contract)_context.Contracts.AsNoTracking().Include(c => c.Vendor)
+                .SingleOrDefault(c => c.ContractID == contractID);
+            Message msg = new Message
+            {
+                FromUserID = submitter.UserID,
+                MessageDate = DateTime.Now
+            };
+            if (closure.ContractOrEncumbrance.Equals("Contract")) {
+                msg.Subject = "Please Close Contract " + contract.ContractNumber + ".";
+                msg.Body = "Please place in status " + closeStatus.ToString() + ".<br/>";
+                msg.Body += "Contract Number: " + contract.ContractNumber + " Vendor: " + contract.Vendor.VendorName;
+            } else {
+                msg.Subject = "Please Close Amendment " + closure.FlairID + ".";
+                msg.Body = "Please place in status " + closeStatus.ToString() + ".<br/>";
+                msg.Body += "Amendment: " + closure.FlairID + "  Contract Number: " + contract.ContractNumber + "  Vendor: " + contract.Vendor.VendorName;
+            }
+            //add Closer(s) as recipient(s)
+            List<int> recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.Closer)).Select(u => u.UserID).ToList();
+            msg.AddRecipients(recipientIDs);
+
+            //save the message
+            _context.Messages.Add(msg);
+            _context.SaveChanges();
+            //send the message
+            SendEmailMessage(msg.MessageID);
         }
 
         public void SendEmailMessage(int msgID)

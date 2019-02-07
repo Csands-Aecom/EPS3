@@ -592,7 +592,6 @@ namespace EPS3.Controllers
                     .Where(f => f.FundCode.Contains(searchSTRING))
                     .OrderBy(f => f.FundCode)
                     .ToList();
-
                 return Json(FundsList);
             }
             return new JsonResult(searchString);

@@ -1,4 +1,4 @@
-﻿@import "~lib/dist/css/bootstrap.css";
+﻿@import "../lib/bootstrap/dist/css/FDOT-bootstrap.css";
 
 @font-face {
     font-family: 'bebas_neueregular';

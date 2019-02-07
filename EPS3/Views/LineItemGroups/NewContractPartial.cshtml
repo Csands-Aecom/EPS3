@@ -4,7 +4,6 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="UserID" id="UserID" value="@ViewBag.CurrentUser.UserID" />
     <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="New" />
-    <input type="hidden" name="AllowedActions" id="AllowedActions" value="@ViewBag.AllowedActions" />
     <div class="panel panel-default">
         <div class="panel-heading"></div>
         <div class="panel-body">
@@ -15,7 +14,7 @@
                             @Html.DisplayNameFor(model => model.ContractNumber)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.ContractNumber, new { style = "text-transform:uppercase" })
+                            @Html.TextBoxFor(model => model.ContractNumber, new { style = "text-transform:uppercase", @onchange = "findMatchingContract()" })
                             @Html.ValidationMessageFor(model => model.ContractNumber, "A five character Contract Number is required.")
                         </dd>
                     </dl>

@@ -107,78 +107,6 @@ function initForms() {
         $("#OrgCode").val("55-" + orgCode);
     });
 
-    //initialize autocomplete for EO from existing in LineItems
-    //$("#ExpansionObject").autocomplete({
-    //    source: function (request, response) {
-    //        $.ajax({
-    //            autoFocus: true,
-    //            url: "/LineItems/ListEOs",
-    //            type: "POST",
-    //            dataType: "json",
-    //            data: { searchString: request.term },
-    //            success: function (data) {
-    //                response($.map(data, function (item) {
-    //                    return { label: item.expansionObject, value: item.expansionObject };
-    //                }));
-    //            }
-    //        });
-    //    }
-    //});
-
-    //initialize autocomplete for Work Activity from existing in LineItems
-    //$("#WorkActivity").autocomplete({
-    //    source: function (request, response) {
-    //        $.ajax({
-    //            autoFocus: true,
-    //            url: "/LineItems/ListWorkActivities",
-    //            type: "POST",
-    //            dataType: "json",
-    //            data: { searchString: request.term },
-    //            success: function (data) {
-    //                response($.map(data, function (item) {
-    //                    return { label: item, value: item };
-    //                }));
-    //            }
-    //        });
-    //    }
-    //});
-
-    // Flair Object autocomplete from existing in LineItems
-    //$("#FlairObject").autocomplete({
-    //    source: function (request, response) {
-    //        $.ajax({
-    //            autoFocus: true,
-    //            url: "/LineItems/ListFlairObj",
-    //            type: "POST",
-    //            dataType: "json",
-    //            data: { searchString: request.term },
-    //            success: function (data) {
-    //                response($.map(data, function (item) {
-    //                    return { label: item, value: item };
-    //                }));
-    //            }
-    //        });
-    //    }
-    //});
-
-    //FinProjNumber autocomplete from existing in LineItems
-    //$("#FinancialProjectNumber").autocomplete({
-    //    source: function (request, response) {
-    //        $.ajax({
-    //            autoFocus: true,
-    //            url: "/LineItems/ListFinProjNums",
-    //            type: "POST",
-    //            dataType: "json",
-    //            data: { searchString: request.term },
-    //            success: function (data) {
-    //                response($.map(data, function (item) {
-    //                    return { label: item, value: item };
-    //                }));
-    //            }
-    //        });
-    //    }
-    //});
-
     //Vendors
     $("#VendorSelector").autocomplete({
         source: function (request, response) {
@@ -189,11 +117,22 @@ function initForms() {
                 dataType: "json",
                 data: { searchString: request.term },
                 success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
                     response($.map(data, function (item) {
                         var vendorSelector = item.vendorCode + " - " + item.vendorName;
+                        lastSelector = vendorSelector;
+                        lastID = item.vendorID;
+                        counter++;
                         $("#VendorIDValidation").hide();
                         return { label: vendorSelector, value: item.vendorSelector, vendorID: item.vendorID };
                     }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#VendorSelector").val(lastSelector);
+                        $("#VendorID").val(lastID);
+                    }
                 }
             });
         },
@@ -222,11 +161,22 @@ function initForms() {
                 dataType: "json",
                 data: { searchString: request.term },
                 success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
                     response($.map(data, function (item) {
                         var contractTypeSelector = item.contractTypeCode + " - " + item.contractTypeName;
+                        lastSelector = contractTypeSelector;
+                        lastID = item.contractTypeID;
+                        counter++;
                         $("#ContractTypeIDValidation").hide();
                         return { label: contractTypeSelector, value: item.contractTypeSelector, contractTypeID: item.contractTypeID, accessKey: item.contractTypeID };
                     }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#ContractTypeSelector").val(lastSelector);
+                        $("#ContractTypeID").val(lastID);
+                    }
                 }
             });
         },
@@ -247,11 +197,22 @@ function initForms() {
                 dataType: "json",
                 data: { searchString: request.term },
                 success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
                     response($.map(data, function (item) {
                         var OCASelector = item.ocaCode + " - " + item.ocaName;
+                        lastSelector = OCASelector;
+                        lastID = item.ocaid;
+                        counter++;
                         $("#OCAIDValidation").hide();
                         return { label: OCASelector, value: item.ocaSelector, OCAID: item.ocaid };
                     }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#OCASelector").val(lastSelector);
+                        $("#OCAID").val(lastID);
+                    }
                 }
             });
         },
@@ -272,11 +233,22 @@ function initForms() {
                 dataType: "json",
                 data: { searchString: request.term },
                 success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
                     response($.map(data, function (item) {
                         var FundSelector = item.fundCode + " - " + item.fundDescription;
                         $("#FundIDValidation").hide();
+                        lastSelector = FundSelector;
+                        lastID = item.fundID;
+                        counter++;
                         return { label: FundSelector, value: item.fundSelector, FundID: item.fundID };
                     }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#FundSelector").val(lastSelector);
+                        $("#FundID").val(lastID);
+                    }
                 }
             });
         },
@@ -297,11 +269,22 @@ function initForms() {
                 dataType: "json",
                 data: { searchString: request.term },
                 success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
                     response($.map(data, function (item) {
                         var CategorySelector = item.categoryCode + " - " + item.categoryName;
+                        lastSelector = CategorySelector;
+                        lastID = item.categoryID;
+                        counter++;
                         $("#CategoryIDValidation").hide();
                         return { label: CategorySelector, value: item.categorySelector, CategoryID: item.categoryID };
                     }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#CategorySelector").val(lastSelector);
+                        $("#CategoryID").val(lastID);
+                    }
                 }
             });
         },
@@ -322,11 +305,29 @@ function initForms() {
                 dataType: "json",
                 data: { searchString: request.term },
                 success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
                     response($.map(data, function (item) {
                         var ContractSelector = item.contractNumber;
+                        lastSelector = ContractSelector;
+                        lastID = item.contractID;
+                        counter++;
                         $("#ContractIDValidation").hide();
                         return { label: item.contractNumber, value: item.contractNumber, ContractID: item.contractID };
                     }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#ContractSelector").val(lastSelector);
+                        $("#ContractID").val(lastID);
+                        // show the ContractPanel
+                        if ($("#ContractPanel")) {
+                            showContractPanel(ui.item.ContractID);
+                        }
+                        if ($("#LineItemsPanel")) {
+                            displayLineItemsPanelOrMessage();
+                        }
+                    }
                 }
             });
         },
@@ -385,7 +386,12 @@ function addDialogs() {
     $("#CommentsDisplayDialog").dialog({
         autoOpen: false,
         height: 200,
-        width: 400
+        width: 400,
+        buttons: {
+            "Okay": function () {
+                $(this).dialog("close");
+            }
+        }
     });
 
     // add FileAttachment dialog link
@@ -457,11 +463,13 @@ function addDialogs() {
         buttons: {
             "Cancel": function () {
                 $(this).dialog("close");
+                $("#ContractSelector").show();
             },
             "Save Line": function () {
                 if (ValidateLineItem()) {
                     SaveLineItemModal();
                     $(this).dialog("close");
+                    $("#ContractSelector").show();
                 }
             }
         },
@@ -543,29 +551,16 @@ function showHideButtons() {
 function updateEncumbranceType() {
     var encumbranceType = $("#LineItemType").val();
     var contractID = $("#ContractID").val();
-    if (encumbranceType.indexOf("Close") > -1) {
-        if (encumbranceType.indexOf("Request") > -1)
-        {
-            // User has selected Request Close contract
-            // open dialog for Close contract
-            OpenCloseContractDialog(contractID);
-        }
-        else
-        {
-            // User has selected Close contract
-            // This should only be available to Finance Users
-            // and only for Contract where Contract closure has been requested by an Originator
-        }
-    } else {
-        displayLineItemsPanelOrMessage();
-        setDefaultUserAssignedID();
-    }
+
+    displayLineItemsPanelOrMessage();
+    setDefaultUserAssignedID();
 }
 
 function OpenCloseContractDialog() {
     var contractID = $("#ContractID").val();
     var contractNumber = $("#ContractSelector").val();
     var contractStatus = $("#ContractStatus").val();
+    var closureType = $("#ClosureType").val();
     var encumbranceType = $("#LineItemType").val();
     var encumbranceID = $("#LineItemGroupID").val();
     var flairID = $("#FlairAmendmentID").val();
@@ -579,14 +574,16 @@ function OpenCloseContractDialog() {
         open: function (event, ui) {
             $("#ContractSelector").hide();
             $(this).html("");
-            var contents = "<p>Would you like to close the contract " + contractNumber + " or Amendment " + encumbranceID + "? ";
-            contents += "<select id='closingType' name='closingType'> <option val='Contract' selected>Contract</option> <option val='Amendment'>Amendment</option></select>";
+            var contents = "<p>You have selected " + closureType + ".</p>"
+            contents += "<p>Would you like to close this contract (" + contractNumber + ") or this Amendment (encumbrance request)? ";
+            contents += "<select id='ContractOrEncumbrance' name='ContractOrEncumbrance'> <option val='None' selected disabled>Select one...</option>";
+            contents += "<option val = 'Contract' > Contract</option > <option val='Amendment'>Amendment</option></select > ";
             contents += "</p>";
             contents += "<p>Flair Amendment ID: </p><p><input type='text' id='FlairID' name='FlairID' size='10' val='" + flairID + "' />";
             contents += "</p>";
             contents += "<p>I certify that the amounts being released are not required for current and future obligations. <br/>";
             contents += "<input type='radio' name='amountsYesNo' id='amountsYes' />Yes ";
-            contents += "<input type='radio' name='amountsYesNo'id='amountsNo'   />No ";
+            contents += "<input type='radio' name='amountsYesNo'id='amountsNo'   />No  ";
             contents += "<input type='radio' name='amountsYesNo'id='amountsNA'   />N/A ";
             contents += "</p>";
             contents += "Comments: <br/>";
@@ -614,7 +611,7 @@ function getClosingDetails() {
     // read all values from the dialog into the json string
     closeJson += "{";
     closeJson += '"ContractID": "' + $("#ContractID").val() + '",';
-    closeJson += '"LineItemType":"' + $("#LineItemType").val() + '",';
+    closeJson += '"ActionItemType":"' + $("#ActionItemType").val() + '",';
     closeJson += "\"FlairID\":\"" + $("#FlairID").val() + '",';
     var amountsYesNo = "";
     if ($("#amountsYes").is(":checked")) {
@@ -630,9 +627,8 @@ function getClosingDetails() {
     closeJson += '"Amounts":"' + amountsYesNo + '",';
     closeJson += '"LineItemGroupID":"' + $("#LineItemGroupID").val() + '",';
     closeJson += '"Comments":"' + $("#ClosureComments").val() + '",';
-    //closeJson += "\"ClosureType\":\"" + $("#ClosureType").val() + "\",";
-    //closeJson += "\"RequestOrClosure\":\"" + $("#LineItemGroupID").val() + "\",";
-    //closeJson += "\"ContractOrEncumbrance\":\"" + $("#LineItemGroupID").val() + "\",";
+    closeJson += "\"ClosureType\":\"" + $("#ClosureType").val() + "\",";
+    closeJson += "\"ContractOrEncumbrance\":\"" + $("#ContractOrEncumbrance").val() + "\",";
     //closeJson += "\"LineItemGroupID\":\"" + $("#LineItemGroupID").val() + "\",";
     closeJson += "}";
     // return the json string
@@ -1287,11 +1283,11 @@ function openLineItemDialog(callback) {
     var lineItemGroupID = $("#LineItemGroupID").val();
     var lineOrder = getLineOrder();
     if (!contractID) {
-        showComment("Please select or add a contract before adding or editing a Line Item.")
+        //showComment("Please select or add a contract before adding or editing a Line Item.")
         return;
     }
     if (!lineItemGroupID) {
-        showComment("Please Save As Draft before adding a Line Item.")
+        //showComment("Please Save As Draft before adding a Line Item.")
         return;
     }
     $("#LineItemDialog").dialog("open");
@@ -1728,7 +1724,9 @@ function SaveInitialEncumbrance() {
         $("#OpenContractInformationDiv").hide();
     }
     // Open the Financial Information Form
-    openLineItemDialog();
+    if (ValidateEncumbrance()) {
+        openLineItemDialog();
+    }
 }
 
 function UpdateGroupStatus(status, silent) {
@@ -2074,6 +2072,7 @@ function displayLineItemPanelMessage(msg) {
     $("#messageSpanPanelLineItem").html(msg);
 }
 function displayLineItemMessage(msg) {
+    msg = "<font color='red'>" + msg + "</font>";
     $("#messageSpanLineItem").html(msg);
 }
 function displayMessage(msg) {
@@ -2105,4 +2104,29 @@ function showHideNegativeAmountOptions() {
 }
 function updateReceiveEmails() {
     $("#User_ReceiveEmails").val($("#ReceiveEmailsOption").val())
+}
+
+function findMatchingContract() {
+    var contractNumber = $("#ContractNumber").val();
+    contractNumber = contractNumber.toUpperCase();
+    if (contractNumber.length > 0) {
+        $.ajax({
+            autoFocus: true,
+            url: "/LineItemGroups/ExactMatchContract",
+            type: "POST",
+            dataType: "json",
+            data: { searchString: contractNumber },
+            success: function (data) {
+                var contractList = "";
+                $.map(data, function (item) {
+                    contractList += item.contractNumber + "(ID=" + item.contractID + "), ";
+                });
+                contractList = contractList.substr(0, contractList.length - 2);
+                if (contractList.length > 0) {
+                    showComment("At least one contract with th Contract Number " + contractNumber + " already exists." +
+                        "\nYou may continue creating a new contract with the same number or close the Contract Dialog and select an existing contract.");
+                }
+            }
+        });
+    }
 }

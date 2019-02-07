@@ -114,7 +114,16 @@ namespace EPS3.Controllers
             if (id != null && id > 0)
             {
                 LineItemGroup selectedEncumbrance = (LineItemGroup) _context.LineItemGroups.SingleOrDefault(g => g.GroupID == id);
-                contractID = selectedEncumbrance.ContractID;
+                // an invalid id (no matching GroupID) will throw an error. 
+                if (selectedEncumbrance != null)
+                {
+                    contractID = selectedEncumbrance.ContractID;
+                }
+                else
+                {
+                    // set the invalid id to 0
+                    id = 0;
+                }
             }
             PopulateViewBag(contractID);
             if((id == null || id == 0) && !(ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
@@ -139,19 +148,14 @@ namespace EPS3.Controllers
                     // select the LineItemTypes list to display:
 
                     if (AllEncumbrancesAreComplete(ViewBag.Contract) 
-                        && Contract.CurrentStatus.Contains("Request")
-                        && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                    {
-                        // originator can request to close the Contract
-                        ViewBag.LineItemTypes = ConstantStrings.GetCloseList();
-                    }
-                    else if (AllEncumbrancesAreComplete(ViewBag.Contract) 
                         && ViewBag.CurrentUser.UserID == Encumbrance.OriginatorUser.UserID)
                     {
                         // finance reviewer can close the Contract
-                        ViewBag.LineItemTypes = ConstantStrings.GetRequestCloseList();
+                        ViewBag.LineItemTypes = null;
+                        ViewBag.ActionItemTypes = ConstantStrings.GetRequestCloseList();
                     }
-                    else { 
+                    else
+                    { 
                         ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
                     }
                     // ViewBag.LineItemsMap = Map of LineItemID, JSONString of serialized object
@@ -170,8 +174,9 @@ namespace EPS3.Controllers
             else
             {
                 ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
+                ViewBag.LineItemsMap = null;
             }
-            return View();
+            return View(null);
         }
         public Boolean AllEncumbrancesAreComplete(Contract contract)
         {
@@ -179,7 +184,7 @@ namespace EPS3.Controllers
             List<LineItemGroup> encumbrances = _context.LineItemGroups.Where(g => g.ContractID == contract.ContractID).AsNoTracking().ToList();
             foreach(LineItemGroup encumbrance in encumbrances)
             {
-                if(encumbrance.CurrentStatus != ConstantStrings.CFMComplete)
+                if(encumbrance.CurrentStatus != ConstantStrings.CFMComplete && !encumbrance.CurrentStatus.Contains("Closed"))
                 {
                     isComplete = false;
                     break;
@@ -356,7 +361,7 @@ namespace EPS3.Controllers
                     changeType = ConstantStrings.WPToCFM;
                 }
                 //5. CFM Complete
-                if (( oldStatus.Equals(ConstantStrings.CFMReady)) && newStatus.Equals(ConstantStrings.CFMComplete))
+                if ((oldStatus.Equals(ConstantStrings.CFMReady)) && newStatus.Equals(ConstantStrings.CFMComplete))
                 {
                     changeType = ConstantStrings.CFMComplete;
                 }
@@ -390,6 +395,14 @@ namespace EPS3.Controllers
                     string roles = _pu.GetUserRoles(userLogin);
                     Contract contract = _pu.GetContractByID(contractID);
                     ViewBag.Contract = contract;
+                    if(contract == null)
+                    {
+                        ViewBag.ContractID = 0;
+                    }
+                    else
+                    {
+                        ViewBag.ContractID = contract.ContractID;
+                    }
                     ViewBag.CurrentUser = currentUser;
                     ViewBag.Roles = roles;
                 }
@@ -663,6 +676,21 @@ namespace EPS3.Controllers
             }
             return new JsonResult(searchString);
         }
+
+        [HttpPost]
+        public JsonResult ExactMatchContract(string searchString)
+        {
+            var searchSTRING = searchString.ToUpper();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                List<Contract> ContractList = _context.Contracts
+                    .Where(c => (c.ContractNumber.ToUpper().Equals(searchSTRING)))
+                    .OrderBy(c => c.ContractNumber)
+                    .ToList();
+                return Json(ContractList);
+            }
+            return new JsonResult(searchString);
+        }
         // GET: LineItems
         [HttpGet]
         public IActionResult List()
@@ -670,6 +698,7 @@ namespace EPS3.Controllers
             Dictionary<string, List<LineItemGroup>> categorizedLineItemGroups = getCategorizedLineItemGroups();
             categorizedLineItemGroups.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
             categorizedLineItemGroups.Add(ConstantStrings.CFMComplete, getCompletedLineItemGroups());
+            categorizedLineItemGroups.Add("Closed", getClosedLineItemGroups());
             Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(categorizedLineItemGroups);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
             return View(categorizedLineItemGroups);
@@ -763,7 +792,17 @@ namespace EPS3.Controllers
                 .ToList();
             return cfmGroups;
         }
-
+        
+        private List<LineItemGroup> getClosedLineItemGroups()
+        {
+            // add  Groups that are have completed
+            List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.CurrentStatus.Contains("Closed"))
+                .Include(l => l.Contract)
+                .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
+                .ToList();
+            return cfmGroups;
+        }
         private Dictionary<int, string> getLineItemGroupAmounts(Dictionary<string, List<LineItemGroup>> encumbrances)
         {
             Dictionary<int, string> EncumbranceAmounts = new Dictionary<int, string>();
@@ -840,43 +879,80 @@ namespace EPS3.Controllers
             int groupID = int.Parse(closure.LineItemGroupID);
             PopulateViewBag(contractID);
             User user = ViewBag.CurrentUser;
+            LineItemGroup encumbrance = null;
+            Contract contract = null;
+
             try
             {
-                // if this is a closure request
-                // if this is an encumbrance request closure request
-                // ... Not sure
-                // if this is a contract closure request
-                // set up a new encumbrance
-                LineItemGroup encumbrance = _context.LineItemGroups
-                    .SingleOrDefault(li => li.GroupID == groupID);
-                // update contract status
-                Contract contract = (Contract)_context.Contracts
+                // get contract
+                contract = (Contract)_context.Contracts
                     .SingleOrDefault(c => c.ContractID == contractID);
-                ContractStatus status = new ContractStatus(user, contract, closure.LineItemType);
-                status.Comments = closure.Comments;
-                _context.ContractStatuses.Add(status);
-                contract.CurrentStatus = closure.LineItemType;
-                _context.Contracts.Update(contract);
-                _context.SaveChanges();
+                string closedStatus = closure.ClosureType.Contains("98") ? ConstantStrings.ContractComplete98 : ConstantStrings.ContractComplete50;
+                                
+                if (closure.ContractOrEncumbrance.Equals("Contract"))
+                /* If this is a contract closing, 
+                * 1. select all encumbrances for the contract
+                * 2. add an encumbrance status Closed 50 or Closed 98 for each encumbrance
+                * 3. Set the current status each encumbrance Closed 50 or Closed 98
+                * 4. add a contract status Closed 50 or Closed 98
+                * 5. set the contract's current status to Closed 50 or Closed 98
+                * 6. Send one notification to the Central Office requesting to close the contract
+                */
+                {              
+                    List<LineItemGroup> encumbrances = _context.LineItemGroups.Where(li => li.ContractID == contract.ContractID).ToList();
+                    foreach(LineItemGroup enc in encumbrances)
+                    {
+                        enc.CurrentStatus = closedStatus;
+                        AddEncumbranceStatus(enc, closedStatus);
+                    }
+                    ContractStatus contractStatus = new ContractStatus(ViewBag.CurrentUser, contract, closedStatus);
+                    contractStatus.Comments = closure.Comments;
+                    contract.CurrentStatus = closedStatus;
+                    //save changes to the database
 
-                // have not added an encumbrance and probably don't want to.
-                //LineItemGroup encumbrance = (LineItemGroup)_context.LineItemGroups.Where(li => li.GroupID == groupID);
-
-                // if this is a request, send a notification to finance to Close the Contract
-                string updateType = ConstantStrings.CloseContract;
-                if (closure.LineItemType.Contains("Request")) {
-                    updateType = ConstantStrings.RequestClose;
+                    _context.ContractStatuses.Add(contractStatus);
+                    _context.Contracts.Update(contract);
+                    _context.SaveChanges();
                 }
+                else
+                /*
+                 * If this is an encumbrance closing, 
+                 * 1. add an encumbrance status Closed 50 or Closed 98
+                 * 2. Set the current status of the encumbrance to Closed 50 or Closed 98
+                 * 3. Send one notification to Central Office requesting to close the encumbrance
+                 */
+                {
+                    encumbrance = _context.LineItemGroups
+                        .SingleOrDefault(li => li.GroupID == groupID);
+                    AddEncumbranceStatus(encumbrance, closedStatus);
+                    encumbrance.CurrentStatus = closedStatus;
+                    _context.LineItemGroups.Update(encumbrance);
+                    _context.SaveChanges();
+                }
+
+                // Send Close Contract/Encumbrance Request to Closers
                 initializeMessageService();
-                _messageService.AddMessage(updateType, encumbrance, closure.Comments);
+                _messageService.SendClosingRequest(closure, user);
 
-
-            }catch(Exception e)
+            }
+            catch(Exception e)
             {
                 _logger.LogError("LineItemGroupsController.CloseContract Error:" + e.GetBaseException());
                 Log.Error("LineItemGroupsController.CloseContract  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
             return Json(response);
+        }
+
+        private void AddEncumbranceStatus(LineItemGroup encumbrance, string newStatus)
+        {
+            LineItemGroupStatus status = new LineItemGroupStatus(encumbrance)
+            {
+                CurrentStatus = newStatus,
+                SubmittalDate = DateTime.Now,
+                UserID = ViewBag.CurrentUser.UserID,
+            };
+            _context.LineItemGroupStatuses.Add(status);
+            _context.SaveChanges();
         }
 
         private void initializeMessageService()

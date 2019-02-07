@@ -7,7 +7,13 @@
 <p>&nbsp;</p>
     <div class="panel panel-default" id="EncumbrancePanel" name="EncumbrancePanel">
         <div class="panel-heading sticky header" id="EncumbrancePanelHeading" name="EncumbrancePanelHeading">
-            <h3>Encumbrance Request</h3>
+            @if (Model != null && Model.GroupID > 0)
+            {
+                <h3>Encumbrance Request</h3>
+            }
+            else { 
+                <h3>New Encumbrance Request</h3>
+            }
             @{ var groupID = (Model != null && Model.GroupID > 0) ? Model.GroupID : 0;
                 <input type="hidden" id="LineItemGroupID" name="LineItemGroupID" value="@groupID" />
             }
@@ -50,18 +56,18 @@
                             <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract from the list of options."></span>
                         </dt>
                         <dd>
-                            @if (ViewBag.Contract != null)
-    {
+                            @if (ViewBag.ContractID > 0)
+                        {
                         <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
                         <input type="hidden" id="ContractStatus" name="ContractStatus" value="@ViewBag.Contract.CurrentStatus" />
                         <input type="text" style="text-transform:uppercase" id="ContractSelector" name="ContractSelector" value="@ViewBag.Contract.ContractNumber" />
-}
-else
-{
+                        }
+                        else
+                        {
                         <input type="hidden" id="ContractID" name="ContractID" />
                         <input type="hidden" id="ContractStatus" name="ContractStatus" />
                         <input type="text" id="ContractSelector" name="ContractSelector" />
-}
+                        }
                         </dd>
                         <dt id="OpenContractInformationDiv">
                             Or
@@ -76,6 +82,8 @@ else
                         </dt>
                         <dd>
                             <!-- Encumbrance Request Status record-->
+                            @if (ViewBag.LineItemTypes != null)
+                            {
                             <select id="LineItemType" name="LineItemType" onchange="updateEncumbranceType();">
                                 @foreach (SelectListItem itemType in ViewBag.LineItemTypes)
                                 {
@@ -90,6 +98,23 @@ else
                                 }
                             </select>
                             @Html.ValidationMessageFor(model => model.LineItemType, "An encumbrance type is required.")
+                            }else{
+                                @Html.DisplayFor(model => model.LineItemType)
+                            }
+                            <br />
+                            @if (ViewBag.ActionItemTypes != null)
+                            {
+                                <dt>Action</dt>
+                                <dd>
+                                    <select id="ClosureType" name="ClosureType" onchange="OpenCloseContractDialog();">
+                                        <option value="None"selected disabled>Select one...</option> 
+                                        @foreach(SelectListItem itemType in ViewBag.ActionItemTypes)
+                                        {
+                                            <option value="@itemType.Value">@itemType.Text</option>    
+                                        }
+                                    </select>
+                                </dd>
+                            }
                             <br />
                             <div name="NewEndDateDiv" class="input-group date hidden">
                                 <input type="text" name="NewEndDate" id="NewEndDate" class="datepicker" />
@@ -354,9 +379,9 @@ else
     <div class="panel-heading">
         <h3 id="ContractTitle">Contract</h3>
         <div class="float-right align-top paddingright" id="EditContractLink" name="EditContractLink">
-            @if (@ViewBag.Contract != null && @ViewBag.Contract.ContractID != null && (ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
+            @if (@ViewBag.ContractID > 0 && (ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
             {
-                <a href='javascript:openContractDialogExisting(@ViewBag.Contract.ContractID)'>Edit Contract Information</a>
+                <a href='javascript:openContractDialogExisting(@ViewBag.ContractID)'>Edit Contract Information</a>
             }
         </div>
 
@@ -378,7 +403,6 @@ else
         <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="New" />
     }
     <input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
-    <input type="hidden" name="AllowedActions" id="AllowedActions" value="@ViewBag.AllowedActions" />
     <div class="ui-dialog ui-front" name="ContractDialog" id="ContractDialog"> </div>
     <div class="ui-dialog ui-front" name="LineItemDialog" id="LineItemDialog"> </div>
     <div class="ui-dialog ui-front" name="SubmissionDialog" id="SubmissionDialog"> </div>
@@ -489,9 +513,12 @@ else
                                         </td>
                                     }
                                     <td>
-                                        $@lineItem.AmountString<input type='hidden' id='item_@(lineItem.LineItemID)_Amount' value='@lineItem.Amount' />
-                                        @{ var lineItemJson = ViewBag.LineItemsMap[@lineItem.LineItemID];
-                                            <input type="hidden" id="json_item_@lineItem.LineItemID" value="@lineItemJson" />
+                                        @if (ViewBag.LineItemCount > 0 && ViewBag.LineItemsMap != null) { 
+                                            @lineItem.AmountString<input type='hidden' id='item_@(lineItem.LineItemID)_Amount' value='@lineItem.Amount' />
+                                            {
+                                                var lineItemJson = ViewBag.LineItemsMap[@lineItem.LineItemID];
+                                                <input type="hidden" id="json_item_@lineItem.LineItemID" value="@lineItemJson" />
+                                            }
                                         }
                                     </td>
                                 </tr>

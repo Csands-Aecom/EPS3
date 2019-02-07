@@ -5,6 +5,7 @@
 }
 
 <h2>Index of Encumbrance Requests</h2>
+<input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
 
 <div id="tabs">
     <ul>
@@ -43,53 +44,61 @@
                 <tbody>
                     @foreach (LineItemGroup item in Model[key])
                     {
-                    <tr>
-                        <td>
-	                        @Html.DisplayFor(modelItem => item.Contract.ContractNumber)
-	                        @if (key == ConstantStrings.Advertisement) { 
-		                        @if (item.CurrentStatus == ConstantStrings.CFMReady || item.CurrentStatus == ConstantStrings.CFMComplete)
-		                        {
-		                           <span class="float-right"><a href = "/LineItemGroups/Award?id=@item.GroupID" > Award </a ></span >
-		                        }
-		                        else
-		                        {
-			                        <span class="float-right" title="Advertisement does not exist.">Award</span>
-		                        }
-	                        }
-                        </td>
-                        <td>
-                            @if (
-                                (key == ConstantStrings.Draft && ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
-                              ||(key == "Finance" && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                              ||(key == "WP" && ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
-                              ||(key == "CFM" && ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
-                              ||(key == "Complete"
-                                  && (
-                                        (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
-                                      || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                                      )
-                              )
-                            {
-                                <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
-                            }
-                            else
-                            {
-                                @Html.DisplayFor(modelItem => item.GroupID)
-                            }
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => @item.CurrentStatus)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.LineItemType)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.OriginatedDate)
-                        </td>
-                        <td>
-                            @ViewBag.EncumbranceAmounts[item.GroupID]
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>
+                                @if (key == ConstantStrings.CFMComplete || key.Equals("Closed"))
+                                {
+                                <a href="/Contracts/Edit/id=@item.Contract.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.Contract.ContractNumber)
+                                }
+                                @if (key == ConstantStrings.Advertisement)
+                                {
+                                    @if (item.CurrentStatus == ConstantStrings.CFMReady || item.CurrentStatus == ConstantStrings.CFMComplete)
+                                    {
+                                        <span class="float-right"><a href="/LineItemGroups/Award?id=@item.GroupID"> Award </a></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="float-right" title="Advertisement does not exist.">Award</span>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @if (
+                                   (key == ConstantStrings.Draft && ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
+                                 || (key == "Finance" && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                 || (key == "WP" && ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
+                                 || (key == "CFM" && ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
+                                 || (key == "Complete"
+                                     && (
+                                           (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
+                                         || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                         )
+                                 )
+                                {
+                                    <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.GroupID)
+                                }
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => @item.CurrentStatus)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LineItemType)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.OriginatedDate)
+                            </td>
+                            <td>
+                                @ViewBag.EncumbranceAmounts[item.GroupID]
+                            </td>
+                        </tr>
                     }
 
                 </tbody>
