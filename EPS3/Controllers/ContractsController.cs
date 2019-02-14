@@ -76,7 +76,7 @@ namespace EPS3.Controllers
             return View(contracts);
         }
         // GET: Contracts/Details/5
-        public async Task<IActionResult> Details(int id)
+        public  IActionResult Details(int id)
         {
             if (id <= 0)
             {
@@ -88,24 +88,21 @@ namespace EPS3.Controllers
             PopulateViewBag(id);
             try
             {
-                Contract contract = _context.Contracts
-                    .Include(c => c.ContractType)
-                    .Include(c => c.MethodOfProcurement)
-                    .Include(c => c.ContractFunding)
-                    .Include(c => c.Vendor)
-                    .Include(c => c.Recipient)
-                    .AsNoTracking()
-                    .SingleOrDefault(c => c.ContractID == id);
-                erViewModel.Contract = contract;
-                List<LineItemGroup> lineItemGroups = await _context.LineItemGroups
+                Contract contract = _pu.GetDeepContract(id);
+                List<LineItemGroup> lineItemGroups =  _context.LineItemGroups
                     .Where(l => l.ContractID == id)
                     .Include(l => l.LastEditedUser)
                     .Include(l => l.OriginatorUser)
-                    .Include(l => l.Statuses)
+                    .Include(l => l.LineItems).ThenInclude(li => li.OCA)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Category)
+                    .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Fund)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Statuses).ThenInclude(lst => lst.User)
+                    .Include(l => l.Statuses).ThenInclude(gst => gst.User)
                     .AsNoTracking()
-                    .ToListAsync();
+                    .ToList();
+                erViewModel.Contract = contract;
                 erViewModel.LineItemGroups = lineItemGroups;
-                ViewBag.SelectStatusDropdown = _pu.GetStatusDropdown(contract, (User)ViewBag.CurrentUser);
             }
             catch (Exception e)
             {

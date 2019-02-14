@@ -55,7 +55,7 @@ namespace EPS3.Controllers
         public JsonResult AddNewVendor(string vendor)
         {
             Vendor newVendor = JsonConvert.DeserializeObject<Vendor>(vendor);
-            
+            newVendor.VendorCode = newVendor.VendorCode.ToUpper();
             if((newVendor.VendorCode != null && newVendor.VendorCode.Length > 0) && (newVendor.VendorName != null && newVendor.VendorName.Length > 0)) {
                 if (VendorExists(newVendor.VendorCode))
                 {

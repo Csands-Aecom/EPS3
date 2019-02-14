@@ -488,7 +488,8 @@
                     <div class='form-group'>
                         <input type='hidden' id='ContractID' name="ContractID" value='@ViewBag.Contract.ContractID' />
                         <input type='hidden' id='UserID' name='UserID' value='@ViewBag.CurrentUser.UserID' />
-                        <input type='submit' value='Update' class='btn btn-default'/>
+                        <input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
+                        <input type='submit' value='Update' class='btn btn-default' />
                     </div>
                 </form>
             </div> <!-- end panel body -->
@@ -502,14 +503,14 @@
             <div class='panel-body'>
                 <form asp-controller="Vendors" asp-action="Create" id="AddVendorForm" name="AddVendorForm">
                     <label for="VendorCode">Vendor Number:</label>
-                    <input type="text" name="VendorCode" id="VendorCode" width="100" />
+                    <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" />
                     <br />
                     <label for="VendorName">Vendor Name:</label>
                     <input type="text" name="VendorName" id="VendorName" width="350" />
                     <br />
                     <br />
                     <input type='hidden' id='ContractID' name="ContractID" value='@ViewBag.Contract.ContractID' />
-                    <input type='submit' value='Add Vendor' class='btn btn-default' />
+                    <input type='button' value='Add Vendor' class='btn btn-default' onclick='addNewVendor()' />
                 </form>
             </div> <!-- end panel body -->
         </div> <!-- end panel -->

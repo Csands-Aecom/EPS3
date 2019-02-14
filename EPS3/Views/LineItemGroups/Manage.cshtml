@@ -46,7 +46,9 @@
                 <br />
                 <br />
             </div> <!-- end row -->
-        @if (@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+        @if ( Model == null
+            || (@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
+            || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance)))
         {
             <div class="row">
                 <div class="col-sm-3">
@@ -321,40 +323,6 @@
                     <span id="budgetCeilingWarningSpan" class="text-alert"></span>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <br />
-                    @if (@Model != null)
-                    {
-                        <p><a href="javascript: toggleCommentHistory(@Model.GroupID)" id="commentHistoryToggle">Show Encumbrance History</a></p>
-                     }
-                            @if (@Model != null && @Model.Statuses != null && @Model.Statuses.Count > 0)
-                    {
-                    <h3 class="hidden groupStatus">History</h3>
-                    <table>
-                        <thead>
-                            <tr class="hidden groupStatus">
-                                <th colspan="2">Date</th>
-                                <th colspan="2">Commenter</th>
-                                <th colspan="2">Status</th>
-                                <th colspan="7">Comment</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (LineItemGroupStatus gstatus in @Model.Statuses)
-                            {
-                            <tr class="hidden groupStatus">
-                                <td colspan="2">@gstatus.SubmittalDate</td>
-                                <td colspan="2">@gstatus.User.FullName</td>
-                                <td colspan="2">@gstatus.CurrentStatus</td>
-                                <td colspan="7">@gstatus.Comments</td>
-                            </tr>
-                            }
-                        </tbody>
-                    </table>
-                    }
-                </div>
-            </div>
         </div> <!-- end panel body-->
     </div> <!-- end panel-->
 
@@ -497,7 +465,8 @@
                                         </td>
                                     }
                                     <td>
-                                        @if (ViewBag.LineItemCount > 0 && ViewBag.LineItemsMap != null) { 
+                                        @if (ViewBag.LineItemCount > 0 && ViewBag.LineItemsMap != null)
+                                        {
                                             @lineItem.AmountString<input type='hidden' id='item_@(lineItem.LineItemID)_Amount' value='@lineItem.Amount' />
                                             {
                                                 var lineItemJson = ViewBag.LineItemsMap[@lineItem.LineItemID];
@@ -519,6 +488,40 @@
                 </div>
             </div> <!-- end panel-body -->
         </div> <!-- end panel -->
+        <div class="panel panel-body">
+            <div class="col-sm-12">
+                <br />
+                @if (@Model != null)
+                {
+                    <p><a href="javascript: toggleCommentHistory(@Model.GroupID)" id="commentHistoryToggle">Hide Encumbrance History</a></p>
+                }
+                @if (@Model != null && @Model.Statuses != null && @Model.Statuses.Count > 0)
+                {
+                    <h3 class="groupStatus">History</h3>
+                    <table>
+                        <thead>
+                            <tr class="groupStatus">
+                                <th colspan="2">Date</th>
+                                <th colspan="2">Commenter</th>
+                                <th colspan="2">Status</th>
+                                <th colspan="7">Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (LineItemGroupStatus gstatus in @Model.Statuses)
+                            {
+                                <tr class="groupStatus">
+                                    <td colspan="2">@gstatus.SubmittalDate</td>
+                                    <td colspan="2">@gstatus.User.FullName</td>
+                                    <td colspan="2">@gstatus.CurrentStatus</td>
+                                    <td colspan="7">@gstatus.Comments</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
 
         <div class="row">
             <div class="col-sm-10" id="buttonDiv">

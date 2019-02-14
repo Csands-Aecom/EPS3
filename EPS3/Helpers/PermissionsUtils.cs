@@ -288,6 +288,29 @@ namespace EPS3.Helpers
             }
         }
 
+        public List<LineItemGroup> GetDeepEncumbrances(int contractID)
+        {
+            try
+            {
+                List<LineItemGroup> encumbrances = _context.LineItemGroups.AsNoTracking()
+                    .Include(l => l.LastEditedUser)
+                    .Include(l => l.OriginatorUser)
+                    .Include(l => l.LineItems).ThenInclude(li => li.OCA)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Category)
+                    .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Fund)
+                    .Include(l => l.LineItems).ThenInclude(li => li.Statuses).ThenInclude(lst => lst.User)
+                    .Include(l => l.Statuses).ThenInclude(gst => gst.User)
+                    .Where(l => l.ContractID == contractID)
+                    .ToList();
+                return encumbrances;
+            }
+            catch (Exception e)
+            {
+                Log.Error("PermissionsUtils.GetDeepEncumbrances Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                return null;
+            }
+        }
         public LineItem GetDeepLineItem(int lineItemID)
         {
             try
@@ -326,6 +349,32 @@ namespace EPS3.Helpers
                 Log.Error("PermissionsUtils.GetDeepLineItems Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
+        }
+
+        public Dictionary<int, List<LineItemGroupStatus>> GetDeepContractEncumbranceStatusMap(int contractID)
+        {
+            Dictionary<int, List<LineItemGroupStatus>> resultMap = new Dictionary<int, List<LineItemGroupStatus>>();
+            List<int> encumbranceIDs = _context.LineItemGroups
+                .AsNoTracking()
+                .Where(e => e.ContractID == contractID)
+                .Select(e => e.GroupID)
+                .ToList();
+            foreach(int groupID in encumbranceIDs)
+            {
+                resultMap.Add(groupID, GetDeepEncumbranceStatuses(groupID));
+            }
+            return resultMap;
+        }
+        public List<LineItemGroupStatus> GetDeepEncumbranceStatuses(int groupID)
+        {
+            List<LineItemGroupStatus> resultList = _context.LineItemGroupStatuses
+                .AsNoTracking()
+                .Include(s => s.User)
+                .Where(s => s.LineItemGroupID == groupID)
+                .OrderBy(s => s.SubmittalDate)
+                .ToList();
+
+            return resultList;
         }
     }
 }

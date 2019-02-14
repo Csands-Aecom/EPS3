@@ -46,14 +46,7 @@
                     {
                         <tr>
                             <td>
-                                @if (key == ConstantStrings.CFMComplete || key.Equals("Closed"))
-                                {
                                 <a href="/Contracts/Details?id=@item.Contract.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
-                                }
-                                else
-                                {
-                                    @Html.DisplayFor(modelItem => item.Contract.ContractNumber)
-                                }
                                 @if (key == ConstantStrings.Advertisement)
                                 {
                                     @if (item.CurrentStatus == ConstantStrings.CFMReady || item.CurrentStatus == ConstantStrings.CFMComplete)

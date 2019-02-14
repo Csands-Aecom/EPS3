@@ -67,13 +67,8 @@ namespace EPS3.Helpers
                         msg.Body += GetStatusComments(encumbrance);
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
-                        recipientIDs = (List<int>) _context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
-                        int receiptID = SendReceipt(encumbrance, submitter, comments);
-                        // All users should have CanReceiveEmails = TRUE
-                        //if (submitter.CanReceiveEmails())
-                        //{
-                            SendEmailMessage(receiptID);
-                        //}
+                        // Send only to TPK Encumbrance mailbox
+                        recipientIDs = (List<int>) _context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
                         break;
                     case ConstantStrings.FinanceToDraft:
                     case ConstantStrings.CFMToDraft:
@@ -101,7 +96,8 @@ namespace EPS3.Helpers
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
-                        recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.CFMSubmitter)).Select(u => u.UserID).ToList();
+                        // Send only to TPK Encumbrance mailbox
+                        recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
                         break;
                     case ConstantStrings.CFMComplete:
                         msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been input into CFM";
@@ -110,7 +106,8 @@ namespace EPS3.Helpers
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
                         msg.Body += "<p>No further action is required. You may view this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
-                        recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.FinanceReviewer)).Select(u => u.UserID).ToList();
+                        // Send only to TPK Encumbrance mailbox
+                        recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
                         break;
                     case ConstantStrings.CloseContract:
                         msg.Subject = "Request to Close Contract #" + contract.ContractNumber;
@@ -141,8 +138,6 @@ namespace EPS3.Helpers
                     return -1;
                 }
             }
-            // TODO: Move the send email to a more appropriate location
-            SendEmailMessage(msgID);
             return msgID ;
         }
         

@@ -769,6 +769,8 @@ function addNewVendor() {
             $("#VendorID").val(results.VendorID);
             $("#VendorSelector").val(results.VendorCode + " - " + results.VendorName);
             $("#addVendorPanel").hide();
+            $("#addVendorDialog").dialog("close");
+            $("#VendorSelector").show();
         }
     });
 }
@@ -799,13 +801,13 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             if (submitTo === "Draft") {
                 defaultComment = "Saved as Draft.";
             } else if (submitTo === "Finance") {
-                defaultComment = "Submitted to Finance for review.";
+                defaultComment = "Submitted to Finance for review via TPK Encumbrance.";
             } else if (submitTo === "Work Program") {
-                defaultComment = "Submitted to Work Program for review.";
+                defaultComment = "Please review and approve for Work Program.";
             } else if (submitTo === "CFM") {
-                defaultComment = "Submitted for input to CFM.";
+                defaultComment = "Please review and input to CFM.";
             } else if (submitTo === "Complete") {
-                defaultComment = "Mark as complete in CFM.";
+                defaultComment = "";
             }
             // add a comment textarea
             var newStatusInput = "<input type= 'hidden' name='newStatus' id='newStatus' value = '" + submitTo + "' />";

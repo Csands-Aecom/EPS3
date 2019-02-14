@@ -9,6 +9,7 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="UserID" id="UserID" value="@ViewBag.CurrentUser.UserID" />
     <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="New" />
+    <input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="float-right align-top paddingright">
@@ -17,200 +18,200 @@
             </div>
             <h3>New Contract</h3>
         </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.ContractNumber)
-                            </dt>
-                            <dd>
-                                @Html.TextBoxFor(model => model.ContractNumber,  new { style="text-transform:uppercase", @onchange = "findMatchingContract()" })
-                                @Html.ValidationMessageFor(model => model.ContractNumber, "A five character Contract Number is required.")
-                            </dd>
-                        </dl>
-                    </div>
-                    <div class="col-sm-3">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.ContractTypeID)
-                                <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract Type from the list of options."></span>
-                            </dt>
-                            <dd>
-                                <input type="hidden" id="ContractTypeID" name="ContractTypeID" />
-                                <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" style="text-transform:uppercase" />
-                            </dd>
-                        </dl>
-                    </div>
-                    <div class="col-sm-3">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.IsRenewable)
-                            </dt>
-                            <dd>
-                                <span>
-                                    <label for="IsRenewable1">Yes</label>
-                                    <input id="IsRenewable1" name="IsRenewable" type="radio" value="1">
-                                    <label for="IsRenewable0">No</label>&nbsp;
-                                    <input id="IsRenewable0" name="IsRenewable" type="radio" value="0">
-                                </span>
-                            </dd>
-                        </dl>
-                    </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.ContractNumber)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.ContractNumber, new { style = "text-transform:uppercase", @onchange = "findMatchingContract()" })
+                            @Html.ValidationMessageFor(model => model.ContractNumber, "A five character Contract Number is required.")
+                        </dd>
+                    </dl>
                 </div>
-                <div class="row">
-                    <div class="col-sm-2">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.ContractTotal)
-                            </dt>
-                            <dd>
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.ContractTypeID)
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract Type from the list of options."></span>
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="ContractTypeID" name="ContractTypeID" />
+                            <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" style="text-transform:uppercase" />
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.IsRenewable)
+                        </dt>
+                        <dd>
+                            <span>
+                                <label for="IsRenewable1">Yes</label>
+                                <input id="IsRenewable1" name="IsRenewable" type="radio" value="1">
+                                <label for="IsRenewable0">No</label>&nbsp;
+                                <input id="IsRenewable0" name="IsRenewable" type="radio" value="0">
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.ContractTotal)
+                        </dt>
+                        <dd>
+                            <span class="input-group-addon">
+                                <label for="ContractTotal">
+                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    @Html.TextBoxFor(model => model.ContractTotal, new { Value = "0.00" })
+                                </label>
+                            </span>
+                            @Html.ValidationMessageFor(model => model.ContractTotal, "The default Contract Total is $0.00.")
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.MaxLoaAmount)
+                        </dt>
+                        <dd>
+                            <span class="input-group-addon">
+                                <label for="MaxLoaAmount">
+                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    @Html.TextBoxFor(model => model.MaxLoaAmount, new { Value = "0.00" })
+                                </label>
+                            </span>
+                            @Html.ValidationMessageFor(model => model.MaxLoaAmount, "The default Maximum amount per LOA is $0.00.")
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.BudgetCeiling)
+                        </dt>
+                        <dd>
+                            <span class="input-group-addon">
+                                <label for="BudgetCeiling">
+                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    @Html.TextBoxFor(model => model.BudgetCeiling, new { Value = "0.00" })
+                                </label>
+                            </span>
+                            @Html.ValidationMessageFor(model => model.BudgetCeiling, "The default Budget Ceiling is $0.00.")
+                            <div id="budgetCeilingMessage" class="error"></div>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.BeginningDate)
+                        </dt>
+                        <dd>
+                            <div class="input-group date">
+                                @Html.TextBoxFor(model => model.BeginningDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
-                                    <label for="ContractTotal">
-                                        <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                        @Html.TextBoxFor(model => model.ContractTotal, new { Value = "0.00" })
+                                    <label for="BeginningDate">
+                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
                                     </label>
                                 </span>
-                                @Html.ValidationMessageFor(model => model.ContractTotal, "The default Contract Total is $0.00.")
-                            </dd>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.MaxLoaAmount)
-                            </dt>
-                            <dd>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.BeginningDate, "")
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.EndingDate)
+                        </dt>
+                        <dd>
+                            <div class="input-group date">
+                                @Html.TextBoxFor(model => model.EndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
-                                    <label for="MaxLoaAmount">
-                                        <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                        @Html.TextBoxFor(model => model.MaxLoaAmount, new { Value = "0.00" })
+                                    <label for="EndingDate">
+                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
                                     </label>
                                 </span>
-                                @Html.ValidationMessageFor(model => model.MaxLoaAmount, "The default Maximum amount per LOA is $0.00.")
-                            </dd>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.BudgetCeiling)
-                            </dt>
-                            <dd>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.EndingDate, "")
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.ServiceEndingDate)
+                        </dt>
+                        <dd>
+                            <div class="input-group date">
+                                @Html.TextBoxFor(model => model.ServiceEndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
-                                    <label for="BudgetCeiling">
-                                        <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                        @Html.TextBoxFor(model => model.BudgetCeiling, new { Value = "0.00" })
+                                    <label for="ServiceEndingDate">
+                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
                                     </label>
                                 </span>
-                                @Html.ValidationMessageFor(model => model.BudgetCeiling, "The default Budget Ceiling is $0.00.")
-                                <div id="budgetCeilingMessage" class="error"></div>
-                            </dd>
-                        </dl>
-                    </div>
-                    <div class="col-sm-2">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.BeginningDate)
-                            </dt>
-                            <dd>
-                                <div class="input-group date">
-                                    @Html.TextBoxFor(model => model.BeginningDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
-                                    <span class="input-group-addon">
-                                        <label for="BeginningDate">
-                                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
-                                        </label>
-                                    </span>
-                                </div>
-                                @Html.ValidationMessageFor(model => model.BeginningDate, "")
-                            </dd>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.EndingDate)
-                            </dt>
-                            <dd>
-                                <div class="input-group date">
-                                    @Html.TextBoxFor(model => model.EndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
-                                    <span class="input-group-addon">
-                                        <label for="EndingDate">
-                                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
-                                        </label>
-                                    </span>
-                                </div>
-                                @Html.ValidationMessageFor(model => model.EndingDate, "")
-                            </dd>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.ServiceEndingDate)
-                            </dt>
-                            <dd>
-                                <div class="input-group date">
-                                    @Html.TextBoxFor(model => model.ServiceEndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
-                                    <span class="input-group-addon">
-                                        <label for="ServiceEndingDate">
-                                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
-                                        </label>
-                                    </span>
-                                </div>
-                                @Html.ValidationMessageFor(model => model.ServiceEndingDate, "")
-                            </dd>
-                        </dl>
-                    </div>
-                    <div class="col-sm-5">
-                        <dl>
-                            <dt>
-                                <label for="ProcurementID">Procurement</label>
-                            </dt>
-                            <dd>
-                                @Html.DropDownList("ProcurementID", new SelectList((IEnumerable<Procurement>)ViewData["Procurements"], "ProcurementID", "ProcurementSelector"), " ")
-                                @Html.ValidationMessageFor(model => model.ProcurementID, "Please select a Procurement option.")
-                            </dd>
-                            <p></p>
-                            <dt>
-                                <label for="CompensationID">Contract Funding Terms</label>
-                            </dt>
-                            <dd>
-                                @Html.DropDownList("CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationSelector"), " ", new { @onchange="updateBudgetCeiling()" })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.ServiceEndingDate, "")
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-5">
+                    <dl>
+                        <dt>
+                            <label for="ProcurementID">Procurement</label>
+                        </dt>
+                        <dd>
+                            @Html.DropDownList("ProcurementID", new SelectList((IEnumerable<Procurement>)ViewData["Procurements"], "ProcurementID", "ProcurementSelector"), " ")
+                            @Html.ValidationMessageFor(model => model.ProcurementID, "Please select a Procurement option.")
+                        </dd>
+                        <p></p>
+                        <dt>
+                            <label for="CompensationID">Contract Funding Terms</label>
+                        </dt>
+                        <dd>
+                            @Html.DropDownList("CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationSelector"), " ", new { @onchange = "updateBudgetCeiling()" })
 
-                                @Html.ValidationMessageFor(model => model.CompensationID, "")
-                            </dd>
-                            <p></p>
-                            <dt>
-                                <label for="VendorID">Vendor</label>
-                                <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Vendor from the list of options."></span>
-                            </dt>
-                            <dd>
-                                <input type="hidden" id="VendorID" name="VendorID" />
-                                <input type="text" id="VendorSelector" name="VendorSelector" />
-                                <br />If the Vendor is not known, select <strong><em>AD</em></strong>.
-                            </dd>
-                            <dd>
-                                <a href="javascript:openAddVendorDialog();">Add New Vendor</a>
-                            </dd>
-                            <p></p>
-                            <dt>
-                                <label for="RecipientID">Recipient</label>
-                            </dt>
-                            <dd>
-                                @Html.DropDownList("RecipientID", new SelectList((IEnumerable<Recipient>)ViewData["Recipients"], "RecipientID", "RecipientSelector"), " ")
-                                @Html.ValidationMessageFor(model => model.RecipientID, "Please select a Recipient.")
+                            @Html.ValidationMessageFor(model => model.CompensationID, "")
+                        </dd>
+                        <p></p>
+                        <dt>
+                            <label for="VendorID">Vendor</label>
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Vendor from the list of options."></span>
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="VendorID" name="VendorID" />
+                            <input type="text" id="VendorSelector" name="VendorSelector" />
+                            <br />If the Vendor is not known, select <strong><em>AD</em></strong>.
+                        </dd>
+                        <dd>
+                            <a href="javascript:openAddVendorDialog();">Add New Vendor</a>
+                        </dd>
+                        <p></p>
+                        <dt>
+                            <label for="RecipientID">Recipient</label>
+                        </dt>
+                        <dd>
+                            @Html.DropDownList("RecipientID", new SelectList((IEnumerable<Recipient>)ViewData["Recipients"], "RecipientID", "RecipientSelector"), " ")
+                            @Html.ValidationMessageFor(model => model.RecipientID, "Please select a Recipient.")
 
-                            </dd>
-                        </dl>
-                    </div>
+                        </dd>
+                    </dl>
                 </div>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.DescriptionOfWork)
-                            </dt>
-                            <dd>
-                                @Html.TextAreaFor(model => model.DescriptionOfWork, new { @rows = 3, @cols = "200" })
-                                @Html.ValidationMessageFor(model => model.DescriptionOfWork, "Please provide a description of the work to be completed under this contract.")
-                            </dd>
-                        </dl>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.DescriptionOfWork)
+                        </dt>
+                        <dd>
+                            @Html.TextAreaFor(model => model.DescriptionOfWork, new { @rows = 3, @cols = "200" })
+                            @Html.ValidationMessageFor(model => model.DescriptionOfWork, "Please provide a description of the work to be completed under this contract.")
+                        </dd>
+                    </dl>
                 </div>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <input type="submit" value="Create" class="btn btn-default" onclick="validateContractDollars()"/>
-                        </div> <!-- end form-group -->
-                    </div> <!-- end col -->
-                </div> <!-- end row -->
-            </div> <!-- end panel body -->
-        </div> <!-- end panel -->
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-default" onclick="validateContractDollars()" />
+                    </div> <!-- end form-group -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+        </div> <!-- end panel body -->
+    </div> <!-- end panel -->
 </form>
 
 <div id="addVendorDialog" title="Add New Vendor" style="display: none;">
@@ -221,13 +222,13 @@
         <div class='panel-body'>
             <form asp-controller="Vendors" asp-action="Create" id="AddVendorForm" name="AddVendorForm">
                 <label for="VendorCode">Vendor Number:</label>
-                <input type="text" name="VendorCode" id="VendorCode" width="100" />
+                <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" />
                 <br />
                 <label for="VendorName">Vendor Name:</label>
                 <input type="text" name="VendorName" id="VendorName" width="350" />
                 <br />
                 <br />
-                <input type='submit' value='Add Vendor' class='btn btn-default' />
+                <input type='button' value='Add Vendor' class='btn btn-default' onclick='addNewVendor()' />
             </form>
         </div> <!-- end panel body -->
     </div> <!-- end panel -->

@@ -8,6 +8,8 @@ namespace EPS3.Models
 {
     public static class ConstantStrings
     {
+
+        public const string TPKMailbox = "TPK.EncumbranceRequest@dot.state.fl.us";
         //static class: no constructor
         //Contract Status values
         public const string ContractNew = "New Contract";
