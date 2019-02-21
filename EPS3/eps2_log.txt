@@ -7559,3 +7559,8 @@ Error Number:515,State:2,Class:16
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients)
+2019-02-21 17:07:40.264 -05:00 [ERR] MessageService.SendEmail Error:System.InvalidOperationException: A recipient must be specified.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 375
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 375

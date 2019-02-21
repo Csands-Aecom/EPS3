@@ -103,6 +103,21 @@ namespace EPS3.Controllers
                     .ToList();
                 erViewModel.Contract = contract;
                 erViewModel.LineItemGroups = lineItemGroups;
+
+                Dictionary<int, decimal> groupAmounts = new Dictionary<int, decimal>();
+                decimal contractAmount = 0.0m;
+                foreach (LineItemGroup encumbrance in lineItemGroups)
+                {
+                    decimal groupAmount = 0.0m;
+                    foreach(LineItem lineItem in encumbrance.LineItems)
+                    {
+                        groupAmount += lineItem.Amount;
+                    }
+                    groupAmounts.Add(encumbrance.GroupID, groupAmount);
+                    contractAmount += groupAmount;
+                }
+                ViewBag.GroupAmounts = groupAmounts;
+                ViewBag.ContractAmount = contractAmount;
             }
             catch (Exception e)
             {
@@ -162,7 +177,7 @@ namespace EPS3.Controllers
                     _context.ContractStatuses.Add(newStatus);
                     _context.SaveChanges();
                     PopulateViewBag(contract.ContractID);
-                    return RedirectToAction("View", new { id = contract.ContractID });
+                    return RedirectToAction("Details", new { id = contract.ContractID });
                 }catch(Exception e)
                 {
                     _logger.LogError("ContractsController.Create Error:" + e.GetBaseException());
@@ -240,10 +255,12 @@ namespace EPS3.Controllers
         private Contract UpdateExistingContract(Contract existingContract, Contract newContract)
         {
             // TODO: for each property, copy from newContract to existingContract
-            if (existingContract.ContractID == newContract.ContractID) {
+            if (existingContract.ContractID == newContract.ContractID)
+            {
+                existingContract.BeginningDate = newContract.BeginningDate;
                 existingContract.BudgetCeiling = newContract.BudgetCeiling;
                 existingContract.CompensationID = newContract.CompensationID;
-                existingContract.ContractFunding = newContract.ContractFunding;
+                existingContract.ContractFunding = newContract.ContractFunding; //
                 existingContract.ContractNumber = newContract.ContractNumber;
                 existingContract.ContractTotal = newContract.ContractTotal;
                 //existingContract.ContractType = newContract.ContractType;
@@ -258,6 +275,7 @@ namespace EPS3.Controllers
                 existingContract.ProcurementID = newContract.ProcurementID;
                 //existingContract.Recipient = newContract.Recipient;
                 existingContract.RecipientID = newContract.RecipientID;
+                existingContract.VendorID = newContract.VendorID;
                 existingContract.ServiceEndingDate = newContract.ServiceEndingDate;
             }
             return existingContract;
@@ -573,7 +591,7 @@ namespace EPS3.Controllers
                     Log.Error("ContractsController.Edit Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 }
                 ViewBag.SuccessMessage = "Contract update saved.";
-                return RedirectToAction("View", new { id = contract.ContractID });
+                return RedirectToAction("Details", new { id = contract.ContractID });
             }
             else
             {
@@ -672,7 +690,7 @@ namespace EPS3.Controllers
         public JsonResult ListContractTypes(string searchString)
         {
             var searchSTRING = searchString.ToUpper();
-            if (!string.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString) && !searchSTRING.Equals("NEW"))
             {
                 List<ContractType> ContractTypeList = _context.ContractTypes
                     .Where(ct => ct.ContractTypeCode.Contains(searchSTRING) || ct.ContractTypeName.ToUpper().Contains(searchSTRING))

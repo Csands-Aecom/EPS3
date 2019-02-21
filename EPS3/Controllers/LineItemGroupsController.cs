@@ -695,65 +695,99 @@ namespace EPS3.Controllers
         [HttpGet]
         public IActionResult List()
         {
-            Dictionary<string, List<LineItemGroup>> categorizedLineItemGroups = getCategorizedLineItemGroups();
-            categorizedLineItemGroups.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
-            categorizedLineItemGroups.Add(ConstantStrings.CFMComplete, getCompletedLineItemGroups());
-            categorizedLineItemGroups.Add("Closed", getClosedLineItemGroups());
-            Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(categorizedLineItemGroups);
-            ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
-            return View(categorizedLineItemGroups);
-        }
-
-        private Dictionary<string, List<LineItemGroup>> getCategorizedLineItemGroups()
-        {
-            Dictionary<string, List<LineItemGroup>> results = new Dictionary<string, List<LineItemGroup>>();
             PopulateViewBag(0);
             User user = ViewBag.CurrentUser;
+            Dictionary<string, List<LineItemGroup>> lineItemGroupsMap = new Dictionary<string, List<LineItemGroup>>();
+            lineItemGroupsMap.Add("MyRequests", getCurrentUserLineItemGroups(user));
+            Dictionary<string, List<LineItemGroup>> categorizedLineItemGroups = getCategorizedLineItemGroups(user);
+            foreach(string mapKey in categorizedLineItemGroups.Keys)
+            {
+                lineItemGroupsMap.Add(mapKey, categorizedLineItemGroups[mapKey]);
+            }
+            lineItemGroupsMap.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
+            
+            Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(lineItemGroupsMap);
+            ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
+            return View(lineItemGroupsMap);
+        }
+
+        private Dictionary<string, List<LineItemGroup>> getCategorizedLineItemGroups(User user)
+        {
+            Dictionary<string, List<LineItemGroup>> results = new Dictionary<string, List<LineItemGroup>>();
 
             // These originally depended on roles. 
             // New approach is to return all results from non-archived contracts
             // and use roles to determine if links are included in the View
             // This method does NOT return Encumbrances that are CFMComplete
             // TEMPFIX: add || 1==1 for all role-based conditionals
+            List<LineItemGroup> allLineIDs = new List<LineItemGroup>();
+            
+            // add Group IDs for Groups in Draft where user is the originator
+            List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
+                .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
+                .Include(l => l.Contract)
+                .ToList();
+            results.Add(ConstantStrings.Draft, origLineIDs);
+            allLineIDs.AddRange(origLineIDs);
+            
+            
+            // add Line IDs for Groups in Draft where user is the originator
+            List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                .Include(l => l.Contract)
+                .ToList();
+            results.Add("Finance", finLineIDs);
+            allLineIDs.AddRange(finLineIDs);
+            
+            // add Line IDs for Groups in Draft where user is the originator
+            List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
+                .Include(l => l.Contract)
+                .ToList();
+            results.Add("WP", wpLineIDs);
+            allLineIDs.AddRange(wpLineIDs);
+            
+            // add Line IDs for Groups in Draft where user is the originator
+            List<LineItemGroup> cfmLineIDs = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
+                .Include(l => l.Contract)
+                .ToList();
+            results.Add("CFM", cfmLineIDs);
+            allLineIDs.AddRange(cfmLineIDs);
+            
+            // add  Groups that are have completed
+            List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
+                .Include(l => l.Contract)
+                .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
+                .ToList();
+            results.Add("Complete", cfmGroups);
+            allLineIDs.AddRange(cfmLineIDs);
 
-            if (ViewBag.Roles.Contains(ConstantStrings.Draft) || 1==1)
-            {
-                // add Group IDs for Groups in Draft where user is the originator
-                List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
-                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
-                    .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
+
+            // add  Groups that are have completed
+            List<LineItemGroup> closeGroups = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Contains("Closed"))
                     .Include(l => l.Contract)
+                    .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                     .ToList();
-                results.Add(ConstantStrings.Draft, origLineIDs);
-            }
-            if (ViewBag.Roles.Contains(ConstantStrings.SubmittedFinance) || 1 == 1)
-            {
-                // add Line IDs for Groups in Draft where user is the originator
-                List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
-                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-                    .Include(l => l.Contract)
-                    .ToList();
-                results.Add("Finance", finLineIDs);
-            }
-            if (ViewBag.Roles.Contains(ConstantStrings.SubmittedWP) || 1 == 1)
-            {
-                // add Line IDs for Groups in Draft where user is the originator
-                List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
-                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
-                    .Include(l => l.Contract)
-                    .ToList();
-                results.Add("WP", wpLineIDs);
-            }
-            if (ViewBag.Roles.Contains(ConstantStrings.CFMReady) || 1 == 1)
-            {
-                // add Line IDs for Groups in Draft where user is the originator
-                List<LineItemGroup> cfmLineIDs = _context.LineItemGroups.AsNoTracking()
-                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
-                    .Include(l => l.Contract)
-                    .ToList();
-                results.Add("CFM", cfmLineIDs);
-            }
+            results.Add("Closed", closeGroups);
+            allLineIDs.AddRange(cfmLineIDs);
+
+            results.Add("All", allLineIDs);
             return results;
+        }
+
+        private List<LineItemGroup> getCurrentUserLineItemGroups(User user)
+        {
+            List<LineItemGroup> myGroups = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.OriginatorUser.UserID == user.UserID && l.CurrentStatus != "Closed")
+                    .Include(l => l.Contract)
+                    .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
+                    .ToList();
+
+            return myGroups;
         }
 
         private List<LineItemGroup> getAdvertisedLineItemGroups()
@@ -771,7 +805,7 @@ namespace EPS3.Controllers
             {
                 int contractID = adGroup.ContractID;
                 List<LineItemGroup> awardGroups = _context.LineItemGroups.AsNoTracking()
-                    .Where(l => l.LineItemType.Equals(ConstantStrings.Award) && l.ContractID == contractID && l.CurrentStatus != ConstantStrings.Draft)
+                    .Where(l => l.LineItemType.Equals(ConstantStrings.Award) && l.ContractID == contractID)
                     .ToList();
                 if (awardGroups.Count > 0)
                 {
@@ -782,27 +816,7 @@ namespace EPS3.Controllers
             return adGroups.Except(awardedGroups).ToList();
         }
 
-        private List<LineItemGroup> getCompletedLineItemGroups()
-        {
-            // add  Groups that are have completed
-            List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
-                .Include(l => l.Contract)
-                .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived) 
-                .ToList();
-            return cfmGroups;
-        }
-        
-        private List<LineItemGroup> getClosedLineItemGroups()
-        {
-            // add  Groups that are have completed
-            List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.CurrentStatus.Contains("Closed"))
-                .Include(l => l.Contract)
-                .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
-                .ToList();
-            return cfmGroups;
-        }
+
         private Dictionary<int, string> getLineItemGroupAmounts(Dictionary<string, List<LineItemGroup>> encumbrances)
         {
             Dictionary<int, string> EncumbranceAmounts = new Dictionary<int, string>();

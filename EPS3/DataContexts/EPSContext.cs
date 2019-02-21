@@ -47,7 +47,6 @@ namespace EPS3.DataContexts
             // No connection string needed since it is set in Startup, read from appsettings.json
             //optionsBuilder.UseSqlServer(@"Server=USTLH1LT1506\TURNPIKETEST;Database=EPSNew;Trusted_Connection=True;");
             optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL16T;Database=EPSNew;user id=ursWeb;password=ursweb");
-            //optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL-H1B;Database=EPSNew;");
             // log SQL
             var lf = new LoggerFactory();
             lf.AddConsole();

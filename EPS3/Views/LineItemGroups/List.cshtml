@@ -11,7 +11,14 @@
     <ul>
         @foreach (string key in Model.Keys)
         {
-            <li><a href="#tabs-@key">@key</a></li>
+            if (key.Equals("MyRequests"))
+            {
+                <li><a href="#tabs-@key">My Requests</a></li>
+            }
+            else
+            {
+                <li><a href="#tabs-@key">@key</a></li>
+            }
         }
     </ul>
 
@@ -35,6 +42,9 @@
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model[key].First().OriginatedDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model[key].First().LastEditedDate)
                         </th>
                         <th>
                             Encumbrance Amount
@@ -61,7 +71,8 @@
                             </td>
                             <td>
                                 @if (
-                                   (key == ConstantStrings.Draft && ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
+                                    (key == "MyRequests" && item.CurrentStatus.Equals(ConstantStrings.Draft))
+                                 || (key == ConstantStrings.Draft && ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
                                  || (key == "Finance" && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
                                  || (key == "WP" && ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
                                  || (key == "CFM" && ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
@@ -87,6 +98,9 @@
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.OriginatedDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LastEditedDate)
                             </td>
                             <td>
                                 @ViewBag.EncumbranceAmounts[item.GroupID]

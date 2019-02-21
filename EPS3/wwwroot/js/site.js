@@ -145,8 +145,6 @@ function initForms() {
 
     //Contract Types
     $("#ContractTypeSelector").blur(function (event, ui) {
-        // TODO: this method gets called correctly
-        // make it select the first suggested autocomplete item
         {
             var ctype = $('ul.ui-autocomplete li:first');
             $("#ContractTypeSelector").val(ctype.text);
@@ -296,7 +294,13 @@ function initForms() {
     });
 
     //Contract (for LineItemGroups/Manage)
-    $("#ContractSelector").autocomplete({
+    $("#ContractSelector").blur(function (event, ui) {
+        // if the value is "NEW" then open the Contract Dialog
+        var contractNumber = $("#ContractSelector").val().toUpperCase();
+        if (contractNumber === "NEW") {
+            openContractDialog();
+        }
+    }).autocomplete({
         source: function (request, response) {
             $.ajax({
                 autoFocus: true,
@@ -485,7 +489,7 @@ function addDialogs() {
 
 function showHideButtons() {
     //collapse panels if not Originator
-    if ($("#UserRoles").val().indexOf("Originator") < 0) {
+    if ($("#UserRoles").val() && $("#UserRoles").val().indexOf("Originator") < 0) {
         toggleEncumbrancePanel();
         toggleContractPanel();
     }
@@ -517,6 +521,7 @@ function showHideButtons() {
     if ((currentStatus === "Finance") && roles.indexOf("Finance Reviewer") >= 0) {
         $("#btnEncumbranceWP").val("Approve to Work Program");
         $("#btnEncumbranceWP").show();
+        $("#btnEncumbranceSaveAsIs").show();
         $("#btnEncumbranceRollback").val("Reject back to Originator");
         $("#btnEncumbranceRollback").show();
         return false;
@@ -524,6 +529,7 @@ function showHideButtons() {
     if ((currentStatus === "Work Program") && roles.indexOf("WP Reviewer") >= 0) {
         $("#btnEncumbranceFinance").val("Reject back to Finance");
         $("#btnEncumbranceFinance").show();
+        $("#btnEncumbranceSaveAsIs").show();
         $("#btnEncumbranceCFM").val("Approve to CFM");
         $("#btnEncumbranceCFM").show();
         return false;
@@ -531,12 +537,14 @@ function showHideButtons() {
     if ((currentStatus === "CFM") && roles.indexOf("CFM Submitter") >= 0) {
         $("#btnEncumbranceRollback").val("Reject back to Originator");
         $("#btnEncumbranceRollback").show();
+        $("#btnEncumbranceSaveAsIs").show();
         $("#btnEncumbranceComplete").val("Update to CFM Complete");
         $("#btnEncumbranceComplete").show();
         return false;
     }
     if ((currentStatus === "Complete") && roles.indexOf("Finance Reviewer") >= 0) {
         $("#btnEncumbranceRollback").show();
+        $("#btnEncumbranceSaveAsIs").show();
         return false;
     }
     $("#noButtonDiv").show();
@@ -558,17 +566,18 @@ function updateEncumbranceType() {
 
     displayLineItemsPanelOrMessage();
     setDefaultUserAssignedID();
+    if (encumbranceType === "New Contract" && (contractID === "" || contractID === 0)) {
+        openContractDialog();
+    }
 }
 
 function OpenCloseContractDialog() {
     var contractID = $("#ContractID").val();
     var contractNumber = $("#ContractSelector").val();
     var contractStatus = $("#ContractStatus").val();
-    var closureType = $("#ClosureType").val();
     var encumbranceType = $("#LineItemType").val();
     var encumbranceID = $("#LineItemGroupID").val();
-    var flairID = $("#FlairAmendmentID").val();
-    var titleText = "Request to Close Contract or Amendment";
+    var titleText = "Request to Close Contract";
     $("#CloseContractDialog").dialog({
         autoOpen: false,
         width: 600,
@@ -578,14 +587,11 @@ function OpenCloseContractDialog() {
         open: function (event, ui) {
             $("#ContractSelector").hide();
             $(this).html("");
-            var contents = "<p>You have selected " + closureType + ".</p>"
-            contents += "<p>Would you like to close this contract (" + contractNumber + ") or this Amendment (encumbrance request)? ";
-            contents += "<select id='ContractOrEncumbrance' name='ContractOrEncumbrance'> <option val='None' selected disabled>Select one...</option>";
-            contents += "<option val = 'Contract' > Contract</option > <option val='Amendment'>Amendment</option></select > ";
-            contents += "</p>";
-            contents += "<p>Flair Amendment ID: </p><p><input type='text' id='FlairID' name='FlairID' size='10' val='" + flairID + "' />";
-            contents += "</p>";
-            contents += "<p>I certify that the amounts being released are not required for current and future obligations. <br/>";
+            var contents = "<p>Please select a closure type: </p>"
+            contents += "<input type='radio' name='closureType' id='close50' style='align:left' />Close Status 50 ";
+            contents += "<input type='radio' name='closureType' id='close98' style='align:left' />Close Status 98 ";
+            contents += "<p>To remove line items from this Encumbrance Request, use the <strong>Delete</strong> link for that line in the <strong>Financial Information</strong> section of the form.</p>";
+            contents += "<p>I certify that the amounts being released are not required for current and future obligations. </p>";
             contents += "<input type='radio' name='amountsYesNo' id='amountsYes' />Yes ";
             contents += "<input type='radio' name='amountsYesNo'id='amountsNo'   />No  ";
             contents += "<input type='radio' name='amountsYesNo'id='amountsNA'   />N/A ";
@@ -615,8 +621,14 @@ function getClosingDetails() {
     // read all values from the dialog into the json string
     closeJson += "{";
     closeJson += '"ContractID": "' + $("#ContractID").val() + '",';
-    closeJson += '"ActionItemType":"' + $("#ActionItemType").val() + '",';
-    closeJson += "\"FlairID\":\"" + $("#FlairID").val() + '",';
+    var closureType = "";
+    if ($("#close50").is(":checked")) {
+        closureType = "CloseContract50";
+    }
+    if ($("#close50").is(":checked")) {
+        closureType = "CloseContract98";
+    }
+    closeJson += '"ActionItemType":"' + closureType + '",';
     var amountsYesNo = "";
     if ($("#amountsYes").is(":checked")) {
         amountsYesNo = "yes";
@@ -798,6 +810,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             $(this).html("");
             var defaultComment = "";
             var currentStatus = $("#CurrentStatus").val();
+            var notifyChecked = "checked";
             if (submitTo === "Draft") {
                 defaultComment = "Saved as Draft.";
             } else if (submitTo === "Finance") {
@@ -808,6 +821,10 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                 defaultComment = "Please review and input to CFM.";
             } else if (submitTo === "Complete") {
                 defaultComment = "";
+            }
+            if (submitTo === currentStatus) {
+                defaultComment = "";
+                notifyChecked = "";
             }
             // add a comment textarea
             var newStatusInput = "<input type= 'hidden' name='newStatus' id='newStatus' value = '" + submitTo + "' />";
@@ -820,7 +837,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                 $(this).append(receiptBox);
             } else {
             // add a checkbox to send a notification to the originator
-                var notifyOriginatorBox = "<input type='checkbox' id='notifyBox' name='notifyBox' checked /> Notify the originator of this update. <br />";
+                var notifyOriginatorBox = "<input type='checkbox' id='notifyBox' name='notifyBox' " + notifyChecked + " /> Notify the originator of this update. <br />";
                 $(this).append(notifyOriginatorBox);
             }
             // if CurrentStatus is Finance and submitTo is WorkProgram, add a set of checkboxes to select WP recipients
@@ -908,6 +925,16 @@ function addFileAttachment() {
     // close dialog and return focus to /Contracts/Edit
 }
 
+function toggleDiv(divID, linkID) {
+    $("#" + divID).toggle();
+    var linkText = $("#" + linkID).text();
+    if (linkText.indexOf("Collapse") > -1) {
+        linkText = linkText.replace("Collapse", "Expand");
+    } else if (linkText.indexOf("Expand") > -1) {
+        linkText = linkText.replace("Expand", "Collapse");
+    }
+    $("#" + linkID).text(linkText);
+}
 function toggleEncumbrance(header) {
     $("#groupHeader_" + header).nextUntil("tr.groupHeader").slideToggle(1000);
     var linkText = $("#toggleLink_" + header).text();
@@ -1266,11 +1293,11 @@ function openContractDialog() {
 }
 
 function openContractDialogExisting(id) {
-    url = "/LineItemGroups/NewContractPartial/" + id;
-    $('#ContractDialog').load(url, function () { initForms(); });
-    
     $("#ContractDialog").dialog("open");
     $("#ContractSelector").hide();
+
+    url = "/LineItemGroups/NewContractPartial/" + id;
+    $('#ContractDialog').load(url, function () { initForms(); });
 
     $("#ContractTypeSelector").autocomplete("option", "appendTo", "#ContractDialog");
     $("#VendorSelector").autocomplete("option", "appendTo", "#ContractDialog");
@@ -1546,7 +1573,8 @@ function getNewLineItemRow(lineItem) {
     var itemKey = "item_" + lineItem.LineItemID;
     var rowID = "row_" + itemKey;
     var tableText = "";
-    var FY = parseInt(FiscalYear.value);
+    var FY = parseInt(lineItem.FiscalYear.substr(0, 4)) + 1;
+ 
     if ((lineItem.OrgCode).indexOf("55-") < 0) { lineItem.OrgCode = "55-" + lineItem.OrgCode; }
     tableText += "<tr class='groupItem' id='" + rowID + "'>";
     tableText += "<td id='" + itemKey + "_LineItemNumber'>" + lineItem.LineItemNumber + "<input type='hidden' id='" + itemKey + "_LineItemID' value='" + lineItem.LineItemID + "'/> <br />";
@@ -1939,6 +1967,12 @@ function SaveEncumbrance(commentJson) {
     encumbrance.OriginatorUserID = $("#UserID").val();
     encumbrance.isEditable = 1;
     encumbrance.CurrentStatus = $("CurrentStatus").val();
+    if ($("AdvertisedDate").val()) {
+        encumbrance.AdvertisedDate = $("AdvertisedDate").val();
+    }
+    if ($("LettingDate").val()) {
+        encumbrance.LettingDate = $("LettingDate").val();
+    }
     if (!encumbrance.CurrentStatus) { encumbrance.CurrentStatus = 'Draft'; }
  
     var encumbranceType = $("#LineItemType").val();
@@ -2100,13 +2134,13 @@ function showHideNegativeAmountOptions() {
     var amount = $("#FinancialInformationFormPanel #Amount").val();
     if (!amount || amount >= 0) {
         // hide FlairAmendmentID and LineID6S in the LineItems form
-        $("#LineItemID6SCell").hide();
-        $("#LineItemFlairIDCell").hide();
+        $("#LineItemID6SCell").css('visibility', 'hidden');
+        $("#LineItemFlairIDCell").css('visibility', 'hidden');
         // TODO: hide File Attachment tool in the LineItems form
     } else {
         // show FlairAmendmentID and LineID6S in the LineItems form
-        $("#LineItemID6SCell").show();
-        $("#LineItemFlairIDCell").show();
+        $("#LineItemID6SCell").css('visibility', 'visible');
+        $("#LineItemFlairIDCell").css('visibility', 'visible');
         // TODO: show File Attachment tool in the LineItems form
     }
 }
@@ -2130,7 +2164,7 @@ function findMatchingContract() {
                     contractList += item.contractNumber + "(ID=" + item.contractID + "), ";
                 });
                 contractList = contractList.substr(0, contractList.length - 2);
-                if (contractList.length > 0) {
+                if (contractList.length > 0 && contractNumber.toUpperCase() != "NEW") {
                     showComment("At least one contract with th Contract Number " + contractNumber + " already exists." +
                         "\nYou may continue creating a new contract with the same number or close the Contract Dialog and select an existing contract.");
                 }
