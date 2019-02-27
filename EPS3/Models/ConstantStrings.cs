@@ -43,6 +43,7 @@ namespace EPS3.Models
         // status changes
         public const string NoChange = "NoChange";
         public const string DraftToFinance = "DraftToFinance";
+        public const string DraftToCFM = "DraftToCFM";
         public const string FinanceToDraft = "FinanceToDraft";
         public const string CFMToDraft = "CFMToDraft";
         public const string FinanceToWP = "FinanceToWP";
@@ -64,6 +65,8 @@ namespace EPS3.Models
         public const string Correction = "Correction";
         public const string Emergency = "Emergency";
         public const string FastResponse = "Response";
+        public const string Close50 = "Close Status 50";
+        public const string Close98 = "Close Status 98";
         public static string LookupConstant(string Constant)
         {
             switch (Constant)
@@ -120,6 +123,8 @@ namespace EPS3.Models
             typeList.Add(new SelectListItem { Text = "Overrun", Value = Overrun });
             typeList.Add(new SelectListItem { Text = "Settlement", Value = Settlement });
             typeList.Add(new SelectListItem { Text = "Correction", Value = Correction });
+            typeList.Add(new SelectListItem { Text = "Close 50", Value = Close50 });
+            typeList.Add(new SelectListItem { Text = "Close 98", Value = Close98 });
             // typeList.Add(new SelectListItem { Text = "Emergency", Value = Emergency });
             // typeList.Add(new SelectListItem { Text = "Fast Response", Value = FastResponse });
             return typeList;

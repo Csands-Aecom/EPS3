@@ -326,7 +326,7 @@ function initForms() {
                         $("#ContractID").val(lastID);
                         // show the ContractPanel
                         if ($("#ContractPanel")) {
-                            showContractPanel(ui.item.ContractID);
+                            showContractPanel(lastID);
                         }
                         if ($("#LineItemsPanel")) {
                             displayLineItemsPanelOrMessage();
@@ -509,13 +509,20 @@ function showHideButtons() {
 
     // depending on CurrentStatus and Roles, enable appropriate buttons
     var currentStatus = $("#CurrentStatus").val();
+    var encumbranceType = $("#LineItemType").val()
     var roles = $("#UserRoles").val();
 
     if ((currentStatus === "New" || currentStatus === "Draft") && roles.indexOf("Originator") >= 0) {
         $("#btnEncumbranceDraft").val("Save as Draft");
         $("#btnEncumbranceDraft").show();
-        $("#btnEncumbranceFinance").val("Submit to Finance");
-        $("#btnEncumbranceFinance").show();
+        //if Encumbrance Type is Close50 or Close98 then submit directly to CFA Ready
+        if (encumbranceType.indexOf("Close")>=0) {
+            $("#btnEncumbranceCFM").val("Submit for CFM Input");
+            $("#btnEncumbranceCFM").show();
+        } else {
+            $("#btnEncumbranceFinance").val("Submit to Finance");
+            $("#btnEncumbranceFinance").show();
+        }
         return false;
     }
     if ((currentStatus === "Finance") && roles.indexOf("Finance Reviewer") >= 0) {
@@ -571,13 +578,8 @@ function updateEncumbranceType() {
     }
 }
 
-function OpenCloseContractDialog() {
-    var contractID = $("#ContractID").val();
-    var contractNumber = $("#ContractSelector").val();
-    var contractStatus = $("#ContractStatus").val();
-    var encumbranceType = $("#LineItemType").val();
-    var encumbranceID = $("#LineItemGroupID").val();
-    var titleText = "Request to Close Contract";
+function OpenCloseContractDialog(contractID, contractNumber, contractStatus) {
+    var titleText = "Request to Close Contract " + contractNumber;
     $("#CloseContractDialog").dialog({
         autoOpen: false,
         width: 600,
@@ -588,16 +590,17 @@ function OpenCloseContractDialog() {
             $("#ContractSelector").hide();
             $(this).html("");
             var contents = "<p>Please select a closure type: </p>"
-            contents += "<input type='radio' name='closureType' id='close50' style='align:left' />Close Status 50 ";
-            contents += "<input type='radio' name='closureType' id='close98' style='align:left' />Close Status 98 ";
+            contents += "<input type='radio' name='closureType' id='close50' />Close Status 50 <br />";
+            contents += "<input type='radio' name='closureType' id='close98' />Close Status 98 <br />";
             contents += "<p>To remove line items from this Encumbrance Request, use the <strong>Delete</strong> link for that line in the <strong>Financial Information</strong> section of the form.</p>";
             contents += "<p>I certify that the amounts being released are not required for current and future obligations. </p>";
             contents += "<input type='radio' name='amountsYesNo' id='amountsYes' />Yes ";
-            contents += "<input type='radio' name='amountsYesNo'id='amountsNo'   />No  ";
-            contents += "<input type='radio' name='amountsYesNo'id='amountsNA'   />N/A ";
+            contents += "<input type='radio' name='amountsYesNo' id='amountsNo'  />No  ";
+            contents += "<input type='radio' name='amountsYesNo' id='amountsNA'  />N/A ";
             contents += "</p>";
             contents += "Comments: <br/>";
             contents += "<input type='textarea' name='ClosureComments' id='ClosureComments' />";
+            contents += "<input type='hidden' name='CloseContractID' id='CloseContractID' value='" + contractID + "'>";
             $(this).html(contents);
         },
         buttons: {
@@ -620,12 +623,12 @@ function getClosingDetails() {
     var closeJson = "";
     // read all values from the dialog into the json string
     closeJson += "{";
-    closeJson += '"ContractID": "' + $("#ContractID").val() + '",';
+    closeJson += '"ContractID": "' + $("#CloseContractID").val() + '",';
     var closureType = "";
     if ($("#close50").is(":checked")) {
         closureType = "CloseContract50";
     }
-    if ($("#close50").is(":checked")) {
+    if ($("#close98").is(":checked")) {
         closureType = "CloseContract98";
     }
     closeJson += '"ActionItemType":"' + closureType + '",';
@@ -644,7 +647,7 @@ function getClosingDetails() {
     closeJson += '"LineItemGroupID":"' + $("#LineItemGroupID").val() + '",';
     closeJson += '"Comments":"' + $("#ClosureComments").val() + '",';
     closeJson += "\"ClosureType\":\"" + $("#ClosureType").val() + "\",";
-    closeJson += "\"ContractOrEncumbrance\":\"" + $("#ContractOrEncumbrance").val() + "\",";
+    closeJson += "\"ContractOrEncumbrance\":\"" + "Contract" + "\",";
     //closeJson += "\"LineItemGroupID\":\"" + $("#LineItemGroupID").val() + "\",";
     closeJson += "}";
     // return the json string
@@ -1612,7 +1615,8 @@ function getNewLineItemRow(lineItem) {
     tableText += "<input type='hidden' id='FY_" + lineItem.LineItemID + "' name='FY_" + lineItem.LineItemID + "' value=" + lineItem.FiscalYear + "'>";
     tableText += "<span id='FYWarning_" + lineItem.LineItemID + "' name='FYWarning_" + lineItem.LineItemID + "' class='FYWarning' style=\"display: none\" title='This item occurs after the ending date of the contract.'>*</span>";
     tableText +=  "</td>";
-    tableText += "<td>" + lineItem.Amount.toLocaleString() + "<input type='hidden' id='" + itemKey + "_Amount' value='" + lineItem.Amount + "'/>";
+    lineItem.Amount = parseFloat(lineItem.Amount.replace(",", "").replace("$", "").replace("(", "-").replace(")", ""));
+    tableText += "<td>" + lineItem.Amount + "<input type='hidden' id='" + itemKey + "_Amount' value='" + lineItem.Amount + "'/>";
 
     //fixes to lineItem before stringifying
     lineItem.FiscalYear = FY;
@@ -1634,7 +1638,7 @@ function getNewLineItemRow(lineItem) {
     StateProgram.StateProgramID = lineItem.StateProgramID;
     lineItem.StateProgram = StateProgram;
     lineItem.ExpansionObject = lineItem.EO;
-    lineItem.Amount = parseFloat(lineItem.Amount.replace(",", "").replace("$", ""));
+    //lineItem.Amount = parseFloat(lineItem.Amount.replace(",", "").replace("$", "").replace("(","-").replace(")",""));
     lineItem.Comments = lineItem.Comments.replace(/'/g,"&#39;");
     lineItem.LineNumber = lineItem.LineItemNumber;
     var jsonString = JSON.stringify(lineItem);
@@ -1666,6 +1670,7 @@ function formatDecimal(amount) {
     //    minimumFractionDigits: 2,
     //});
     //return formatter.format(amount);
+    if (amount === null) { return 0.00; }
     if (typeof (amount) === "string") {
         nAmount = parseFloat(amount)
     } else {
@@ -2051,9 +2056,9 @@ function setEncumbranceTotal() {
     var encumbranceTotal = formatCurrency(total);
     $("#EncumbranceTotal").html("<strong>Encumbrance Total: </strong>" + encumbranceTotal);
     $("#EncumbranceTotalAmount").html("<strong>Encumbrance Total: </strong>" + encumbranceTotal);
-    if (total > 0) {
+    //if (total > 0) {
         $("#EncHeaderEncAmount").html("Amount: <h4>" + encumbranceTotal + "</h4>");
-    }
+    //}
     var budgetCeiling = $("#BudgetCeiling").val();
     var compensation = $("#Compensation").val();
     var toggle = "hide";

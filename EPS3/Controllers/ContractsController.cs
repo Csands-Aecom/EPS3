@@ -106,6 +106,7 @@ namespace EPS3.Controllers
 
                 Dictionary<int, decimal> groupAmounts = new Dictionary<int, decimal>();
                 decimal contractAmount = 0.0m;
+                Boolean canBeClosed = !contract.CurrentStatus.Contains("Closed");
                 foreach (LineItemGroup encumbrance in lineItemGroups)
                 {
                     decimal groupAmount = 0.0m;
@@ -115,7 +116,14 @@ namespace EPS3.Controllers
                     }
                     groupAmounts.Add(encumbrance.GroupID, groupAmount);
                     contractAmount += groupAmount;
+
+                    // check if all line item groups can be closed
+                    if (!encumbrance.CurrentStatus.Contains(ConstantStrings.CFMComplete) && !encumbrance.CurrentStatus.Contains("Closed"))
+                    {
+                        canBeClosed = false;
+                    }
                 }
+                ViewBag.CanClose = canBeClosed;
                 ViewBag.GroupAmounts = groupAmounts;
                 ViewBag.ContractAmount = contractAmount;
             }

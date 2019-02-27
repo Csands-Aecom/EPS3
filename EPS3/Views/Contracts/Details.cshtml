@@ -13,6 +13,11 @@
                 Contract - @Html.DisplayFor(model => model.Contract.ContractNumber)
             </h3>
             <a href="javascript:toggleDiv('contractPanelBody','contractPanelBodyToggleLink')" id="contractPanelBodyToggleLink">Collapse</a>
+            @if(@ViewBag.CanClose != null && @ViewBag.CanClose == true)
+            {
+                <a href="javascript:OpenCloseContractDialog(@Model.Contract.ContractID, '@Model.Contract.ContractNumber', '@Model.Contract.CurrentStatus')">Close this contract</a>
+                <div id="CloseContractDialog" name="CloseContractDialog"></div>
+            }
         </div>
         <div class="panel-body" id="contractPanelBody" name="contractPanelBody">
             <div class="row">
@@ -160,7 +165,7 @@
     <div>
         @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
       || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-      || (ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID))
+      || ViewBag.Roles.Contains(ConstantStrings.Originator))
         {
             <a asp-action="Edit" asp-route-id="@Model.Contract.ContractID">Edit Contract Information</a>
         }
@@ -200,137 +205,150 @@
         </div>
         <div class="panel-body" id="encumbrancePanelBody_@encumbrance.GroupID" name="encumbrancePanelBody_@encumbrance.GroupID">
             <div class="row">
-                <a href="javascript:toggleDiv('encumbranceHistory_@encumbrance.GroupID','encumbranceHistoryToggleLink_@encumbrance.GroupID')" id="encumbranceHistoryToggleLink_@encumbrance.GroupID">Collapse</a>
                 <div class="col-sm-12" id="encumbranceHistory_@encumbrance.GroupID" name="encumbranceHistory_@encumbrance.GroupID">
                 <h4>History</h4>
-                <table>
-                    <tr>
-                        <th>
-                            Date
-                        </th>
-                        <th>
-                            Commenter
-                        </th>
-                        <th>
-                            Status
-                        </th>
-                        <th>
-                            Comment
-                        </th>
-                    </tr>
-                    @foreach (LineItemGroupStatus status in encumbrance.Statuses) {
-                    <tr>
-                        <td>
-                            @status.SubmittalDate
-                        </td>
-                        <td>
-                            @status.User.FullName
-                        </td>
-                        <td>
-                            @status.CurrentStatus
-                        </td>
-                        <td>
-                            @status.Comments
-                        </td>
-                    </tr>
+                    @if (encumbrance.Statuses == null || encumbrance.Statuses.Count < 1)
+                    {
+                        <p>No history available for this encumbrance request.</p>
                     }
-                </table>
+                    else
+                    {
+                    <a href="javascript:toggleDiv('encumbranceHistoryTable_@encumbrance.GroupID','encumbranceHistoryToggleLink_@encumbrance.GroupID')" id="encumbranceHistoryToggleLink_@encumbrance.GroupID">Collapse</a>
+                    <div id="encumbranceHistoryTable_@encumbrance.GroupID" name="encumbranceHistoryTable_@encumbrance.GroupID">
+                    <table>
+                        <tr>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Commenter
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Comment
+                            </th>
+                        </tr>
+                        @foreach (LineItemGroupStatus status in encumbrance.Statuses)
+                        {
+                        <tr>
+                            <td>
+                                @status.SubmittalDate
+                            </td>
+                            <td>
+                                @status.User.FullName
+                            </td>
+                            <td>
+                                @status.CurrentStatus
+                            </td>
+                            <td>
+                                @status.Comments
+                            </td>
+                        </tr>
+                        }
+                    </table>
+                    </div>
+                    }
                 </div>
             </div>
         </div>
-        <a href="javascript:toggleDiv('lineItemsPanel_@encumbrance.GroupID','lineItemsToggleLink_@encumbrance.GroupID')" id="lineItemsToggleLink_@encumbrance.GroupID">Collapse</a>
         <div class="panel-body" id="lineItemsPanel_@encumbrance.GroupID" name="lineItemsPanel_@encumbrance.GroupID">
-            <div class="col-sm-12">
-                <table class="table table-striped table-bordered" id="lineItemTable" style="width: 100%">
-                    <thead>
-                        <tr>
-                            <th>
-                                <label for="OrgCode">Organization Code</label>
-                            </th>
-                            <th>
-                                <label for="ExpansionObject">Expansion Option</label>
-                            </th>
-                            <th>
-                                <label for="FlairObject">Object Code</label>
-                            </th>
-                            <th>
-                                <label for="Amount">Amount</label>
-                            </th>
-                            <th>
-                                <label for="FinancialProjectNumber">Fin Proj #</label>
-                            </th>
-                            <th>
-                                <label for="WorkActivity">Work Activity</label>
-                            </th>
-                            <th>
-                                <label for="Category">Category</label>
-                            </th>
-                            <th>
-                                <label for="OCA">OCA</label>
-                            </th>
-                            <th>
-                                <label for="StateProgram">State Program</label>
-                            </th>
-                            <th>
-                                <label for="FiscalYear">Fiscal Year</label>
-                            </th>
-                            <th>
-                                <label for="Fund">Fund</label>
-                            </th>
-                            <th>
-                                &nbsp;
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                            @foreach (LineItem item in encumbrance.LineItems)
-                            {
+            <div class="row">
+                <div class="col-sm-12">
+                    <h4>Financial Information</h4>
+                    <a href="javascript:toggleDiv('lineItemsTable_@encumbrance.GroupID','lineItemsToggleLink_@encumbrance.GroupID')" id="lineItemsToggleLink_@encumbrance.GroupID">Collapse</a>
+                    <table class="table table-striped table-bordered" id="lineItemsTable_@encumbrance.GroupID" name="lineItemsTable_@encumbrance.GroupID" style="width: 100%">
+                        <thead>
                             <tr>
-                                <td>
-                                    <span id="OrgCode" name="OrgCode">55-@item.OrgCode</span>
-                                </td>
-                                <td>
-                                    <span id="ExpansionObject" name="ExpansionObject">@item.ExpansionObject</span>
-                                </td>
-                                <td>
-                                    <span id="FlairObject" name="FlairObject">@item.FlairObject</span>
-                                </td>
-                                <td>
-                                    <span id="Amount" name="Amount">@item.Amount.ToString("C")</span>
-                                </td>
-                                <td>
-                                    <span id="FinancialProjectNumber" name="FinancialProjectNumber">@item.FinancialProjectNumber</span>
-                                </td>
-                                <td>
-                                    <span id="WorkActivity" name="WorkActivity">@item.WorkActivity</span>
-                                </td>
-                                <td>
-                                    <span id="Category" name="Category">@item.Category.CategorySelector</span>
-                                </td>
-                                <td>
-                                    <span id="OCA" name="OCA">@item.OCA.OCASelector</span>
-                                </td>
-                                <td>
-                                    <span id="StateProgram" name="StateProgram">@item.StateProgram.ProgramSelector</span>
-                                </td>
-                                <td>
-                                    <span id="FiscalYear" name="FiscalYear">@item.FiscalYear</span>
-                                </td>
-                                <td>
-                                    <span id="Fund" name="Fund">@item.Fund.FundSelector</span>
-                                </td>
-                                <td>
-                                    @if ((ViewBag.Roles.Contains(ConstantStrings.Originator) 
-		                              && @ViewBag.CurrentUser.UserID == Model.Contract.UserID)
-	                                  && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
-                                    {
-                                        <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a> <br />
-                                    }
-                                </td>
+                                <th>
+                                    <label for="OrgCode">Organization Code</label>
+                                </th>
+                                <th>
+                                    <label for="ExpansionObject">Expansion Option</label>
+                                </th>
+                                <th>
+                                    <label for="FlairObject">Object Code</label>
+                                </th>
+                                <th>
+                                    <label for="Amount">Amount</label>
+                                </th>
+                                <th>
+                                    <label for="FinancialProjectNumber">Fin Proj #</label>
+                                </th>
+                                <th>
+                                    <label for="WorkActivity">Work Activity</label>
+                                </th>
+                                <th>
+                                    <label for="Category">Category</label>
+                                </th>
+                                <th>
+                                    <label for="OCA">OCA</label>
+                                </th>
+                                <th>
+                                    <label for="StateProgram">State Program</label>
+                                </th>
+                                <th>
+                                    <label for="FiscalYear">Fiscal Year</label>
+                                </th>
+                                <th>
+                                    <label for="Fund">Fund</label>
+                                </th>
+                                <th>
+                                    &nbsp;
+                                </th>
                             </tr>
-                            }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (LineItem item in encumbrance.LineItems)
+            {
+                <tr>
+                    <td>
+                        <span id="OrgCode" name="OrgCode">55-@item.OrgCode</span>
+                    </td>
+                    <td>
+                        <span id="ExpansionObject" name="ExpansionObject">@item.ExpansionObject</span>
+                    </td>
+                    <td>
+                        <span id="FlairObject" name="FlairObject">@item.FlairObject</span>
+                    </td>
+                    <td>
+                        <span id="Amount" name="Amount">@item.Amount.ToString("C")</span>
+                    </td>
+                    <td>
+                        <span id="FinancialProjectNumber" name="FinancialProjectNumber">@item.FinancialProjectNumber</span>
+                    </td>
+                    <td>
+                        <span id="WorkActivity" name="WorkActivity">@item.WorkActivity</span>
+                    </td>
+                    <td>
+                        <span id="Category" name="Category">@item.Category.CategorySelector</span>
+                    </td>
+                    <td>
+                        <span id="OCA" name="OCA">@item.OCA.OCASelector</span>
+                    </td>
+                    <td>
+                        <span id="StateProgram" name="StateProgram">@item.StateProgram.ProgramSelector</span>
+                    </td>
+                    <td>
+                        <span id="FiscalYear" name="FiscalYear">@item.FiscalYear</span>
+                    </td>
+                    <td>
+                        <span id="Fund" name="Fund">@item.Fund.FundSelector</span>
+                    </td>
+                    <td>
+                        @if ((ViewBag.Roles.Contains(ConstantStrings.Originator)
+         && @ViewBag.CurrentUser.UserID == Model.Contract.UserID)
+         && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
+        {
+                <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a> <br />
+}
+                    </td>
+                </tr>
+}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

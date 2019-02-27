@@ -55,11 +55,11 @@ namespace EPS3.Helpers
 
             if (!updateType.Equals(ConstantStrings.NoChange))
             {
-                
+
                 switch (updateType)
                 {
                     case ConstantStrings.DraftToFinance:
-                        msg.Subject = "Encumbrance Request# " +  encumbrance.GroupID +  " for contract " + contract.ContractNumber + " has been submitted for Finance Review";
+                        msg.Subject = "Encumbrance Request# " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been submitted for Finance Review";
                         msg.Body = "<p>Please process the following encumbrance request: ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " in the amount of $" + encumbranceTotal + ".</p>\n";
 
                         if (comments != null && comments.Length > 0)
@@ -68,7 +68,28 @@ namespace EPS3.Helpers
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
                         // Send only to TPK Encumbrance mailbox
-                        recipientIDs = (List<int>) _context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
+                        recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
+                        break;
+                    case ConstantStrings.DraftToCFM:
+                        msg.Subject = "Encumbrance Request# " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " for " + encumbrance.LineItemType;
+                        msg.Body = "<p>Please input the following encumbrance into CFM: request ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + ".</p>\n";
+                        //msg.Body += "in the amount of $" + encumbranceTotal + " applied to Amendment " + encumbrance.FlairAmendmentID + " Line " + encumbrance.LineID6S + ".";
+                        if (encumbrance.LineItems != null && encumbrance.LineItems.Count > 0) {
+                            string tblText = "<table><tr><th>Contract</th><th>Amendment</th><th>Line (6s)</th><th>Amount</th></tr>";
+                            foreach (LineItem item in encumbrance.LineItems)
+                            {
+                                tblText += "<tr><td>" + contract.ContractNumber + "</td><td>" + item.FlairAmendmentID + "</td><td>" + item.LineID6S + "</td><td>$" + item.Amount + "</td></tr>";
+                            }
+                            tblText += "</table> <br/>";
+                            msg.Body += tblText;
+                        }
+                        if (comments != null && comments.Length > 0)
+                        { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
+                        msg.Body += GetStatusComments(encumbrance);
+                        msg.Body += "<p>View this encumbrance request in the <a href='" + contractViewURL + "'>" +
+                            "EPS Application</a>.</p>";
+                        // Send only to TPK Encumbrance mailbox
+                        recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
                         break;
                     case ConstantStrings.FinanceToDraft:
                     case ConstantStrings.CFMToDraft:

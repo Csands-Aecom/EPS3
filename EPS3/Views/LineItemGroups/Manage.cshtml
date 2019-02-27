@@ -7,16 +7,24 @@
 <p>&nbsp;</p>
     <div class="panel panel-default" id="EncumbrancePanel" name="EncumbrancePanel">
         <div class="panel-heading sticky header" id="EncumbrancePanelHeading" name="EncumbrancePanelHeading">
-            @if (Model != null && Model.GroupID > 0)
-            {
-                <h3>Encumbrance Request</h3>
-            }
-            else { 
-                <h3>New Encumbrance Request</h3>
-            }
-            @{ var groupID = (Model != null && Model.GroupID > 0) ? Model.GroupID : 0;
-                <input type="hidden" id="LineItemGroupID" name="LineItemGroupID" value="@groupID" />
-            }
+
+        @if (Model != null && Model.GroupID > 0)
+        {
+            <h3>Encumbrance Request</h3>
+        }
+        else
+        {
+            <h3>New Encumbrance Request</h3>
+        }
+        @{ var groupID = (Model != null && Model.GroupID > 0) ? Model.GroupID : 0;
+            <input type="hidden" id="LineItemGroupID" name="LineItemGroupID" value="@groupID" />
+        }
+        @if (ViewBag.AwardBanner != null && ViewBag.AwardBanner == true)
+        {
+            <div class="float-right alert">
+                Please update the Contract Vendor and awarded amounts for this Contract Award.
+            </div>
+        }
         <div class="row">
             <div class="col-sm-1">
                 <span id="EncumbranceToggleDiv" name="EncumbranceToggleDiv"><a href="javascript:toggleEncumbrancePanel()">Collapse</a></span>
@@ -25,9 +33,9 @@
             </div>
             <div class="col-sm-2">
                 <span id="EncHeaderContract"></span>
-                @if(ViewBag.ActionItemTypes != null)
+                @if (ViewBag.ActionItemTypes != null)
                 {
-                    <br /><a href="javascript:OpenCloseContractDialog()">Close this contract</a>
+                    <br /><a href="javascript:OpenCloseContractDialog(@ViewBag.Contract.ContractID, @ViewBag.Contract.ContractNumber, @ViewBag.Contract.CurrentStatus)">Close this contract</a>
                 }
             </div>
             <div class="col-sm-2">
@@ -43,18 +51,18 @@
                 <span id="EncHeaderEncAmount"></span>
             </div>
         </div> <!-- end row -->
-        </div> <!-- end panel heading -->
-        <div class="panel-body" id="EncumbrancePanelBody" name="EncumbrancePanelBody">
-            <div class="row">
-                <br />
-                <br />
-                <br />
-            </div> <!-- end row -->
-            @if (Model == null
-            || (@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
-            || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-            || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
-            {
+    </div> <!-- end panel heading -->
+    <div class="panel-body" id="EncumbrancePanelBody" name="EncumbrancePanelBody">
+        <div class="row">
+            <br />
+            <br />
+            <br />
+        </div> <!-- end row -->
+        @if (Model == null
+       || (@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
+       || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+       || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
+        {
             <div class="row">
                 <div class="col-sm-3">
                     <dl>
@@ -63,18 +71,18 @@
                             <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract from the list of options."></span>
                         </dt>
                         <dd>
-                    @if (ViewBag.ContractID > 0)
-                    {
-                        <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
-                        <input type="hidden" id="ContractStatus" name="ContractStatus" value="@ViewBag.Contract.CurrentStatus" />
-                        <input type="text" style="text-transform:uppercase" id="ContractSelector" name="ContractSelector" value="@ViewBag.Contract.ContractNumber" />
-                    }
-                    else
-                    {
-                        <input type="hidden" id="ContractID" name="ContractID" />
-                        <input type="hidden" id="ContractStatus" name="ContractStatus" />
-                        <input type="text" id="ContractSelector" name="ContractSelector" />
-                    }
+                            @if (ViewBag.ContractID > 0)
+                            {
+                                <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
+                                <input type="hidden" id="ContractStatus" name="ContractStatus" value="@ViewBag.Contract.CurrentStatus" />
+                                <input type="text" style="text-transform:uppercase" id="ContractSelector" name="ContractSelector" value="@ViewBag.Contract.ContractNumber" />
+                            }
+                            else
+                            {
+                                <input type="hidden" id="ContractID" name="ContractID" />
+                                <input type="hidden" id="ContractStatus" name="ContractStatus" />
+                                <input type="text" id="ContractSelector" name="ContractSelector" />
+                            }
                         </dd>
                         <dt id="OpenContractInformationDiv">
                             Or
@@ -89,27 +97,27 @@
                         </dt>
                         <dd>
                             <!-- Encumbrance Request Status record-->
-                        @if (ViewBag.LineItemTypes != null)
-                        {
-                            <select id="LineItemType" name="LineItemType" onchange="updateEncumbranceType();">
-                            @foreach (SelectListItem itemType in ViewBag.LineItemTypes)
+                            @if (ViewBag.LineItemTypes != null)
                             {
-                                if (Model != null && Model.LineItemType != null && itemType.Value.Equals(Model.LineItemType))
-                                {
-                                    <option value="@itemType.Value" selected> @itemType.Text </option>
-                                }
-                                else
-                                {
-                                <option value="@itemType.Value"> @itemType.Text </option>
-                                }
+                                <select id="LineItemType" name="LineItemType" onchange="updateEncumbranceType();">
+                                    @foreach (SelectListItem itemType in ViewBag.LineItemTypes)
+                                    {
+                                        if (Model != null && Model.LineItemType != null && itemType.Value.Equals(Model.LineItemType))
+                                        {
+                                            <option value="@itemType.Value" selected> @itemType.Text </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@itemType.Value"> @itemType.Text </option>
+                                        }
+                                    }
+                                </select>
+                                @Html.ValidationMessageFor(model => model.LineItemType, "An encumbrance type is required.")
                             }
-                            </select>
-                            @Html.ValidationMessageFor(model => model.LineItemType, "An encumbrance type is required.")
-                        }
-                        else
-                        {
-                            @Html.DisplayFor(model => model.LineItemType)
-                        }
+                            else
+                            {
+                                @Html.DisplayFor(model => model.LineItemType)
+                            }
                             <br />
                             <div name="NewEndDateDiv" class="input-group date hidden">
                                 <input type="text" name="NewEndDate" id="NewEndDate" class="datepicker" />
@@ -119,215 +127,217 @@
                                     </label>
                                 </span>
                             </div>
-                            </dd>
-                        </dl>
-                    </div> <!-- end col-->
-                    <div class="col-sm-2">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.UserAssignedID)
-                            </dt>
-                            <dd>
-                                @Html.TextBoxFor(model => model.UserAssignedID)
-                            </dd>
-                        </dl>
-                        <dl id="AdvertisementAdDate" name="AdvertisementAdDate" style="@(Model != null && Model.LineItemType != null && Model.LineItemType == ConstantStrings.Advertisement) ? 'visibility:visible' : 'visibility: hidden'">
-                            <dt>
-                                @Html.DisplayNameFor(model => model.AdvertisedDate)
-                            </dt>
-                            <dd>
-                                <div class="input-group date">
-                                    @Html.TextBoxFor(model => model.AdvertisedDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
-                                    <span class="input-group-addon">
-                                        <label for="AdvertisedDate">
-                                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
-                                        </label>
-                                    </span>
-                                </div>
-                            </dd>
-                        </dl>
-                        <dl id="AdvertisementLetDate" name="AdvertisementLetDate" style="@(Model != null && Model.LineItemType != null && Model.LineItemType == ConstantStrings.Advertisement) ? 'visibility:visible' : 'visibility: hidden'">
-                            <dt>
-                                @Html.DisplayNameFor(model => model.LettingDate)
-                            </dt>
-                            <dd>
-                                <div class="input-group date">
-                                    @Html.TextBoxFor(model => model.LettingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
-                                    <span class="input-group-addon">
-                                        <label for="LettingDate">
-                                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
-                                        </label>
-                                    </span>
-                                </div>
-                            </dd>
-                        </dl>
-                    </div> <!-- end col-->
-                    <div class="col-sm-3">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.FlairAmendmentID)
-                            </dt>
-                            <dd>
-                                @Html.TextBoxFor(model => model.FlairAmendmentID)
-                            </dd>
-                        </dl>
-                    </div> <!-- end col-->
-                </div> <!-- end row-->
-                <div class="row">
-                    <div class="col-sm-4">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.Description)
-                            </dt>
-                            <dd>
-                                @Html.TextAreaFor(model => model.Description, new { style = "width:100%" })
-                            </dd>
-                        </dl>
-                    </div> <!-- end col-->
-                    <div class="col-sm-3" id="AmendedIDDiv" style="display: none">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.AmendedLineItemID)
-                            </dt>
-                            <dd>
-                                @Html.TextBoxFor(model => model.AmendedLineItemID)
-                            </dd>
-                        </dl>
-                    </div> <!-- end col-->
-                </div> <!-- end row-->
-                }
-                else
-                {
-                <div class="row">
-                    <div class="col-sm-3">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.Contract.ContractNumber)
-                            </dt>
-                            <dd>
-                                <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
-                                @ViewBag.Contract.ContractNumber
-                            </dd>
-                        </dl>
-                    </div> <!-- end col-->
-                    <div class="col-sm-3">
-                        <dl>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.LineItemType)
-                            </dt>
-                            <dd>
-                                @Html.HiddenFor(model => model.LineItemType)
-                                @Html.DisplayFor(model => model.LineItemType)
-                            </dd>
-                        </dl>
-                    </div> <!-- end col-->
-                    <div class="col-sm-2">
-                @if (Model.UserAssignedID != null)
-                {
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+                <div class="col-sm-2">
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.UserAssignedID)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.UserAssignedID)
+                            @Html.TextBoxFor(model => model.UserAssignedID)
                         </dd>
                     </dl>
-                }
-                @if (Model.AdvertisedDate != null)
-                {
-                    <dl>
+                    <dl id="AdvertisementAdDate" name="AdvertisementAdDate" style="@(Model != null && Model.LineItemType != null && Model.LineItemType == ConstantStrings.Advertisement) ? 'visibility:visible' : 'visibility: hidden'">
                         <dt>
                             @Html.DisplayNameFor(model => model.AdvertisedDate)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.AdvertisedDate, "{0:MM/dd/yyyy}")
+                            <div class="input-group date">
+                                @Html.TextBoxFor(model => model.AdvertisedDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
+                                <span class="input-group-addon">
+                                    <label for="AdvertisedDate">
+                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                    </label>
+                                </span>
+                            </div>
                         </dd>
                     </dl>
-                }
-                @if (Model.LettingDate != null)
-                {
-                    <dl>
+                    <dl id="AdvertisementLetDate" name="AdvertisementLetDate" style="@(Model != null && Model.LineItemType != null && Model.LineItemType == ConstantStrings.Advertisement) ? 'visibility:visible' : 'visibility: hidden'">
                         <dt>
                             @Html.DisplayNameFor(model => model.LettingDate)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.LettingDate, "{0:MM/dd/yyyy}")
+                            <div class="input-group date">
+                                @Html.TextBoxFor(model => model.LettingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
+                                <span class="input-group-addon">
+                                    <label for="LettingDate">
+                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                    </label>
+                                </span>
+                            </div>
                         </dd>
                     </dl>
-                }
-                    </div> <!-- end col-->
-                    <div class="col-sm-3">
-                @if (Model.FlairAmendmentID != null && Model.FlairAmendmentID.Length > 0)
-                {
+                </div> <!-- end col-->
+                <div class="col-sm-3">
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.FlairAmendmentID)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.FlairAmendmentID)
+                            @Html.TextBoxFor(model => model.FlairAmendmentID)
                         </dd>
                     </dl>
-                }
-                    </div> <!-- end col-->
-                </div> <!-- end row-->
-                <div class="row">
-                    <div class="col-sm-3" id="AmendedIDDiv" style="display: none">
-                @if (Model.AmendedLineItemID != null && Model.AmendedLineItemID.Length > 0)
-                {
-                    <dl>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.AmendedLineItemID)
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.AmendedLineItemID)
-                        </dd>
-                    </dl>
-                }
-                    </div> <!-- end col-->
-                    <div class="col-sm-4">
-                @if (Model.Description != null && Model.Description.Length > 0)
-                {
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+            <div class="row">
+                <div class="col-sm-4">
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.Description)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.Description)
+                            @Html.TextAreaFor(model => model.Description, new { style = "width:100%" })
                         </dd>
                     </dl>
-                }
-                    </div> <!-- end col-->
-                </div> <!-- end row-->
-                }
-                <div class="row">
-                    <div class="col-sm-3">
-                        <span id="saveEncumbranceLink" name="saveEncumbranceLink">
-                            <input type="button" class=" btn btn-default" id="btnInputFinancialInformation" value="Input Financial Information" onclick="javascript:SaveInitialEncumbrance();" />
-                        </span>
-                    </div>
-                    @if (Model != null && ViewBag.Contract != null && ViewBag.Contract.User != null) {
-                    <div class="float-right align-top paddingright">
-                        <strong>Originator:</strong> <a href="mailto:@ViewBag.Contract.User.Email">@ViewBag.Contract.User.FirstName @ViewBag.Contract.User.LastName</a> (@ViewBag.Contract.User.UserLogin) @ViewBag.Contract.User.Phone<br />
-                        @ViewBag.Contract.CreatedDate.ToShortDateString()
-                    </div>
+                </div> <!-- end col-->
+                <div class="col-sm-3" id="AmendedIDDiv" style="display: none">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.AmendedLineItemID)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.AmendedLineItemID)
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.Contract.ContractNumber)
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
+                            @ViewBag.Contract.ContractNumber
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.LineItemType)
+                        </dt>
+                        <dd>
+                            @Html.HiddenFor(model => model.LineItemType)
+                            @Html.DisplayFor(model => model.LineItemType)
+                        </dd>
+                    </dl>
+                </div> <!-- end col-->
+                <div class="col-sm-2">
+                    @if (Model.UserAssignedID != null)
+                    {
+                        <dl>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.UserAssignedID)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.UserAssignedID)
+                            </dd>
+                        </dl>
                     }
-                    else { 
-                    <div class="float-right align-top paddingright">
-                        <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
-                        @DateTime.Now.Date.ToShortDateString()
-                    </div>                    
+                    @if (Model.AdvertisedDate != null)
+                    {
+                        <dl>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.AdvertisedDate)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.AdvertisedDate, "{0:MM/dd/yyyy}")
+                            </dd>
+                        </dl>
                     }
+                    @if (Model.LettingDate != null)
+                    {
+                        <dl>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.LettingDate)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.LettingDate, "{0:MM/dd/yyyy}")
+                            </dd>
+                        </dl>
+                    }
+                </div> <!-- end col-->
+                <div class="col-sm-3">
+                    @if (Model.FlairAmendmentID != null && Model.FlairAmendmentID.Length > 0)
+                    {
+                        <dl>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.FlairAmendmentID)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.FlairAmendmentID)
+                            </dd>
+                        </dl>
+                    }
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+            <div class="row">
+                <div class="col-sm-3" id="AmendedIDDiv" style="display: none">
+                    @if (Model.AmendedLineItemID != null && Model.AmendedLineItemID.Length > 0)
+                    {
+                        <dl>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.AmendedLineItemID)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.AmendedLineItemID)
+                            </dd>
+                        </dl>
+                    }
+                </div> <!-- end col-->
+                <div class="col-sm-4">
+                    @if (Model.Description != null && Model.Description.Length > 0)
+                    {
+                        <dl>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Description)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.Description)
+                            </dd>
+                        </dl>
+                    }
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+        }
+        <div class="row">
+            <div class="col-sm-3">
+                <span id="saveEncumbranceLink" name="saveEncumbranceLink">
+                    <input type="button" class=" btn btn-default" id="btnInputFinancialInformation" value="Input Financial Information" onclick="javascript:SaveInitialEncumbrance();" />
+                </span>
+            </div>
+            @if (Model != null && ViewBag.Contract != null && ViewBag.Contract.User != null)
+            {
+                <div class="float-right align-top paddingright">
+                    <strong>Originator:</strong> <a href="mailto:@ViewBag.Contract.User.Email">@ViewBag.Contract.User.FirstName @ViewBag.Contract.User.LastName</a> (@ViewBag.Contract.User.UserLogin) @ViewBag.Contract.User.Phone<br />
+                    @ViewBag.Contract.CreatedDate.ToShortDateString()
                 </div>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <br />
-                        <b><span id="messageSpan" class="text-danger"></span></b>
-                        <br />
-                        <span id="budgetCeilingWarningSpan" class="text-alert"></span>
-                    </div>
+            }
+            else
+            {
+                <div class="float-right align-top paddingright">
+                    <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
+                    @DateTime.Now.Date.ToShortDateString()
                 </div>
-            </div> <!-- end panel body-->
-    </div> <!-- end panel-->
+            }
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <br />
+                <b><span id="messageSpan" class="text-danger"></span></b>
+                <br />
+                <span id="budgetCeilingWarningSpan" class="text-alert"></span>
+            </div>
+        </div>
+    </div> <!-- end panel body-->
+</div> <!-- end panel-->
 
 
 <div id="ContractPanel" class="panel panel-default" style="display: none">
@@ -343,7 +353,7 @@
         <div id="ContractToggleDiv"><a href="javascript:toggleContractPanel()">Collapse</a></div>
         @if(ViewBag.ActionItemTypes != null)
         {
-            <div><a href="javascript:OpenCloseContractDialog()">Close this contract</a></div>
+            <div><a href="javascript:OpenCloseContractDialog(@ViewBag.Contract.ContractID, @ViewBag.Contract.ContractNumber, @ViewBag.Contract.CurrentStatus)">Close this contract</a></div>
         }
     </div>
     <div class="panel-body" id="ContractPanelBody">

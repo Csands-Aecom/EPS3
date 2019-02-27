@@ -126,6 +126,10 @@ namespace EPS3.Controllers
                 }
             }
             PopulateViewBag(contractID);
+
+            //TEST:
+            //ViewBag.AwardBanner = true;
+
             if((id == null || id == 0) && !(ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
             {
                 //user does not have proper role to create a new request
@@ -345,6 +349,11 @@ namespace EPS3.Controllers
                 {
                     changeType = ConstantStrings.DraftToFinance;
                 }
+                //1a. Draft to CFM in case of Close Line
+                if (oldStatus.Equals(ConstantStrings.Draft) && newStatus.Equals(ConstantStrings.CFMReady))
+                {
+                    changeType = ConstantStrings.DraftToCFM;
+                }
                 //2. Submitted to Draft
                 if (oldStatus.Equals(ConstantStrings.SubmittedFinance) && newStatus.Equals(ConstantStrings.Draft))
                 {
@@ -367,6 +376,25 @@ namespace EPS3.Controllers
                 }
             }
             return changeType;
+        }
+
+        [HttpGet]
+        public IActionResult Search()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Search(string contractNumber)
+        {
+            List<int> contractIDs = _context.Contracts.Where(c => c.ContractNumber == contractNumber).Select(c => c.ContractID).ToList();
+            List<Contract> contracts = new List<Contract>();
+            foreach (int contractID in contractIDs)
+            {
+                Contract contract = _pu.GetDeepContract(contractID);
+                contracts.Add(contract);
+            }
+            return View(contracts);
         }
         private string GetLogin()
         {
@@ -580,7 +608,9 @@ namespace EPS3.Controllers
             *   This method Awards that request in the following way:
             *   1. Create a new encumbrance with the same contract of type ConstantStrings.Award
             *   2. Duplicate each LineItem in the Advertisement with identical information except NEGATIVE values for the Amounts
-            *   3. Open the new Award encumbrance in the Manage page.
+            *   3. Duplicate each line item of the Advertisement in the Award
+            *   4. Open the new Award encumbrance in the Manage page.
+            *   5. Show the Award banner warning the user to update the Vendor and Amounts
             *   This Award will replicate the Advertisement, but counter all of it's amounts, leaving the net balance on the contract at $0.00
             */
 
@@ -648,10 +678,23 @@ namespace EPS3.Controllers
                     LineItem newLine = new LineItem(priorLine);
                     newLine.Amount = priorLine.Amount * (-1);
                     newLine.LineItemGroupID = advertisement.GroupID;
+                    newLine.LineItemType = ConstantStrings.Advertisement;
+                    _context.LineItems.Add(newLine);
+                    _context.SaveChanges();
+                }
+
+                // Add prior lines to Award
+                foreach(LineItem priorLine in priorLines)
+                {
+                    LineItem newLine = new LineItem(priorLine);
+                    newLine.LineItemGroupID = newAwardID;
                     newLine.LineItemType = ConstantStrings.Award;
                     _context.LineItems.Add(newLine);
                     _context.SaveChanges();
                 }
+
+                // Show the award banner on the Manage page
+                ViewBag.AwardBanner = true;
             }
             catch (Exception e)
             {
@@ -698,7 +741,10 @@ namespace EPS3.Controllers
             PopulateViewBag(0);
             User user = ViewBag.CurrentUser;
             Dictionary<string, List<LineItemGroup>> lineItemGroupsMap = new Dictionary<string, List<LineItemGroup>>();
-            lineItemGroupsMap.Add("MyRequests", getCurrentUserLineItemGroups(user));
+            if (ViewBag.Roles.Contains(ConstantStrings.Originator))
+            {
+                lineItemGroupsMap.Add("MyRequests", getCurrentUserLineItemGroups(user));
+            }
             Dictionary<string, List<LineItemGroup>> categorizedLineItemGroups = getCategorizedLineItemGroups(user);
             foreach(string mapKey in categorizedLineItemGroups.Keys)
             {
@@ -721,31 +767,40 @@ namespace EPS3.Controllers
             // This method does NOT return Encumbrances that are CFMComplete
             // TEMPFIX: add || 1==1 for all role-based conditionals
             List<LineItemGroup> allLineIDs = new List<LineItemGroup>();
-            
+            string roles = _pu.GetUserRoles(user.UserLogin);
+
             // add Group IDs for Groups in Draft where user is the originator
             List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
                 .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
                 .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
                 .Include(l => l.Contract)
                 .ToList();
-            results.Add(ConstantStrings.Draft, origLineIDs);
+            if (roles.Contains(ConstantStrings.Originator)) {
+                results.Add(ConstantStrings.Draft, origLineIDs);
+            }
             allLineIDs.AddRange(origLineIDs);
             
             
-            // add Line IDs for Groups in Draft where user is the originator
+            // add Line IDs for Groups in Finance where user has Finance role
             List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
                 .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
                 .Include(l => l.Contract)
                 .ToList();
-            results.Add("Finance", finLineIDs);
+            if (roles.Contains(ConstantStrings.FinanceReviewer))
+            {
+                results.Add(ConstantStrings.SubmittedFinance, finLineIDs);
+            }
             allLineIDs.AddRange(finLineIDs);
             
-            // add Line IDs for Groups in Draft where user is the originator
+            // add Line IDs for Groups in Work Program where user has WP role
             List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
                 .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
                 .Include(l => l.Contract)
                 .ToList();
-            results.Add("WP", wpLineIDs);
+            if (roles.Contains(ConstantStrings.WPReviewer))
+            {
+                results.Add("WP", wpLineIDs);
+            }
             allLineIDs.AddRange(wpLineIDs);
             
             // add Line IDs for Groups in Draft where user is the originator
@@ -753,29 +808,31 @@ namespace EPS3.Controllers
                 .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
                 .Include(l => l.Contract)
                 .ToList();
-            results.Add("CFM", cfmLineIDs);
+            if (roles.Contains(ConstantStrings.CFMSubmitter))
+            {
+                results.Add(ConstantStrings.CFMReady, cfmLineIDs);
+            }
             allLineIDs.AddRange(cfmLineIDs);
             
-            // add  Groups that are have completed
+            // add Groups that have been input to CFM
             List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
                 .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
                 .Include(l => l.Contract)
                 .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                 .ToList();
-            results.Add("Complete", cfmGroups);
-            allLineIDs.AddRange(cfmLineIDs);
-
-
-            // add  Groups that are have completed
+            results.Add("Processed", cfmGroups);
+            allLineIDs.AddRange(cfmGroups);
+            
+            // add  Groups that are closed
             List<LineItemGroup> closeGroups = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Contains("Closed"))
                     .Include(l => l.Contract)
                     .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                     .ToList();
             results.Add("Closed", closeGroups);
-            allLineIDs.AddRange(cfmLineIDs);
+            allLineIDs.AddRange(closeGroups);
 
-            results.Add("All", allLineIDs);
+            results.Add("Complete", allLineIDs);
             return results;
         }
 
@@ -890,7 +947,8 @@ namespace EPS3.Controllers
 
             string response = "";
             int contractID = int.Parse(closure.ContractID);
-            int groupID = int.Parse(closure.LineItemGroupID);
+            // TODO: Group ID doesn't matter. This closes the contract. Line closures are handled as new encumbrances
+            //int groupID = int.Parse(closure.LineItemGroupID);
             PopulateViewBag(contractID);
             User user = ViewBag.CurrentUser;
             LineItemGroup encumbrance = null;
@@ -903,8 +961,8 @@ namespace EPS3.Controllers
                     .SingleOrDefault(c => c.ContractID == contractID);
                 string closedStatus = closure.ClosureType.Contains("98") ? ConstantStrings.ContractComplete98 : ConstantStrings.ContractComplete50;
                                 
-                if (closure.ContractOrEncumbrance.Equals("Contract"))
-                /* If this is a contract closing, 
+                
+                /* This is a contract closing, 
                 * 1. select all encumbrances for the contract
                 * 2. add an encumbrance status Closed 50 or Closed 98 for each encumbrance
                 * 3. Set the current status each encumbrance Closed 50 or Closed 98
@@ -912,7 +970,7 @@ namespace EPS3.Controllers
                 * 5. set the contract's current status to Closed 50 or Closed 98
                 * 6. Send one notification to the Central Office requesting to close the contract
                 */
-                {              
+                              
                     List<LineItemGroup> encumbrances = _context.LineItemGroups.Where(li => li.ContractID == contract.ContractID).ToList();
                     foreach(LineItemGroup enc in encumbrances)
                     {
@@ -927,22 +985,7 @@ namespace EPS3.Controllers
                     _context.ContractStatuses.Add(contractStatus);
                     _context.Contracts.Update(contract);
                     _context.SaveChanges();
-                }
-                else
-                /*
-                 * If this is an encumbrance closing, 
-                 * 1. add an encumbrance status Closed 50 or Closed 98
-                 * 2. Set the current status of the encumbrance to Closed 50 or Closed 98
-                 * 3. Send one notification to Central Office requesting to close the encumbrance
-                 */
-                {
-                    encumbrance = _context.LineItemGroups
-                        .SingleOrDefault(li => li.GroupID == groupID);
-                    AddEncumbranceStatus(encumbrance, closedStatus);
-                    encumbrance.CurrentStatus = closedStatus;
-                    _context.LineItemGroups.Update(encumbrance);
-                    _context.SaveChanges();
-                }
+                
 
                 // Send Close Contract/Encumbrance Request to Closers
                 initializeMessageService();

@@ -1,0 +1,73 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<form asp-controller="LineItemGroups" asp-action="Search" method="POST">
+    <div class="row">
+        <h4>Search by Contract:</h4>
+        <div class="col-sm-3">
+            <dl>
+                <dt>Contract Number</dt>
+                <dd>
+                    <input type="text" name="SearchContractNumber" id="SearchContractNumber" style="text-transform:uppercase" />
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <h4>Search by Date:</h4>
+        <div class="col-sm-3">
+            <dl>
+                <dt>From Date:</dt>
+                <dd>
+                    <input type="text" name="SearchStartDate" id="SearchStartDate" class="datepicker" />
+                    <span class="input-group-addon">
+                        <label for="SearchStartDate">
+                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                        </label>
+                    </span>
+                    <span id="SearchDateCheckboxes">
+                        <input type="checkbox" name="searchDateCreated" id="searchDateCreated" value="CreatedDate" />Created Date<br />
+                        <input type="checkbox" name="searchDateCFM" id="searchDateCFM" value="CFMDate" />CFM Input Date<br />
+                        <input type="checkbox" name="searchBeginDate" id="searchBeginDate" value="BeginDate" />Begin Date<br />
+                        <input type="checkbox" name="searchEndDate" id="searchEndDate" value="EndDate" />End Date<br />
+                        <input type="checkbox" name="searchServiceEndDate" id="searchServiceEndDate" value="ServiceEndDate" />Service End Date<br />
+                    </span>
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-3">
+            <dl>
+                <dt>Search by Date:</dt>
+                <dd>
+                    <input type="text" name="SearchEndDate" id="SearchEndDate" class="datepicker" />
+                    <span class="input-group-addon">
+                        <label for="SearchEndDate">
+                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                        </label>
+                    </span>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row">
+        <h4>Search by Amount:</h4>
+        <div class="col-sm-3">
+            <dl>
+                <dt>More than $</dt>
+                <dd>
+                    <input type="number" name="SearchMinAmount" id="SearchMinAmount" />
+                </dd>
+            </dl>
+        </div>
+        <div class="col-sm-3">
+            <dl>
+                <dt>Less than $</dt>
+                <dd>
+                    <input type="number" name="SearchMaxAmount" id="SearchMaxAmount" />
+                </dd>
+            </dl>
+        </div>
+    </div>
+</form>

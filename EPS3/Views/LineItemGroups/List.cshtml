@@ -20,6 +20,7 @@
                 <li><a href="#tabs-@key">@key</a></li>
             }
         }
+        <li><a href="#tabs-Reports">Reports</a></li>
     </ul>
 
     @foreach (string key in Model.Keys)
@@ -71,17 +72,17 @@
                             </td>
                             <td>
                                 @if (
-                                    (key == "MyRequests" && item.CurrentStatus.Equals(ConstantStrings.Draft))
-                                 || (key == ConstantStrings.Draft && ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
-                                 || (key == "Finance" && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                                 || (key == "WP" && ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
-                                 || (key == "CFM" && ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
-                                 || (key == "Complete"
-                                     && (
-                                           (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
-                                         || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                                         )
-                                 )
+                                   (key == "MyRequests" && item.CurrentStatus.Equals(ConstantStrings.Draft))
+                                || (key == ConstantStrings.Draft && ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
+                                || (key == "Finance" && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                || (key == "WP" && ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
+                                || (key == "CFM" && ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
+                                || (key == "Complete"
+                                    && (
+                                          (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
+                                        || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                        )
+                                )
                                 {
                                     <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
                                 }
@@ -112,4 +113,7 @@
             </table>
         </div> <!-- end tab for key -->
     }
+    <div id="tabs-Reports">
+        Search form goes here...
+    </div>
 </div> <!-- end tabs div-->
