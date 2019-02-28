@@ -7578,3 +7578,12 @@ Error Number:515,State:2,Class:16
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients)
+2019-02-28 10:20:25.277 -05:00 [ERR] LineItemGroupsController.CloseContract  Error:System.FormatException: Input string was not in a correct format.
+   at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at EPS3.Helpers.MessageService.SendClosingRequest(ContractClosure closure, User submitter) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 282
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 992
+   at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at EPS3.Helpers.MessageService.SendClosingRequest(ContractClosure closure, User submitter) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 282
+   at EPS3.Controllers.LineItemGroupsController.CloseContract(String closeContract) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 992

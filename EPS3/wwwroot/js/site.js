@@ -144,13 +144,7 @@ function initForms() {
     });
 
     //Contract Types
-    $("#ContractTypeSelector").blur(function (event, ui) {
-        {
-            var ctype = $('ul.ui-autocomplete li:first');
-            $("#ContractTypeSelector").val(ctype.text);
-            $("#ContractTypeID").val(ctype.accessKey);
-        }
-    }).autocomplete({
+    $("#ContractTypeSelector").autocomplete({
         source: function (request, response) {
             $.ajax({
                 autoFocus: true,
@@ -820,7 +814,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             if (submitTo === "Draft") {
                 defaultComment = "Saved as Draft.";
             } else if (submitTo === "Finance") {
-                defaultComment = "Submitted to Finance for review via TPK Encumbrance.";
+                defaultComment = "Submitted to Finance.";
             } else if (submitTo === "Work Program") {
                 defaultComment = "Please review and approve for Work Program.";
             } else if (submitTo === "CFM") {
@@ -1461,7 +1455,7 @@ function SaveContractModal() {
 
             $("#ContractSelector").val(result.ContractNumber);
             $("#ContractID").val(result.ContractID);
-            if ($("#ContractID").val() && $("#ContractID").val() > 0) {
+            if ($("#ContractID").val() && $("#ContractID").val() > 0 && $("#LineItemGroupID").val() && $("#LineItemGroupID").val() > 0) {
                 $("#LineItemsPanel").show();
             }
         }

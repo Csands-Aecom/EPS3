@@ -21,7 +21,7 @@
         }
         @if (ViewBag.AwardBanner != null && ViewBag.AwardBanner == true)
         {
-            <div class="float-right alert">
+            <div class="fa-align-right alert">
                 Please update the Contract Vendor and awarded amounts for this Contract Award.
             </div>
         }
@@ -449,9 +449,10 @@
                                 <tr class='groupItem' id='row_item_@lineItem.LineItemID'>
                                     <td id='@lineItem.LineNumber'>
                                         @lineItem.LineNumber<input type='hidden' id='item_@lineItem.LineItemID' value='@lineItem.LineItemID' /> <br />
-                                        @if ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
+                                        @if (Model == null
+                                          || ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
                                           || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-                                          || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete))))
+                                          || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
                                         {
                                             <a href='javascript:editLineItem(@lineItem.LineItemID, false)'> Edit</a> <br />
                                             <a href='javascript:editLineItem(@lineItem.LineItemID, true)'>Duplicate</a> <br />

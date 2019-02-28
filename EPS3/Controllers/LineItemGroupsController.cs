@@ -528,6 +528,10 @@ namespace EPS3.Controllers
                     existingGroup.IsEditable = newLineItemGroup.IsEditable;
                     existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
                     existingGroup.UserAssignedID = newLineItemGroup.UserAssignedID;
+                    if (!newLineItemGroup.LineItemType.Equals(existingGroup.LineItemType))
+                    {
+                        existingGroup.LineItemType = newLineItemGroup.LineItemType;
+                    }
                     existingGroup.Contract = contract;
                     _context.Update(existingGroup);
                     newLineItemGroup = existingGroup;
