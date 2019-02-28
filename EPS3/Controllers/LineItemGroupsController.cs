@@ -127,9 +127,6 @@ namespace EPS3.Controllers
             }
             PopulateViewBag(contractID);
 
-            //TEST:
-            //ViewBag.AwardBanner = true;
-
             if((id == null || id == 0) && !(ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
             {
                 //user does not have proper role to create a new request
@@ -170,8 +167,11 @@ namespace EPS3.Controllers
                     }
                     ViewBag.LineItemsMap = lineItemsMap;
 
-
-                    ViewBag.Contract = Contract;
+                    if (Encumbrance.CurrentStatus.Equals(ConstantStrings.Draft) && Encumbrance.LineItemType.Equals(ConstantStrings.Award))
+                    {
+                        ViewBag.AwardBanner = true;
+                    }
+                        ViewBag.Contract = Contract;
                     return View(Encumbrance);
                 }
             }

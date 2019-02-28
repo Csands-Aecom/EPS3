@@ -61,7 +61,7 @@
         @if (Model == null
        || (@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
        || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-       || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
+       || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete))))
         {
             <div class="row">
                 <div class="col-sm-3">
@@ -344,7 +344,10 @@
     <div class="panel-heading">
         <h3 id="ContractTitle">Contract</h3>
         <div class="float-right align-top paddingright" id="EditContractLink" name="EditContractLink">
-            @if (@ViewBag.ContractID > 0 && (ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
+            @if(Model == null 
+            || (@ViewBag.ContractID > 0 && ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
+            || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+            || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete))))))
             {
                 <a href='javascript:openContractDialogExisting(@ViewBag.ContractID)'>Edit Contract Information</a>
             }
@@ -386,7 +389,11 @@
                 <div id="LineItemsToggleDiv"><a href="javascript:toggleLineItemsPanel()">Collapse</a></div>
             </div> <!-- end panel-heading -->
             <div class="panel-body" id="LineItemsPanelBody" name="LineItemsPanelBody">
-                @if (@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                @if(Model == null
+                || ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
+                || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
+       
                 {
                     <a href="javascript:openLineItemDialog()">Add Financial Information</a>
                 }
@@ -442,7 +449,9 @@
                                 <tr class='groupItem' id='row_item_@lineItem.LineItemID'>
                                     <td id='@lineItem.LineNumber'>
                                         @lineItem.LineNumber<input type='hidden' id='item_@lineItem.LineItemID' value='@lineItem.LineItemID' /> <br />
-                                        @if (@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                        @if ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
+                                          || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                                          || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete))))
                                         {
                                             <a href='javascript:editLineItem(@lineItem.LineItemID, false)'> Edit</a> <br />
                                             <a href='javascript:editLineItem(@lineItem.LineItemID, true)'>Duplicate</a> <br />

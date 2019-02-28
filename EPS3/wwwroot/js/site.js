@@ -341,6 +341,9 @@ function initForms() {
             // show the ContractPanel
             if ($("#ContractPanel")) {
                 showContractPanel(ui.item.ContractID);
+                if ($("#ContractSelector").val().toUpperCase() === "NEW") {
+                    $("#ContractNumber").val("NEW");
+                }
             }
             if ($("#LineItemsPanel")) {
                 displayLineItemsPanelOrMessage();
@@ -1971,12 +1974,12 @@ function SaveEncumbrance(commentJson) {
     encumbrance.LineID6S = $("#LineID6S").val();
     encumbrance.OriginatorUserID = $("#UserID").val();
     encumbrance.isEditable = 1;
-    encumbrance.CurrentStatus = $("CurrentStatus").val();
-    if ($("AdvertisedDate").val()) {
-        encumbrance.AdvertisedDate = $("AdvertisedDate").val();
+    encumbrance.CurrentStatus = $("#CurrentStatus").val();
+    if ($("#AdvertisedDate").val()) {
+        encumbrance.AdvertisedDate = $("#AdvertisedDate").val();
     }
-    if ($("LettingDate").val()) {
-        encumbrance.LettingDate = $("LettingDate").val();
+    if ($("#LettingDate").val()) {
+        encumbrance.LettingDate = $("#LettingDate").val();
     }
     if (!encumbrance.CurrentStatus) { encumbrance.CurrentStatus = 'Draft'; }
  

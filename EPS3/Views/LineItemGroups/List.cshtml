@@ -71,25 +71,7 @@
                                 }
                             </td>
                             <td>
-                                @if (
-                                   (key == "MyRequests" && item.CurrentStatus.Equals(ConstantStrings.Draft))
-                                || (key == ConstantStrings.Draft && ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
-                                || (key == "Finance" && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                                || (key == "WP" && ViewBag.Roles.Contains(ConstantStrings.WPReviewer))
-                                || (key == "CFM" && ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter))
-                                || (key == "Complete"
-                                    && (
-                                          (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == item.OriginatorUserID)
-                                        || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                                        )
-                                )
-                                {
-                                    <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
-                                }
-                                else
-                                {
-                                    @Html.DisplayFor(modelItem => item.GroupID)
-                                }
+                                <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => @item.CurrentStatus)

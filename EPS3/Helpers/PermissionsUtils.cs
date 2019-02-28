@@ -95,6 +95,7 @@ namespace EPS3.Helpers
         public List<User> GetUsersByRole(string role)
         {
             try{
+                //TODO: Exclude users where IsDisabled == 1
                 List<int> userIDs = _context.Users.AsNoTracking()
                     .SelectMany(u => u.Roles.Where(r => r.Role.Equals(role))).Select(r => r.UserID).ToList();
                 List<User> roleUsers = _context.Users.AsNoTracking().Where(Utils.BuildOrExpression<User, int>(u => u.UserID, userIDs.ToArray<int>())).ToList();
