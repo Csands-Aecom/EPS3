@@ -8,7 +8,8 @@ $(document).ready(function () {
 function initForms() {
 
     //initialize DataTable to be filterable, sortable, and searchable
-    $('[id^=indexTable]').DataTable();
+    //sort by encumbrance ID, descending
+    $('[id^=indexTable]').DataTable({ "order": [[1, "desc"]]});
 
     // support for NavBar submenus
     $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function (event) {
@@ -51,7 +52,19 @@ function initForms() {
     $(function () {
         $(".datepicker").datepicker({
             changeMonth: true,
-            changeYear: true
+            changeYear: true,
+            /* fix buggy IE focus functionality */
+            fixFocusIE: false,
+
+            /* blur needed to correctly handle placeholder text */
+            onSelect: function (dateText, inst) {
+                this.fixFocusIE = true;
+                $(this).blur().change().focus();
+            },
+            onClose: function (dateText, inst) {
+                this.fixFocusIE = true;
+                this.focus();
+            }
         });
     });
 
@@ -446,7 +459,7 @@ function addDialogs() {
                     $(this).dialog("close");
                 }
             }
-        },
+        }
     });
     // ContractSelector is showing when modal is open, so I explicitly show and hide it when ContractDialog is opened/closed
     $("#ContractDialog").on('dialogclose', function (event) {
@@ -528,6 +541,8 @@ function showHideButtons() {
         $("#btnEncumbranceSaveAsIs").show();
         $("#btnEncumbranceRollback").val("Reject back to Originator");
         $("#btnEncumbranceRollback").show();
+        $("#btnEncumbranceComplete").val("Update to CFM Complete");
+        $("#btnEncumbranceComplete").show();
         return false;
     }
     if ((currentStatus === "Work Program") && roles.indexOf("WP Reviewer") >= 0) {
@@ -810,7 +825,8 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             $(this).html("");
             var defaultComment = "";
             var currentStatus = $("#CurrentStatus").val();
-            var notifyChecked = "checked";
+            // Client feedback prefers not to notify by default
+            var notifyChecked = ""; // "checked";
             if (submitTo === "Draft") {
                 defaultComment = "Saved as Draft.";
             } else if (submitTo === "Finance") {
@@ -1578,7 +1594,7 @@ function getNewLineItemRow(lineItem) {
     if ((lineItem.OrgCode).indexOf("55-") < 0) { lineItem.OrgCode = "55-" + lineItem.OrgCode; }
     tableText += "<tr class='groupItem' id='" + rowID + "'>";
     tableText += "<td id='" + itemKey + "_LineItemNumber'>" + lineItem.LineItemNumber + "<input type='hidden' id='" + itemKey + "_LineItemID' value='" + lineItem.LineItemID + "'/> <br />";
-    if ($("#UserRoles").val().indexOf("Originator") >= 0 ) {
+    if ($("#UserRoles").val().indexOf("Originator") >= 0 || ($("#UserRoles").val().indexOf("Finance") >= 0 && $("#CurrentStatus").val().indexOf("Finance") >= 0) || ($("#UserRoles").val().indexOf("CFM") >= 0 && $("#CurrentStatus").val().indexOf("Complete") >= 0)) {
         tableText += "<a href='javascript:editLineItem(" + lineItem.LineItemID + ", false)' > Edit</a > <br />";
         tableText += "<a href='javascript:editLineItem(" + lineItem.LineItemID + ", true)'>Duplicate</a> <br />";
         tableText += "<a href='javascript:deleteLineItem(" + lineItem.LineItemID + ")'>Delete</a> <br />";
@@ -1702,7 +1718,7 @@ function populateContractPanel(contract) {
     //write contract details to ContractPanel
     if (!contract) { return false; }
     $("#ContractTitle").text("Contract - " + contract.ContractNumber);
-    $("#EncHeaderContract").html("Contract: <h4><a href='/Contracts/View/" + contract.ContractID + "'>" + contract.ContractNumber + "</a></h4>");
+    $("#EncHeaderContract").html("Contract: <h4><a href='/Contracts/Details/" + contract.ContractID + "'>" + contract.ContractNumber + "</a></h4>");
     var roles = $("#UserRoles").val();
     if (roles.indexOf("Originator") >= 0 || roles.indexOf("Finance Reviewer") >= 0) {
         $("#EditContractLink").html("<a href= 'javascript:openContractDialogExisting(" + contract.ContractID + ")'>Edit Contract Information</a> ");
@@ -1803,10 +1819,21 @@ function getDefaultSaveComment() {
 function ValidateEncumbrance() {
     // Check all required fields on the Encumbrance form for valid values
     var isErrorFree = true; // set to false when an error is found
+    var status = $("#CurrentStatus").val();
     var msg = "";
     if (!$("#LineItemType").val() || $("#LineItemType").val() === "None") {
         msg += "Please select an Encumbrance Type. <br/>";
         isErrorFree = false;
+    } else if ($("#LineItemType").val()==="Advertisement" && (status=="Draft" || status=="Finance")) {
+        //Require Advertised Date and Letting Date for Advertisements
+        if (!$("#AdvertisedDate").val()) {
+            msg += "An Advertised Date is required for an advertisement encumbrance request. <br/>";
+            isErrorFree = false;
+        }
+        if (!$("#LettingDate").val()) {
+            msg += "A Letting Date is required for an advertisement encumbrance request. <br/>";
+            isErrorFree = false;
+        }
     }
     if (!$("#ContractID").val()) {
         msg += "Please select or create a Contract. <br/>";
@@ -1814,7 +1841,7 @@ function ValidateEncumbrance() {
     }
 
     // use displayMessage() to show validation message.
-    displayMessage(msg);
+    displaySubmitMessage(msg);
     return isErrorFree;
 }
 
@@ -1948,6 +1975,16 @@ function ValidateLineItem() {
     }
     if (!$("#Amount").val()) {
         $("#Amount").val(0.0);
+    } else if ($("#Amount").val() < 0) {
+        // require FLAIR ID and 6sID when Amount is negative
+        if (!$("#FlairAmendmentID").val()) {
+            msg += "A FLAIR Amendment ID is required for negative Amounts. <br/>";
+            isErrorFree = false;
+        }
+        if (!$("#LineID6S").val()) {
+            msg += "A 6s line ID is required for negative Amounts. <br/>";
+            isErrorFree = false;
+        }
     }
     // use displayMessage() to show validation message.
     displayLineItemMessage(msg);
@@ -2124,6 +2161,10 @@ function displayMessage(msg) {
 }
 function displayContractMessage(msg) {
     $("#messageSpanContract").html(msg);
+}
+function displaySubmitMessage(msg) {
+    msg = "<font color='red'>" + msg + "</font>";
+    $("#submitMessageDiv").html(msg);
 }
 function showComment(text, title) {
     // open small dialog and display text

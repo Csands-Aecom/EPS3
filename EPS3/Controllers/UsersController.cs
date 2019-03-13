@@ -92,6 +92,7 @@ namespace EPS3.Controllers
             if (ModelState.IsValid)
             {
                 //user.ReceiveEmails = 1;
+                user.UserLogin = user.UserLogin.ToUpper();
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Edit", new { id = user.UserID });
@@ -160,6 +161,7 @@ namespace EPS3.Controllers
             {
                 try
                 {
+                    user.UserLogin = user.UserLogin.ToUpper();
                     _context.Update(user);
                     await _context.SaveChangesAsync();
 

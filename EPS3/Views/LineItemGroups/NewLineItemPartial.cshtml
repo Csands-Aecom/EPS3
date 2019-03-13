@@ -179,7 +179,7 @@
                             <span class="input-group-addon">
                                 <label for="Amount">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.Amount, new { onchange = "showHideNegativeAmountOptions();" })
+                                    @Html.TextBoxFor(model => model.Amount, new { @type = "number", onchange = "showHideNegativeAmountOptions();" })
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.Amount, "Amounts must be numeric values.")

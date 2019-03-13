@@ -11,14 +11,14 @@
 
         @if (ViewBag.UserIsAdmin)
         {
-            <p>
+            <h4>
                 <a asp-action="Create">Create New</a>
-            </p>
+            </h4>
         }
     </div>
     <div class="panel-body">
 
-        <table class="table table-striped">
+        <table class="table table-striped table-bordered" id="indexTable-Users">
             <thead>
                 <tr>
                     <th>

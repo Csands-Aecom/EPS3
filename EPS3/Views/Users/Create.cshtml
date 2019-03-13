@@ -12,7 +12,7 @@
     <div class="panel-body" id="UserPanelBody" name="UserPanelBody">
         <div class="row">
             <div class="col-md-4">
-                <form asp-action="Create">
+                <form asp-action="Create", new { onkeydown = "return event.keyCode!=13" }>
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
                         <label asp-for="FirstName" class="control-label"></label>
@@ -26,7 +26,7 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="UserLogin" class="control-label"></label>
-                        <input asp-for="UserLogin" class="form-control" />
+                        @Html.TextBoxFor(model => model.UserLogin, new { style = "text-transform:uppercase" })
                         <span asp-validation-for="UserLogin" class="text-danger"></span>
                     </div>
                     <div class="form-group">

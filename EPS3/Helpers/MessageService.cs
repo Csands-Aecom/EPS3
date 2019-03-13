@@ -161,8 +161,19 @@ namespace EPS3.Helpers
             }
             return msgID ;
         }
-        
-        public int SendReceipt(LineItemGroup encumbrance, User submitter, string comments)
+
+
+        public bool SendReceipt(LineItemGroup encumbrance, User submitter, string comments)
+        {
+            int msgID = AddReceipt(encumbrance, submitter, comments);
+            if (submitter.CanReceiveEmails() && submitter.IsDisabled==0)
+            {
+                SendEmailMessage(msgID);
+                return true;
+            }
+            return false;
+        }
+        public int AddReceipt(LineItemGroup encumbrance, User submitter, string comments)
         {
             Message msg = new Message
             {

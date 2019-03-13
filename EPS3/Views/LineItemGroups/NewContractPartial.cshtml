@@ -78,7 +78,7 @@
                             <span class="input-group-addon">
                                 <label for="ContractTotal">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.ContractTotal, new { Value = "0.00" })
+                                    @Html.TextBoxFor(model => model.ContractTotal, new { @type = "number", Value = "0.00" })
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.ContractTotal, "The default Contract Total is $0.00.")
@@ -90,7 +90,7 @@
                             <span class="input-group-addon">
                                 <label for="MaxLoaAmount">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.MaxLoaAmount, new { Value = "0.00" })
+                                    @Html.TextBoxFor(model => model.MaxLoaAmount, new { @type = "number", Value = "0.00" })
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.MaxLoaAmount, "The default Maximum amount per LOA is $0.00.")
@@ -102,7 +102,7 @@
                             <span class="input-group-addon">
                                 <label for="BudgetCeiling">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.BudgetCeiling, new { Value = "0.00" })
+                                    @Html.TextBoxFor(model => model.BudgetCeiling, new { @type = "number", Value = "0.00" })
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.BudgetCeiling, "The default Budget Ceiling is $0.00.")
