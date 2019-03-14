@@ -848,7 +848,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             var commentBox = "<strong>Comments:</strong><br/><textarea id='commentText' name='commentText' cols='50' rows='4'>" + defaultComment + "</textarea><br />";
             $(this).append(commentBox);
             // if CurrentStatus is Draft and submitTo is Finance, add a checkbox (checked) to send a receipt to the Originator
-            if (currentStatus === "Draft" && submitTo === "Finance") {
+            if ((currentStatus === "Draft" || currentStatus === "New") && submitTo === "Finance") {
                 var receiptBox = "<input type='checkbox' id='receiptBox' name='receiptBox' checked /> Send a submission receipt to the originator. <br />";
                 $(this).append(receiptBox);
             } else {
@@ -1608,7 +1608,7 @@ function getNewLineItemRow(lineItem) {
         tableText += "<br/> <strong>6s: </strong>" + lineItem.LineID6S;
     }
     if (lineItem.Comments != null && lineItem.Comments.length > 0) {
-        tableText += "<br/> <a href='javascript:showComment(\"" + lineItem.Comments + "\"),\"Comment for Line #" + lineItem.lineID + "\")'>Comments</a>"
+        tableText += "<br/> <span title=\"" + lineItem.Comments + "\">Comments</span>"
     }
     tableText += "</td>";
     tableText += "<td>" + lineItem.OrgCode + "</td>";

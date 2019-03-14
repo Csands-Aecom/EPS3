@@ -63,7 +63,7 @@
                             @Html.LabelFor(model => model.FinancialProjectNumber)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.FinancialProjectNumber, new { style = "text-transform:uppercase" })
+                            @Html.TextBoxFor(model => model.FinancialProjectNumber, new { style = "text-transform:uppercase", onkeyup="this.value = this.value.replace(/-/, '')" })
                             @Html.ValidationMessageFor(model => model.FinancialProjectNumber, "A Financial Project Number with 11 digits is required.")
                         </dd>
                     </dl>

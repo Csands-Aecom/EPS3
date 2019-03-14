@@ -665,7 +665,7 @@ namespace EPS3.Controllers
                 // Make a new Ststus record for the Advertisement with the Award ID
                 LineItemGroupStatus adStatus = new LineItemGroupStatus()
                 {
-                    CurrentStatus = ConstantStrings.Draft,
+                    CurrentStatus = ConstantStrings.CFMComplete,
                     LineItemGroupID = advertisement.GroupID,
                     SubmittalDate = DateTime.Now,
                     Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + " Award #" + newAward.GroupID + ".",
