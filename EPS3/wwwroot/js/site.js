@@ -1300,12 +1300,26 @@ function setDefaultUserAssignedID(){
     }
 }
 
+
 function openContractDialog() {
+    // Open for New Contract. If Contract ID is assigned or Contract Panel is populated, clear it out.
+    clearContract();
+    //Open the dialog
     $("#ContractDialog").dialog("open");
     $("#ContractSelector").hide();
 
     $("#ContractTypeSelector").autocomplete("option", "appendTo", "#ContractDialog");
     $("#VendorSelector").autocomplete("option", "appendTo", "#ContractDialog");
+    if ($("#ContractSelector").val() === "NEW") { $("#ContractNumber").val("NEW"); }
+}
+
+function clearContract() {
+    $("#ContractID").val(0);
+    $("#ContractSelector").val("");
+    $("#ContractPanelBody").html("");
+    $("#ContractTitle").text("Contract");
+    $("#EncHeaderContract").html("");
+    $("#ContractPanel").hide();
 }
 
 function openContractDialogExisting(id) {

@@ -74,6 +74,7 @@
                             <dt>
                                 Contract Number
                                 <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract from the list of options."></span>
+                                <br /> Enter Existing Contract Number
                             </dt>
                             <dd>
                                 @if (ViewBag.ContractID > 0)
@@ -91,7 +92,7 @@
                             </dd>
                             <dt id="OpenContractInformationDiv">
                                 Or
-                                <input type="button" class=" btn btn-default" id="btnOpenContractInformation" value="Enter Contract Information" onclick="javascript:openContractDialog();" />
+                                <input type="button" class=" btn btn-default" id="btnOpenContractInformation" value="New Contract" onclick="javascript:openContractDialog();" />
                             </dt>
                         </dl>
                     </div> <!-- end col-->
