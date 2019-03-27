@@ -14,16 +14,21 @@ using Newtonsoft.Json;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace EPS3.Controllers
 {
     public class VendorsController : Controller
     {
         private readonly EPSContext _context;
+        private readonly ILogger<VendorsController> _logger;
+        private object loggerFactory;
 
-        public VendorsController(EPSContext context)
+        public VendorsController(EPSContext context, ILoggerFactory loggerFactory)
         {
             _context = context;
+            _logger = loggerFactory.CreateLogger<VendorsController>();
         }
         public IActionResult Create()
         {
@@ -79,6 +84,48 @@ namespace EPS3.Controllers
             int vendorCount = _context.Vendors.Count(v => v.VendorCode == vendorCode);
             return (vendorCount > 0);
         }
+        // GET: Users/Edit/5
+        public IActionResult Edit(int? id)
+        {
+            if(id != null && id > 0)
+            { 
+                Vendor vendor = (Vendor) _context.Vendors
+                .SingleOrDefault(v => v.VendorID == id);
+                return View(vendor);
+             }
+            else
+            {
+                return RedirectToAction("Index", "Users");
+            }
+        }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public  IActionResult Edit(int id, [Bind("VendorID, VendorCode, VendorName")] Vendor vendor)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Entry(vendor).State = EntityState.Modified;
+                    _context.SaveChanges();
+                    ViewBag.Message = "Vendor " + vendor.VendorName + " successfully updated.";
+                    return RedirectToAction("Index", "Users");
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("LineItemsController.Edit Error:" + e.GetBaseException());
+                    Log.Error("LineItemsController.Edit  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                    ViewBag.Message = "No Vendor updated.";
+                    return RedirectToAction("Index", "Users");
+                }
+            }
+            else
+            {
+                ViewBag.Message = "No Vendor updated.";
+                return RedirectToAction("Index", "Users");
+            }
+
+        }
     }
 }

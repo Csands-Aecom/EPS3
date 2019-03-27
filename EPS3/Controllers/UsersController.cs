@@ -259,6 +259,7 @@ namespace EPS3.Controllers
                 .Include(u => u.Roles)
                 .Where(u => u.IsDisabled == 0)
                 .SingleOrDefault(u => u.UserLogin == userLogin);
+            if(currentUser == null) { return false; }
             foreach(UserRole role in currentUser.Roles)
             {
                 if (role.Role.Equals(ConstantStrings.AdminRole)){

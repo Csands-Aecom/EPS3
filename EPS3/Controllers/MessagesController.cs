@@ -29,6 +29,10 @@ namespace EPS3.Controllers
         public IActionResult List()
         {
             User user = GetUser();
+            if (user == null)
+            {
+                return RedirectToAction("List", "LineItemGroups");
+            }
             var recipients = _context.MessageRecipients
                 .Where(m => m.User == user)
                 .AsNoTracking()

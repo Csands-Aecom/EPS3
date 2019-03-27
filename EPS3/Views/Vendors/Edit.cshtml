@@ -1,0 +1,43 @@
+﻿@model EPS3.Models.Vendor
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<p>&nbsp;</p>
+<div class="panel panel-default" id="VendorPanel" name="VendorPanel">
+    <div class="panel-heading" id="VendorPanelHeading" name="VendorPanelHeading">
+        <h2>Edit Vendor</h2>
+    </div>
+    <div class="panel-body" id="VendorPanelBody" name="VendorPanelBody">
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="Edit" , new { onkeydown="return event.keyCode!=13" }>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="VendorID" />
+                    <div class="form-group">
+                        <label asp-for="VendorName" class="control-label"></label>
+                        <input asp-for="VendorName" class="form-control" />
+                        <span asp-validation-for="VendorName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="VendorCode" class="control-label"></label>
+                        <input asp-for="VendorCode" class="form-control" />
+                        <span asp-validation-for="VendorCode" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-default" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            <a asp-action="Index" asp-controller="Users" >Back to Users List</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

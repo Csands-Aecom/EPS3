@@ -140,6 +140,7 @@ namespace EPS3.Controllers
         {
             string userLogin = GetLogin();
             PopulateViewBag(0);
+            if (ViewBag.CurrentUser == null) { return RedirectToAction("List", "LineItemGroups"); }
             ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
             ViewData["Compensations"] = _context.Compensations.OrderBy(c => c.CompensationID);
             ViewData["Vendors"] = _context.Vendors.OrderBy(v => v.VendorName);

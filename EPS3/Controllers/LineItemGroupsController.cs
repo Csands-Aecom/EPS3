@@ -754,8 +754,10 @@ namespace EPS3.Controllers
             {
                 lineItemGroupsMap.Add(mapKey, categorizedLineItemGroups[mapKey]);
             }
-            lineItemGroupsMap.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
-            
+            if (ViewBag.Roles.Contains(ConstantStrings.Originator))
+            {
+                lineItemGroupsMap.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
+            }            
             Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(lineItemGroupsMap);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
             return View(lineItemGroupsMap);
@@ -771,71 +773,81 @@ namespace EPS3.Controllers
             // This method does NOT return Encumbrances that are CFMComplete
             // TEMPFIX: add || 1==1 for all role-based conditionals
             List<LineItemGroup> allLineIDs = new List<LineItemGroup>();
-            string roles = _pu.GetUserRoles(user.UserLogin);
+            if (user == null)
+            {
+                allLineIDs = _context.LineItemGroups.AsNoTracking()
+                .Where(l => l.Contract.CurrentStatus != (ConstantStrings.CloseContract))
+                .Include(l => l.Contract)
+                .ToList();
+            }
+            else
+            {
+                string roles = _pu.GetUserRoles(user.UserLogin);
 
-            // add Group IDs for Groups in Draft where user is the originator
-            List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
-                .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
-                .Include(l => l.Contract)
-                .ToList();
-            if (roles.Contains(ConstantStrings.Originator)) {
-                results.Add(ConstantStrings.Draft, origLineIDs);
-            }
-            allLineIDs.AddRange(origLineIDs);
-            
-            
-            // add Line IDs for Groups in Finance where user has Finance role
-            List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
-                .Include(l => l.Contract)
-                .ToList();
-            if (roles.Contains(ConstantStrings.FinanceReviewer))
-            {
-                results.Add(ConstantStrings.SubmittedFinance, finLineIDs);
-            }
-            allLineIDs.AddRange(finLineIDs);
-            
-            // add Line IDs for Groups in Work Program where user has WP role
-            List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
-                .Include(l => l.Contract)
-                .ToList();
-            if (roles.Contains(ConstantStrings.WPReviewer))
-            {
-                results.Add("WP", wpLineIDs);
-            }
-            allLineIDs.AddRange(wpLineIDs);
-            
-            // add Line IDs for Groups in Draft where user is the originator
-            List<LineItemGroup> cfmLineIDs = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
-                .Include(l => l.Contract)
-                .ToList();
-            if (roles.Contains(ConstantStrings.CFMSubmitter))
-            {
-                results.Add(ConstantStrings.CFMReady, cfmLineIDs);
-            }
-            allLineIDs.AddRange(cfmLineIDs);
-            
-            // add Groups that have been input to CFM
-            List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
-                .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
-                .Include(l => l.Contract)
-                .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
-                .ToList();
-            results.Add("Processed", cfmGroups);
-            allLineIDs.AddRange(cfmGroups);
-            
-            // add  Groups that are closed
-            List<LineItemGroup> closeGroups = _context.LineItemGroups.AsNoTracking()
-                    .Where(l => l.CurrentStatus.Contains("Closed"))
+                // add Group IDs for Groups in Draft where user is the originator
+                List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
+                    .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
+                    .Include(l => l.Contract)
+                    .ToList();
+                if (roles.Contains(ConstantStrings.Originator))
+                {
+                    results.Add(ConstantStrings.Draft, origLineIDs);
+                }
+                allLineIDs.AddRange(origLineIDs);
+
+
+                // add Line IDs for Groups in Finance where user has Finance role
+                List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                    .Include(l => l.Contract)
+                    .ToList();
+                if (roles.Contains(ConstantStrings.FinanceReviewer))
+                {
+                    results.Add(ConstantStrings.SubmittedFinance, finLineIDs);
+                }
+                allLineIDs.AddRange(finLineIDs);
+
+                // add Line IDs for Groups in Work Program where user has WP role
+                List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
+                    .Include(l => l.Contract)
+                    .ToList();
+                if (roles.Contains(ConstantStrings.WPReviewer))
+                {
+                    results.Add("WP", wpLineIDs);
+                }
+                allLineIDs.AddRange(wpLineIDs);
+
+                // add Line IDs for Groups in Draft where user is the originator
+                List<LineItemGroup> cfmLineIDs = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
+                    .Include(l => l.Contract)
+                    .ToList();
+                if (roles.Contains(ConstantStrings.CFMSubmitter))
+                {
+                    results.Add(ConstantStrings.CFMReady, cfmLineIDs);
+                }
+                allLineIDs.AddRange(cfmLineIDs);
+
+                // add Groups that have been input to CFM
+                List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
+                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
                     .Include(l => l.Contract)
                     .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                     .ToList();
-            results.Add("Closed", closeGroups);
-            allLineIDs.AddRange(closeGroups);
+                results.Add("Processed", cfmGroups);
+                allLineIDs.AddRange(cfmGroups);
 
+                // add  Groups that are closed
+                List<LineItemGroup> closeGroups = _context.LineItemGroups.AsNoTracking()
+                        .Where(l => l.CurrentStatus.Contains("Closed"))
+                        .Include(l => l.Contract)
+                        .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
+                        .ToList();
+                results.Add("Closed", closeGroups);
+                allLineIDs.AddRange(closeGroups);
+            }
             results.Add("Complete", allLineIDs);
             return results;
         }
