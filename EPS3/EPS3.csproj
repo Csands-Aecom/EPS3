@@ -36,7 +36,6 @@
 
   <ItemGroup>
     <Folder Include="DAO\" />
-    <Folder Include="Filters\" />
     <Folder Include="Views\FileAttachments\" />
     <Folder Include="wwwroot\video\" />
   </ItemGroup>

@@ -10,6 +10,8 @@
     <p>&nbsp;</p>
 }
     <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
     <div class="panel panel-default" id="EncumbrancePanel" name="EncumbrancePanel">
         <div class="panel-heading sticky header" id="EncumbrancePanelHeading" name="EncumbrancePanelHeading">
 
@@ -370,8 +372,10 @@
     </div>
     <form asp-action="Manage">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @if(ViewBag.CurrentUser != null && ViewBag.CurrentUserUserID != null && ViewBag.CurrentUser.UserLogin != null){
         <input type="hidden" name="UserID" id="UserID" value="@ViewBag.CurrentUser.UserID" />
         <input type="hidden" name="UserLogin" id="UserLogin" value="@ViewBag.CurrentUser.UserLogin" />
+        }
         @if (Model != null && Model.CurrentStatus != null)
         {
             <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="@Model.CurrentStatus" />

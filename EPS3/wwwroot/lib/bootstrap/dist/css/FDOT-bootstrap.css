@@ -7483,7 +7483,7 @@ select[multiple].input-group-sm > .form-control, select[multiple].input-group-sm
     }
 
         .navbar-default .navbar-brand:focus, .navbar-default .navbar-brand:hover {
-            color: #5e5e5e;
+            color: #42BFC4 !important;
             background-color: transparent
         }
 
@@ -7492,11 +7492,11 @@ select[multiple].input-group-sm > .form-control, select[multiple].input-group-sm
     }
 
     .navbar-default .navbar-nav > li > a {
-        color: #777
+        color: #003362 !important;
     }
 
         .navbar-default .navbar-nav > li > a:focus, .navbar-default .navbar-nav > li > a:hover {
-            color: #333;
+            color: #42BFC4 !important;
             background-color: transparent
         }
 

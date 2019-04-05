@@ -388,6 +388,7 @@ namespace EPS3.Helpers
                 MailMessage mail = new MailMessage(){
                     From = sender,
                     Subject = "[EPS Test]: " + msg.Subject,
+                   //Subject = "[EPS]: " + msg.Subject,
                     Body = msg.Body,
                     IsBodyHtml = true
                 };

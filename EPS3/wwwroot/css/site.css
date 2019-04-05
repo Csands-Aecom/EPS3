@@ -1434,13 +1434,14 @@ ol.circles-list {
 
 /**Top nav bar**/
 .navbar-default {
-    background-color: #fff !important;
-    border-color: #fff !important;
+    background-color: #F8FFFF !important;
+    border-bottom: 2px;
+    border-color: #42BFC4 !important;
     box-shadow: none !important;
     background-image: none !important;
     z-index: 50000 !important;
-    padding-bottom: 20px !important;
-    padding-top: 50px !important;
+    padding-bottom: 0px !important;
+    padding-top: 0px !important;
 }
 
 .email-container {
