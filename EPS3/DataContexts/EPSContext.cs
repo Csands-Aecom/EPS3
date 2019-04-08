@@ -45,8 +45,8 @@ namespace EPS3.DataContexts
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // No connection string needed since it is set in Startup, read from appsettings.json
-            //optionsBuilder.UseSqlServer(@"Server=USTLH1LT1506\TURNPIKETEST;Database=EPSNew;Trusted_Connection=True;"); //Local
-            optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL16T;Database=EPSNew;user id=ursWeb;password=ursweb"); //Test
+            optionsBuilder.UseSqlServer(@"Server=USTLH1LT1506\TURNPIKETEST;Database=EPSNew;Trusted_Connection=True;"); //Local
+            //optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL16T;Database=EPSNew;user id=ursWeb;password=ursweb"); //Test
             //optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL16;Database=EPSNew;user id=ursWeb;password=ursweb"); //Prod
             // log SQL
             var lf = new LoggerFactory();
