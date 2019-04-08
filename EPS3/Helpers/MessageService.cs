@@ -41,10 +41,7 @@ namespace EPS3.Helpers
             decimal encumbranceTotal = 0.0M;
             //string contractViewURL = _serverpath + "/Contracts/View/" + encumbrance.ContractID + "/enc_" + encumbrance.GroupID;
             string contractViewURL = _serverpath + "/LineItemGroups/Manage/" + encumbrance.GroupID;
-            foreach (LineItem item in encumbrance.LineItems)
-            {
-                encumbranceTotal += item.Amount;
-            }
+            encumbranceTotal = GetEncumbranceTotal(encumbrance);
             Contract contract = _context.Contracts.SingleOrDefault(c => c.ContractID == encumbrance.ContractID);
             User submitter = _context.Users.SingleOrDefault(u => u.UserID == encumbrance.LastEditedUserID);
             Message msg = new Message
@@ -60,7 +57,7 @@ namespace EPS3.Helpers
                 {
                     case ConstantStrings.DraftToFinance:
                         msg.Subject = "Encumbrance Request# " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been submitted for Finance Review";
-                        msg.Body = "<p>Please process the following encumbrance request: ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " in the amount of $" + encumbranceTotal + ".</p>\n";
+                        msg.Body = "<p>Please process the following encumbrance request: ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " in the amount of $" + encumbranceTotal.ToString("N2") + ".</p>\n";
 
                         if (comments != null && comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
@@ -78,7 +75,7 @@ namespace EPS3.Helpers
                             string tblText = "<table><tr><th>Contract</th><th>Amendment</th><th>Line (6s)</th><th>Amount</th></tr>";
                             foreach (LineItem item in encumbrance.LineItems)
                             {
-                                tblText += "<tr><td>" + contract.ContractNumber + "</td><td>" + item.FlairAmendmentID + "</td><td>" + item.LineID6S + "</td><td>$" + item.Amount + "</td></tr>";
+                                tblText += "<tr><td>" + contract.ContractNumber + "</td><td>" + item.FlairAmendmentID + "</td><td>" + item.LineID6S + "</td><td>$" + item.Amount.ToString("N2") + "</td></tr>";
                             }
                             tblText += "</table> <br/>";
                             msg.Body += tblText;
@@ -226,8 +223,8 @@ namespace EPS3.Helpers
                 {
                     encumbrance = _pu.GetDeepEncumbrance(encumbrance.GroupID);
                 }
-                decimal encumbranceAmount = GetEncumbranceTotal(encumbrance);
-                encumbranceInfo = GetEncumbranceInfo(encumbrance, encumbranceAmount);
+                decimal encumbranceTotal = GetEncumbranceTotal(encumbrance);
+                encumbranceInfo = GetEncumbranceInfo(encumbrance, encumbranceTotal);
                 if (contract == null)
                 {
                     contract = _pu.GetDeepContract(encumbrance.ContractID);
@@ -470,12 +467,12 @@ namespace EPS3.Helpers
             return contractInfo;
         }
         
-        public string GetEncumbranceInfo(LineItemGroup encumbrance, decimal encumbranceAmount)
+        public string GetEncumbranceInfo(LineItemGroup encumbrance, decimal encumbranceTotal)
         {
             string encumbranceInfo = "";
             encumbranceInfo += "<strong>Encumbrance Type:</strong> " + encumbrance.LineItemType + "<br />";
             encumbranceInfo += "<strong>Status:</strong> " + encumbrance.CurrentStatus + "<br />";
-            encumbranceInfo += "<strong>Encumbrance Total:</strong> " + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceAmount.ToString())) + "<br />";
+            encumbranceInfo += "<strong>Encumbrance Total:</strong> " + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceTotal.ToString())) + "<br />";
             if (encumbrance.LineID6S != null && encumbrance.LineID6S != "")
             {
                 encumbranceInfo += "<strong>6s:</strong> " + encumbrance.LineID6S + "<br />";
@@ -525,8 +522,12 @@ namespace EPS3.Helpers
 
         public decimal GetEncumbranceTotal(LineItemGroup encumbrance)
         {
+            //encumbrance is a deep copy
             decimal total = 0;
-            // TODO: get contract total, amount from each line item, add them up and return the value
+            foreach (LineItem item in encumbrance.LineItems)
+            {
+                total += item.Amount;
+            }
             return total;
         }
     }

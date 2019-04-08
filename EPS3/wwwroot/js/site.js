@@ -1402,6 +1402,7 @@ function editLineItem(lineItemID, isDuplicate) {
         getNextLineNumber("{\"groupID\" : " + lineItem.LineItemGroupID + "}");
         $("#LineItemNumber").text("");
         $("#LineItemID").val(0);
+        $("#LineNumber").val(getLineOrder());
     } else {
         $("#LineItemID").val(lineItem.LineItemID);
         $("#LineItemNumber").text(lineItem.LineItemID);
@@ -1420,7 +1421,7 @@ function getNextLineNumber(groupID) {
         success: function (data) {
             var result = JSON.parse(data);
             var nextLine = parseInt(result) + 1;
-            $("#LineNumber").val(nextLine);
+           // $("#LineNumber").val(nextLine);
         },
         fail: function (data) {
             return 0;
@@ -1641,9 +1642,9 @@ function getNewLineItemRow(lineItem) {
     tableText += "<td>" + (FY - 1) + " - " + FY;
     tableText += "<input type='hidden' id='FY_" + lineItem.LineItemID + "' name='FY_" + lineItem.LineItemID + "' value=" + lineItem.FiscalYear + "'>";
     tableText += "<span id='FYWarning_" + lineItem.LineItemID + "' name='FYWarning_" + lineItem.LineItemID + "' class='FYWarning' style=\"display: none\" title='This item occurs after the ending date of the contract.'>*</span>";
-    tableText +=  "</td>";
-    lineItem.Amount = parseFloat(lineItem.Amount.replace(",", "").replace("$", "").replace("(", "-").replace(")", ""));
-    tableText += "<td>" + lineItem.Amount + "<input type='hidden' id='" + itemKey + "_Amount' value='" + lineItem.Amount + "'/>";
+    tableText += "</td>";
+    var cleanAmount = parseFloat(lineItem.Amount.replace(/,/g, "").replace("$", "").replace("(", "-").replace(")", ""));
+    tableText += "<td>" + lineItem.Amount + "<input type='hidden' id='" + itemKey + "_Amount' value='" + cleanAmount + "'/>";
 
     //fixes to lineItem before stringifying
     lineItem.FiscalYear = FY;
@@ -1665,9 +1666,9 @@ function getNewLineItemRow(lineItem) {
     StateProgram.StateProgramID = lineItem.StateProgramID;
     lineItem.StateProgram = StateProgram;
     lineItem.ExpansionObject = lineItem.EO;
-    //lineItem.Amount = parseFloat(lineItem.Amount.replace(",", "").replace("$", "").replace("(","-").replace(")",""));
     lineItem.Comments = lineItem.Comments.replace(/'/g,"&#39;");
     lineItem.LineNumber = lineItem.LineItemNumber;
+    lineItem.Amount = cleanAmount;
     var jsonString = JSON.stringify(lineItem);
 
     tableText += "<input type='hidden' id='json_" + itemKey + "' value='" + jsonString + "'/> </td>";
