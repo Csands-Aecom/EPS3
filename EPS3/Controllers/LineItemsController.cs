@@ -214,6 +214,13 @@ namespace EPS3.Controllers
                 {
                     newLineItem.OrgCode = newLineItem.OrgCode.Replace("55-", "");
                 }
+                // Uppercase some fields
+                newLineItem.FinancialProjectNumber = newLineItem.FinancialProjectNumber.ToUpper();
+                newLineItem.ExpansionObject = newLineItem.ExpansionObject.ToUpper();
+
+                //Update LineItemGroup if LineItem has FlairAmendmentID and LineID6S but LineItemGroup does not
+                //TODO: new method 
+
                 if (newLineItem.LineItemID > 0)
                 {
                     //LineItem already exists. This is an update.
