@@ -23,11 +23,11 @@ function initForms() {
     $(function () {
         $("#hamburger")
             .mouseover(function () {
-                var src = $(this).attr("src").replace("images/Menu_gray.png","images/Menu_white.png");
+                var src = $(this).attr("src").replace("images/Menu_default.png","images/Menu_focus.png");
                 $(this).attr("src", src);
             })
             .mouseout(function () {
-                var src = $(this).attr("src").replace("images/Menu_white.png","images/Menu_gray.png");
+                var src = $(this).attr("src").replace("images/Menu_focus.png","images/Menu_default.png");
                 $(this).attr("src", src);
             });
     });

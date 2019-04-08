@@ -372,7 +372,7 @@
     </div>
     <form asp-action="Manage">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        @if(ViewBag.CurrentUser != null && ViewBag.CurrentUserUserID != null && ViewBag.CurrentUser.UserLogin != null){
+        @if(ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserID != null && ViewBag.CurrentUser.UserLogin != null){
         <input type="hidden" name="UserID" id="UserID" value="@ViewBag.CurrentUser.UserID" />
         <input type="hidden" name="UserLogin" id="UserLogin" value="@ViewBag.CurrentUser.UserLogin" />
         }
