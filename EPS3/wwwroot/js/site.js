@@ -9,7 +9,7 @@ function initForms() {
 
     //initialize DataTable to be filterable, sortable, and searchable
     //sort by encumbrance ID, descending
-    $('[id^=indexTable]').DataTable({ "order": [[1, "desc"]]});
+    $('[id^=indexTable]').DataTable({ "order": [[1, "desc"]], "pageLength": 50});
 
     // support for NavBar submenus
     $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function (event) {
@@ -152,6 +152,7 @@ function initForms() {
         select: function (event, ui) {
             $("#VendorSelector").val(ui.item.label);
             $("#VendorID").val(ui.item.vendorID);
+            enableEditVendor();
             return false;
         }
     });
@@ -430,6 +431,20 @@ function addDialogs() {
     });
     $('#addVendorLink').click(function () {
         $('#addVendorDialog').dialog("open");
+    });
+
+    // edit Vendor dialog link
+    $('#editVendorDialog').dialog({
+        autoOpen: false,
+        height: 350,
+        width: 800,
+        close: function (event, ui) {
+            $("#VendorSelector").show();
+            $("#ContractTypeSelector").show();
+        }
+    });
+    $('#editVendorLink').click(function () {
+        $('#editVendorDialog').dialog("open");
     });
 
     $("#ContractDialog").dialog({
@@ -782,6 +797,25 @@ function addVendor() {
     $("AddVendorForm").submit();
     // close dialog and return focus to parent form
 }
+function closeAddVendorDialog() {
+    $("#addVendorDialog").dialog("close");
+    $("#VendorSelector").show();
+    $("#ContractTypeSelector").show();
+}
+function openEditVendorPanel() {
+    $("#editVendorPanel").show();
+    //populate the dialog form
+    $("#editVendorPanel #VendorID").val($("#VendorID").val());
+    var vendor = $("#VendorSelector").val();
+    var dashIndex = vendor.indexOf("-");
+    var vendorCode = vendor.substring(0, dashIndex - 1).trim();
+    var vendorName = vendor.substring(dashIndex + 1, vendor.length).trim();
+    $("#editVendorPanel #VendorCode").val(vendorCode);
+    $("#editVendorPanel #VendorName").val(vendorName);
+}
+function hideEditVendorPanel() {
+    $("#editVendorPanel").hide();
+}
 function addNewVendor() {
     Vendor = {};
     Vendor.VendorName = $("#VendorName").val();
@@ -801,6 +835,62 @@ function addNewVendor() {
         }
     });
 }
+function enableEditVendor() {
+    $("#editVendorLink").show();
+}
+function openEditVendorDialog() {
+    $("#editVendorDialog").dialog("open");
+    $("#VendorSelector").hide();
+    $("#ContractTypeSelector").hide();
+
+    //populate the dialog form
+    $("#editVendorDialog #VendorID").val($("#VendorID").val());
+    var vendor = $("#VendorSelector").val();
+    var dashIndex = vendor.indexOf("-");
+    var vendorCode = vendor.substring(0, dashIndex - 1).trim();
+    var vendorName = vendor.substring(dashIndex + 1, vendor.length).trim();
+    $("#editVendorDialog #VendorCode").val(vendorCode);
+    $("#editVendorDialog #VendorName").val(vendorName);
+}
+function closeEditedVendor() {
+    $("#editVendorDialog").dialog("close");
+    $("#VendorSelector").show();
+    $("#ContractTypeSelector").show();
+}
+function saveEditedVendor() {
+    $("#editVendorDialog").dialog("close");
+    $("EditVendorForm").submit();
+    $("#VendorSelector").show();
+    $("#ContractTypeSelector").show();
+}
+
+function updateVendor(source) {
+    Vendor = {};
+    if (source === "panel") {
+        Vendor.VendorID = $("#editVendorPanel #VendorID").val();
+        Vendor.VendorName = $("#editVendorPanel #VendorName").val();
+        Vendor.VendorCode = $("#editVendorPanel #VendorCode").val();
+    }
+    if (source === "dialog") {
+        Vendor.VendorID = $("#editVendorDialog #VendorID").val();
+        Vendor.VendorName = $("#editVendorDialog #VendorName").val();
+        Vendor.VendorCode = $("#editVendorDialog #VendorCode").val();
+    }
+    $.ajax({
+        url: "/Vendors/UpdateVendor",
+        type: "POST",
+        dataType: "json",
+        data: { vendor: JSON.stringify(Vendor) },
+        success: function (data) {
+            var results = JSON.parse(data);
+            $("#VendorID").val(results.VendorID);
+            $("#VendorSelector").val(results.VendorCode + " - " + results.VendorName);
+            $("#editVendorPanel").hide();
+            $("#editVendorDialog").dialog("close");
+            $("#VendorSelector").show();
+        }
+    });
+}
 
 function openLineItemCommentDialog() {
     $("#lineItemCommentDialog").dialog("open");
@@ -812,7 +902,7 @@ function addLineItemComment() {
     // close dialog and return focus to /Contracts/Edit
 }
 function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
-    var titleText = (submitTo == "Draft") ? "Save Encumbrance" : "Submit Encumbrance";
+    var titleText = (submitTo == "Draft") ? "Save Encumbrance" : "Submit Encumbrance to " + submitTo;
     var buttonText = (submitTo == "Draft") ? "Save" : "Submit";
     $("#SubmissionDialog").dialog({
         autoOpen: false,
@@ -834,7 +924,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             } else if (submitTo === "Work Program") {
                 defaultComment = "Please review and approve for Work Program.";
             } else if (submitTo === "CFM") {
-                defaultComment = "Please review and input to CFM.";
+                defaultComment = "";
             } else if (submitTo === "Complete") {
                 defaultComment = "";
             }
@@ -842,6 +932,15 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                 defaultComment = "";
                 notifyChecked = "";
             }
+
+            // for Work Program, show ItemReduced and AmountReduced
+            if (currentStatus === "Work Program") {
+                var itemReduced = "<strong>Item Reduced:</strong><br/><input type='text' name='itemReduced' id='itemReduced' /><br/>";
+                var amountReduced = "<strong>Amount Reduced:</strong><br/>$<input type='text' name='amountReduced' id='amountReduced' /><br/>";
+                $(this).append(itemReduced);
+                $(this).append(amountReduced);
+            }
+
             // add a comment textarea
             var newStatusInput = "<input type= 'hidden' name='newStatus' id='newStatus' value = '" + submitTo + "' />";
             $(this).append(newStatusInput);
@@ -922,6 +1021,19 @@ function getSubmissionDetails() {
         // replace last comma with close bracket
         jsonString = jsonString.replace(/,\s*$/, "");
         jsonString += "], ";
+    }
+    if ($("#itemReduced") && $("#itemReduced").val()) {
+        jsonString += "\"itemReduced\" : \"" + $("#itemReduced").val() + "\", ";
+    }
+    if ($("#amountReduced") && $("#amountReduced").val()) {
+        
+        var cleanAmount = parseFloat($("#amountReduced").val().replace(/,/g, "").replace("$", "").replace("(", "-").replace(")", ""));
+        if (isNaN(cleanAmount))
+        {
+            jsonString += "\"amountReduced\" : \"\", ";
+        } else {
+            jsonString += "\"amountReduced\" : \"" + cleanAmount + "\", ";
+        }
     }
     var commentText = $("#commentText").val();
     //if (commentText.length > 0) { commentText = commentText.replace(/'/g, "&#39;"); }
@@ -1279,11 +1391,11 @@ function setDefaultUserAssignedID(){
     }
     if (encumbranceType === "LOA") {
         prefix = "LOA#";
-        $("#AmendedIDDiv").show();
+        //$("#AmendedIDDiv").show();
     }
     if (encumbranceType === "Amendment") {
         prefix = "AMD#";
-        $("#AmendedLOA").show();
+        $("#AmendedIDDiv").show();
     }
     if (prefix.length > 0 && $("#UserAssignedID").val().length === 0) {
         $("#UserAssignedID").val(prefix); // at client request, changed from (prefix + encNumber);
@@ -2189,7 +2301,9 @@ function showComment(text, title) {
     //alert(text);
 }
 function showHideNegativeAmountOptions() {
-    var amount = $("#FinancialInformationFormPanel #Amount").val();
+    //var hasNeg = $("#FinancialInformationFormPanel #Amount").val().indexOf("-");
+    var amount = parseFloat($("#FinancialInformationFormPanel #Amount").val().replace(/,/g, "").replace("$", "").replace("(", "-").replace(")", ""));
+
     if (!amount || amount >= 0) {
         // hide FlairAmendmentID and LineID6S in the LineItems form
         $("#LineItemID6SCell").css('visibility', 'hidden');

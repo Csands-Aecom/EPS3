@@ -28,7 +28,7 @@ namespace EPS3
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString("EPSDevContext");
+            string connectionString = Configuration.GetConnectionString("EPSContext");
             string smtpSetup = Configuration.GetSection("Smtp").ToString();
             Log.Information("Connection String: " + connectionString);
             Log.Information("Smtp Setup: " + smtpSetup);

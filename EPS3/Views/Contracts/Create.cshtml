@@ -5,7 +5,7 @@
 }
 
 
-<form asp-action="Create">
+<form asp-action="Create" name="createContractForm" id="createContractForm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="UserID" id="UserID" value="@ViewBag.CurrentUser.UserID" />
     <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="New" />
@@ -176,7 +176,10 @@
                             <br />If the Vendor is not known, select <strong><em>AD</em></strong>.
                         </dd>
                         <dd>
-                            <a href="javascript:openAddVendorDialog();">Add New Vendor</a>
+                            <a href="javascript:openAddVendorDialog();" id="addVendorLink" name="addVendorLink">Add New Vendor</a>
+                            @if(ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.AdminRole)){
+                                <span name="editVendorLink" id="editVendorLink" style="display:none"><a href="javascript:openEditVendorDialog();" id="editVendorLink" name="editVendorLink">Edit Selected Vendor</a></span>
+                            }
                         </dd>
                         <p></p>
                         <dt>
@@ -228,11 +231,35 @@
                 <input type="text" name="VendorName" id="VendorName" width="350" />
                 <br />
                 <br />
+                <input type='button' value='Cancel' class='btn btn-default' onclick='closeAddVendorDialog()' />
                 <input type='button' value='Add Vendor' class='btn btn-default' onclick='addNewVendor()' />
             </form>
         </div> <!-- end panel body -->
     </div> <!-- end panel -->
 </div> <!-- end AddVendor dialog -->
+
+<div id="editVendorDialog" title="Edit Selected Vendor" style="display: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>Edit Vendor</h4>
+        </div>
+        <div class='panel-body'>
+            <form asp-controller="Vendors" asp-action="Edit" id="EditVendorForm" name="EditVendorForm">
+                <input type="hidden" name="VendorID" id="VendorID" />
+                <label for="VendorCode">Vendor Number:</label>
+                <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" />
+                <br />
+                <label for="VendorName">Vendor Name:</label>
+                <input type="text" name="VendorName" id="VendorName" width="350" />
+                <br />
+                <br />
+                <input type='button' value='Cancel' class='btn btn-default' onclick='closeEditedVendor()' />
+                <input type='button' value='Save Vendor' class='btn btn-default' onclick='updateVendor("dialog")' />
+            </form>
+        </div> <!-- end panel body -->
+    </div> <!-- end panel -->
+</div> <!-- end AddVendor dialog -->
+
 <div>
     <a asp-action="List">Back to List</a>
 </div>

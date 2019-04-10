@@ -178,6 +178,22 @@
                             </dd>
                         </dl>
                     </div> <!-- end col-->
+                    <div class="col-sm-3">
+                        @if (Model != null && Model.OriginatorUser != null && Model.OriginatorUser.FirstName != null)
+                        {
+                         <span>
+                            <strong>Originator:</strong> <a href="mailto:@Model.OriginatorUser.Email">@Model.OriginatorUser.FirstName @Model.OriginatorUser.LastName</a> (@Model.OriginatorUser.UserLogin) @Model.OriginatorUser.Phone<br />
+                            @Model.OriginatedDate.ToShortDateString()
+                         </span>
+                        }
+                        else
+                        {
+                          <span>
+                            <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
+                            @DateTime.Now.Date.ToShortDateString()
+                          </span>
+                        }
+                    </div> <!-- end col -->
                 </div> <!-- end row-->
                 <div class="row">
                     <div class="col-sm-4">
@@ -305,26 +321,10 @@
                     </div> <!-- end col-->
                 </div> <!-- end row-->
             }
-            <div class="row">
+            <div class="row" id="saveEncumbranceLink" name="saveEncumbranceLink">
                 <div class="col-sm-3">
-                    <span id="saveEncumbranceLink" name="saveEncumbranceLink">
-                        <input type="button" class=" btn btn-default" id="btnInputFinancialInformation" value="Input Financial Information" onclick="javascript:SaveInitialEncumbrance();" />
-                    </span>
+                    <input type="button" class=" btn btn-default" id="btnInputFinancialInformation" value="Input Financial Information" onclick="javascript:SaveInitialEncumbrance();" />
                 </div>
-                @if (Model != null && ViewBag.Contract != null && ViewBag.Contract.User != null)
-                {
-                    <div class="float-right align-top paddingright">
-                        <strong>Originator:</strong> <a href="mailto:@ViewBag.Contract.User.Email">@ViewBag.Contract.User.FirstName @ViewBag.Contract.User.LastName</a> (@ViewBag.Contract.User.UserLogin) @ViewBag.Contract.User.Phone<br />
-                        @ViewBag.Contract.CreatedDate.ToShortDateString()
-                    </div>
-                }
-                else
-                {
-                    <div class="float-right align-top paddingright">
-                        <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
-                        @DateTime.Now.Date.ToShortDateString()
-                    </div>
-                }
             </div>
             <div class="row">
                 <div class="col-sm-12">
@@ -525,13 +525,22 @@
                     @if (@Model != null && @Model.Statuses != null && @Model.Statuses.Count > 0)
                     {
                         <h3 class="groupStatus">History</h3>
-                        <table>
+                        <table class="table-striped table-bordered">
                             <thead>
                                 <tr class="groupStatus">
                                     <th colspan="2">Date</th>
                                     <th colspan="2">Commenter</th>
-                                    <th colspan="2">Status</th>
+                                    <th colspan="1">Status</th>
+                                    @if (ViewBag.HasWPHistory == "WP")
+                                    {
+                                    <th colspan="3">Comment</th>
+                                    <th colspan="2">Item Reduced</th>
+                                    <th colspan="2">Amount Reduced</th>
+                                    }
+                                    else
+                                    {
                                     <th colspan="7">Comment</th>
+                                    }
                                 </tr>
                             </thead>
                             <tbody>
@@ -542,8 +551,16 @@
                                         <tr class="groupStatus">
                                             <td colspan="2">@gstatus.SubmittalDate</td>
                                             <td colspan="2">@gstatus.User.FullName</td>
-                                            <td colspan="2">@gstatus.CurrentStatus</td>
+                                            <td colspan="1">@gstatus.CurrentStatus</td>
+                                            @if (ViewBag.HasWPHistory == "WP") {
+                                                <td colspan="3">@gstatus.Comments</td>
+                                                <td colspan="2">@gstatus.ItemReduced</td>
+                                                <td colspan="2">@gstatus.AmountString</td>
+                                             }
+                                            else
+                                            {
                                             <td colspan="7">@gstatus.Comments</td>
+                                            }
                                         </tr>
                                     }
                                 }

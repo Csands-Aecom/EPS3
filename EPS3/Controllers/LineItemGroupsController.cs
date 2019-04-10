@@ -142,6 +142,15 @@ namespace EPS3.Controllers
             if (groupID > 0)
             {
                 LineItemGroup Encumbrance = _pu.GetDeepEncumbrance(groupID);
+                // set ViewBag.HasWPHistory
+                if (Encumbrance.Statuses != null)
+                {
+                    foreach (LineItemGroupStatus status in Encumbrance.Statuses)
+                    {
+                        if (status.CurrentStatus.Equals(ConstantStrings.SubmittedWP)) { ViewBag.HasWPHistory = "WP"; }
+                    }
+                }
+
                 if (Encumbrance != null)
                 {
                     Contract Contract = _pu.GetDeepContract(Encumbrance.ContractID);
@@ -544,7 +553,9 @@ namespace EPS3.Controllers
                     CurrentStatus = newComment.status,
                     UserID = newComment.userID,
                     Comments = newComment.comments,
-                    SubmittalDate = DateTime.Now
+                    SubmittalDate = DateTime.Now,
+                    ItemReduced = newComment.itemReduced,
+                    AmountReduced = newComment.amountReduced
                 };
                 _context.LineItemGroupStatuses.Add(newStatus);
                 _context.SaveChanges();
@@ -771,20 +782,21 @@ namespace EPS3.Controllers
             // New approach is to return all results from non-archived contracts
             // and use roles to determine if links are included in the View
             // This method does NOT return Encumbrances that are CFMComplete
-            // TEMPFIX: add || 1==1 for all role-based conditionals
             List<LineItemGroup> allLineIDs = new List<LineItemGroup>();
             if (user == null)
             {
                 allLineIDs = _context.LineItemGroups.AsNoTracking()
                 .Where(l => l.Contract.CurrentStatus != (ConstantStrings.CloseContract))
                 .Include(l => l.Contract)
+                .OrderByDescending(l => l.GroupID)
+                .Take(200)
                 .ToList();
             }
             else
             {
                 string roles = _pu.GetUserRoles(user.UserLogin);
 
-                // add Group IDs for Groups in Draft where user is the originator
+                // add Group IDs for Groups in Draft if user has the originator role and is the originator of the encumbrance
                 List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
                     .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
@@ -797,7 +809,7 @@ namespace EPS3.Controllers
                 allLineIDs.AddRange(origLineIDs);
 
 
-                // add Line IDs for Groups in Finance where user has Finance role
+                // add Line IDs for Groups in Finance if user has Finance role
                 List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
                     .Include(l => l.Contract)
@@ -808,7 +820,7 @@ namespace EPS3.Controllers
                 }
                 allLineIDs.AddRange(finLineIDs);
 
-                // add Line IDs for Groups in Work Program where user has WP role
+                // add Line IDs for Groups in Work Program if user has WP role
                 List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
                     .Include(l => l.Contract)
@@ -819,7 +831,7 @@ namespace EPS3.Controllers
                 }
                 allLineIDs.AddRange(wpLineIDs);
 
-                // add Line IDs for Groups in Draft where user is the originator
+                // add Line IDs for Groups in CFM Ready 
                 List<LineItemGroup> cfmLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
                     .Include(l => l.Contract)
@@ -835,6 +847,8 @@ namespace EPS3.Controllers
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
                     .Include(l => l.Contract)
                     .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
+                    .OrderByDescending(l => l.GroupID)
+                    .Take(200)
                     .ToList();
                 results.Add("Processed", cfmGroups);
                 allLineIDs.AddRange(cfmGroups);
@@ -844,6 +858,8 @@ namespace EPS3.Controllers
                         .Where(l => l.CurrentStatus.Contains("Closed"))
                         .Include(l => l.Contract)
                         .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
+                        .OrderByDescending(l => l.GroupID)
+                        .Take(200)
                         .ToList();
                 results.Add("Closed", closeGroups);
                 allLineIDs.AddRange(closeGroups);
@@ -858,6 +874,8 @@ namespace EPS3.Controllers
                     .Where(l => l.OriginatorUser.UserID == user.UserID && l.CurrentStatus != "Closed")
                     .Include(l => l.Contract)
                     .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
+                    .OrderByDescending(l => l.GroupID)
+                    .Take(200)
                     .ToList();
 
             return myGroups;

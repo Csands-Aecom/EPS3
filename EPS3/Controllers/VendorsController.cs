@@ -79,6 +79,39 @@ namespace EPS3.Controllers
             return Json(success);
         }
 
+        public JsonResult UpdateVendor(string vendor)
+        {
+            Vendor theVendor = JsonConvert.DeserializeObject<Vendor>(vendor);
+            theVendor.VendorCode = theVendor.VendorCode.ToUpper();
+            if ((theVendor.VendorCode != null && theVendor.VendorCode.Length > 0) && (theVendor.VendorName != null && theVendor.VendorName.Length > 0))
+            {
+                if (VendorExists(theVendor.VendorID))
+                {
+                    Vendor thisVendor = _context.Vendors.SingleOrDefault(v => v.VendorID == theVendor.VendorID);
+                    thisVendor.VendorName = theVendor.VendorName;
+                    thisVendor.VendorCode = theVendor.VendorCode;
+                    _context.Vendors.Update(thisVendor);
+                    _context.SaveChanges();
+                    theVendor = thisVendor;
+                }
+                else
+                {
+                    return (Json("{\"success\": \"false\"}"));
+                }
+            }
+            else
+            {
+                return (Json("{\"success\": \"false\"}"));
+            }
+            string success = "{\"success\": \"true\", \"VendorName\" : \"" + theVendor.VendorName + "\", \"VendorID\" : \"" + theVendor.VendorID + "\", \"VendorCode\": \"" + theVendor.VendorCode + "\"}";
+            return Json(success);
+        }
+
+        public bool VendorExists(int vendorID)
+        {
+            int vendorCount = _context.Vendors.Count(v => v.VendorID == vendorID);
+            return (vendorCount > 0);
+        }
         public bool VendorExists(string vendorCode)
         {
             int vendorCount = _context.Vendors.Count(v => v.VendorCode == vendorCode);
