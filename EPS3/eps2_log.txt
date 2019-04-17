@@ -8596,3 +8596,31 @@ Error Number:544,State:1,Class:16
    at Microsoft.EntityFrameworkCore.DbContext.SaveChanges(Boolean acceptAllChangesOnSuccess)
    at Microsoft.EntityFrameworkCore.DbContext.SaveChanges()
    at EPS3.Controllers.LineItemGroupsController.AddNewEncumbrance(String lineItemGroup, String comments) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Controllers\LineItemGroupsController.cs:line 550
+2019-04-17 10:13:37.975 -04:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 405
+2019-04-17 10:13:59.188 -04:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (0x80004005): An attempt was made to access a socket in a way forbidden by its access permissions 156.75.163.42:25
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 405
