@@ -156,7 +156,9 @@ function initForms() {
             return false;
         }
     });
-
+    $("#VendorSelector").bind('blur', function () {
+        updateContractVendor()
+    });
     //Contract Types
     $("#ContractTypeSelector").autocomplete({
         source: function (request, response) {
@@ -191,6 +193,10 @@ function initForms() {
             $("#ContractTypeID").val(ui.item.contractTypeID);
             return false;
         }
+    });
+
+    $("#ContractTypeSelector").bind('blur', function () {
+        updateContractContractType()
     });
 
     //OCA
@@ -513,6 +519,12 @@ function addDialogs() {
 }
 
 function showHideButtons() {
+    //if user has Admin role show Users link on hamburger menu
+    if ($("#UserRoles").val().indexOf("Admin") >= 0 && $("#UsersMenu").length === 0) {
+        var usersMenu = "<li id='UsersMenu' name='UsersMenu'><a href='\\Users\\Index'>Users</a></li >";
+        $("#HamburgerMenu").append(usersMenu);      
+    }
+
     //collapse panels if not Originator
     if ($("#UserRoles").val() && $("#UserRoles").val().indexOf("Originator") < 0) {
         toggleEncumbrancePanel();
@@ -862,6 +874,17 @@ function saveEditedVendor() {
     $("EditVendorForm").submit();
     $("#VendorSelector").show();
     $("#ContractTypeSelector").show();
+}
+
+function updateContractVendor() {
+    if ($("#Contract_VendorID")) {
+        $("#Contract_VendorID").val($("#VendorID").val());
+    }
+}
+function updateContractContractType() {
+    if ($("#Contract_ContractTypeID")) {
+        $("#Contract_ContractTypeID").val($("#ContractTypeID").val());
+    }
 }
 
 function updateVendor(source) {
@@ -2133,6 +2156,9 @@ function SaveEncumbrance(commentJson) {
     encumbrance.OriginatorUserID = $("#UserID").val();
     encumbrance.isEditable = 1;
     encumbrance.CurrentStatus = $("#CurrentStatus").val();
+    if ($("#AmendedLineItemID").val()) {
+        encumbrance.AmendedLineItemID = $("#AmendedLineItemID").val();
+    }
     if ($("#AdvertisedDate").val()) {
         encumbrance.AdvertisedDate = $("#AdvertisedDate").val();
     }

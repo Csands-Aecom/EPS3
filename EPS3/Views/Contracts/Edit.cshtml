@@ -60,7 +60,8 @@
                         <dd>
                             <div>
                                 <input type="hidden" id="Contract_ContractTypeID" name="Contract.ContractTypeID" value="@Model.Contract.ContractTypeID" />
-                                <input type="text" size="50" class="form-control" id="ContractTypeSelector" name="ContractTypeSelector" value="@ViewBag.myContractType.ContractTypeSelector"  style="text-transform:uppercase" />
+                                <input type="hidden" id="ContractTypeID" name="ContractTypeID" value="@Model.Contract.ContractTypeID" />
+                                <input type="text" size="50" class="form-control" id="ContractTypeSelector" name="ContractTypeSelector" value="@ViewBag.myContractType.ContractTypeSelector" style="text-transform:uppercase" />
                                 <span id="ContractTypeClear" class="glyphicon glyphicon-remove-circle float-right" style="margin-right : 10px; vertical-align: text-bottom"></span>
                                 @Html.ValidationMessageFor(model => model.Contract.ContractTypeID, "A Contract Type is required.")
                             </div>
@@ -210,6 +211,7 @@
                         <dd>
                             <div>
                                 <input type="hidden" id="Contract_VendorID" name="Contract.VendorID" value="@Model.Contract.VendorID" />
+                                <input type="hidden" id="VendorID" name="VendorID" value="@Model.Contract.VendorID" onchange="updateContractVendorID()" />
                                 <input type="text" class="form-control" id="VendorSelector" name="VendorSelector" value="@ViewBag.myVendor.VendorSelector" />
                                 <span id="VendorClear" class="glyphicon glyphicon-remove-circle float-right " style="margin-right : 10px; vertical-align: text-bottom"></span>
                                 @Html.ValidationMessageFor(model => model.Contract.VendorID, "If the Vendor is not known, select AD.")
@@ -238,35 +240,6 @@
                         <dd>
                             @Html.TextAreaFor(model => model.Contract.DescriptionOfWork, new { @rows = 3, @cols = "200" })
                             @Html.ValidationMessageFor(model => model.Contract.DescriptionOfWork, "Please provide a description of the work to be completed under this contract.")
-                        </dd>
-                    </dl>
-                </div> <!-- end  col -->
-                <div class="col-sm-4">
-                    <dl>
-                        <dt>
-                            @Html.DisplayNameFor(model => model.Contract.CurrentStatus)
-                        </dt>
-                        <dd>
-                            <span id="currentStatusSpan">@Model.Contract.CurrentStatus</span><br />
-
-                        @if (ViewBag.ContractStatusSelectionList != null && ViewBag.ContractStatusSelectionList.Count > 0)
-                        {
-                        <select id="Contract_CurrentStatus" onchange="updateContractStatus()" value="@Model.Contract.CurrentStatus">
-                           @foreach (SelectListItem status in ViewBag.ContractStatusSelectionList)
-                           {
-                               if (status.Value.Equals(Model.Contract.CurrentStatus))
-                               {
-                                <option selected value="@status.Value"> @status.Text </option>
-                               }
-                               else
-                               {
-                                <option value="@status.Value"> @status.Text </option>
-                               }
-                           }
-                        </select>
-                        <br />
-                        }
-                        <div id="UpdateSuccess"></div>
                         </dd>
                     </dl>
                 </div> <!-- end  col -->

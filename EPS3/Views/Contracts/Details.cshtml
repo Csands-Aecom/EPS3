@@ -201,6 +201,12 @@
                     <div class="col-sm-2">
                         <label for="@encumbrance.LineItemType">Type:</label>
                         @encumbrance.LineItemType
+                        @if (encumbrance.AdvertisedDate != null)
+                        {
+                            <label for="@encumbrance.AdvertisedDate">Advertised Date:</label>
+                            @encumbrance.AdvertisedDate
+                        }
+                        
                         @if (encumbrance.LettingDate != null)
                         {
                             <label for="@encumbrance.LettingDate">Letting Date:</label>
@@ -211,6 +217,18 @@
                         <label for="encumbranceAmount_@encumbrance.GroupID">Amount:</label>
                         $@ViewBag.GroupAmounts[encumbrance.GroupID].ToString("#,##0.00")
                     </div>
+                    @if (encumbrance.UserAssignedID != null)
+                    {
+                    <div class="col-sm-2">
+                        <label for="@encumbrance.UserAssignedID">ID:</label>
+                        @encumbrance.UserAssignedID
+                        @if(encumbrance.AmendedLineItemID != null)
+                        {
+                            <label for="@encumbrance.AmendedLineItemID"> for LOA#</label>
+                            @encumbrance.AmendedLineItemID
+                        }
+                    </div>
+                    }
                 </div>
             </div>
             <div class="panel-body" id="encumbrancePanelBody_@encumbrance.GroupID" name="encumbrancePanelBody_@encumbrance.GroupID">

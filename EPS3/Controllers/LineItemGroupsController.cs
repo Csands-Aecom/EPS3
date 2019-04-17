@@ -537,6 +537,8 @@ namespace EPS3.Controllers
                     existingGroup.IsEditable = newLineItemGroup.IsEditable;
                     existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
                     existingGroup.UserAssignedID = newLineItemGroup.UserAssignedID;
+                    existingGroup.LettingDate = newLineItemGroup.LettingDate;
+                    existingGroup.AdvertisedDate = newLineItemGroup.AdvertisedDate;
                     if (!newLineItemGroup.LineItemType.Equals(existingGroup.LineItemType))
                     {
                         existingGroup.LineItemType = newLineItemGroup.LineItemType;

@@ -534,65 +534,31 @@ namespace EPS3.Controllers
             {
                 try
                 {
-                    // compare old and new contract.CurrentStatus. If it has changed:
-                    Contract oldContract = _context.Contracts.AsNoTracking().SingleOrDefault(c => c.ContractID == contract.ContractID);
-                    // 1. ConstantStrings.LookupConstant( contract.CurrentStatus)
-                    contract.CurrentStatus = ConstantStrings.LookupConstant(contract.CurrentStatus);
-                    bool statusChanged = oldContract.CurrentStatus != contract.CurrentStatus;
-                    if(statusChanged)
-                    {
-                        User currentUser = _context.Users.AsNoTracking().SingleOrDefault(u => u.UserID == CurrentUserID);
-                        // 2. add a new Contract Status record
-                        ContractStatus newStatus = new ContractStatus
-                        {
-                            Comments = Comments,
-                            Contract = contract,
-                            CurrentStatus = contract.CurrentStatus,
-                            User = currentUser,
-                            SubmittalDate = DateTime.Now
-                        };
-                        _context.ContractStatuses.Add(newStatus);
-                        _context.SaveChanges();
-                    }
-                    contract.ModifiedDate = DateTime.Now.Date;
-                    _context.Update(contract);
-                    await _context.SaveChangesAsync();
+                    // update the contract
+                    Contract oldContract = _context.Contracts.SingleOrDefault(c => c.ContractID == contract.ContractID);
+                    // contractID and contractNumber do not change
+                    oldContract.BeginningDate = contract.BeginningDate;
+                    oldContract.BudgetCeiling = contract.BudgetCeiling;
+                    oldContract.CompensationID = contract.CompensationID;
+                    oldContract.ContractFunding = contract.ContractFunding;
+                    oldContract.ContractTotal = contract.ContractTotal;
+                    oldContract.ContractTypeID = contract.ContractTypeID;
+                    oldContract.CurrentStatus = contract.CurrentStatus;
+                    oldContract.DescriptionOfWork = contract.DescriptionOfWork;
+                    oldContract.EndingDate = contract.EndingDate;
+                    oldContract.IsRenewable = contract.IsRenewable;
+                    oldContract.MaxLoaAmount = contract.MaxLoaAmount;
+                    oldContract.ProcurementID = contract.ProcurementID;
+                    oldContract.ModifiedDate = DateTime.Now.Date;
+                    oldContract.RecipientID = contract.RecipientID;
+                    oldContract.ServiceEndingDate = contract.ServiceEndingDate;
+                    oldContract.UserID = contract.UserID;
+                    oldContract.VendorID = contract.VendorID;
 
-                    // 3. send any appropriate emails
-                    if (statusChanged)
-                    {
-                        if (contract.CurrentStatus.Equals(ConstantStrings.ContractInFinance))
-                        {
-                            // send receipt to Originator
-                            // send notice to Finance
-                        }
-                        if (contract.CurrentStatus.Equals(ConstantStrings.ContractInWP))
-                        {
-                            // send notice to WP users
-                            // TODO: change to selected users
-                        }
-                        if (contract.CurrentStatus.Equals(ConstantStrings.ContractInCFM))
-                        {
-                            // send notice to CFM users
-                        }
-                        if (contract.CurrentStatus.Equals(ConstantStrings.ContractComplete50) ||
-                            contract.CurrentStatus.Equals(ConstantStrings.ContractComplete50) ||
-                            contract.CurrentStatus.Equals(ConstantStrings.ContractComplete50))
-                        {
-                            // send notice to constatus@dot.state.fl.us
-                        }
-                    }
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ContractExists(contract.ContractID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    _context.Update(oldContract);
+                    _context.SaveChanges();
+                    return RedirectToAction("Details", new { id = oldContract.ContractID });
+
                 }
                 catch (Exception e)
                 {
@@ -600,17 +566,9 @@ namespace EPS3.Controllers
                     Log.Error("ContractsController.Edit Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 }
                 ViewBag.SuccessMessage = "Contract update saved.";
-                return RedirectToAction("Details", new { id = contract.ContractID });
+                return await View(contract.ContractID);
             }
-            else
-            {
-                Log.Information("Model state not valid: ");
-                var errors = string.Join(" | ", ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage));
-                Log.Information(errors);
-
-            }
+            
             ViewData["ContractTypes"] = new SelectList(_context.ContractTypes, "ContractTypeID", "ContractTypeID", contract.ContractType);
             ViewData["Compensations"] = new SelectList(_context.Compensations, "CompensationID", "CompensationID", contract.CompensationID);
             ViewData["Procurements"] = new SelectList(_context.Procurements, "ProcurementID", "ProcurementID", contract.ProcurementID);

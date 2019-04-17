@@ -206,7 +206,9 @@
                             </dd>
                         </dl>
                     </div> <!-- end col-->
-                    <div class="col-sm-3" id="AmendedIDDiv" style="display: none">
+                    @if (Model != null && Model.LineItemType.Equals(ConstantStrings.Amendment))
+                    {
+                     <div class="col-sm-3" id="AmendedIDDiv" name="AmendedIDDiv">
                         <dl>
                             <dt>
                                 @Html.DisplayNameFor(model => model.AmendedLineItemID)
@@ -215,7 +217,21 @@
                                 @Html.TextBoxFor(model => model.AmendedLineItemID)
                             </dd>
                         </dl>
-                    </div> <!-- end col-->
+                     </div>
+                    }
+                    else
+                    {
+                    <div class="col-sm-3" id="AmendedIDDiv" name="AmendedIDDiv" style="display: none">
+                        <dl>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.AmendedLineItemID)
+                            </dt>
+                            <dd>
+                                @Html.TextBoxFor(model => model.AmendedLineItemID)
+                            </dd>
+                        </dl>
+                    </div>
+                    }<!-- end col-->
                 </div> <!-- end row-->
             }
             else
@@ -293,20 +309,7 @@
                     </div> <!-- end col-->
                 </div> <!-- end row-->
                 <div class="row">
-                    <div class="col-sm-3" id="AmendedIDDiv" style="display: none">
-                        @if (Model.AmendedLineItemID != null && Model.AmendedLineItemID.Length > 0)
-                        {
-                            <dl>
-                                <dt>
-                                    @Html.DisplayNameFor(model => model.AmendedLineItemID)
-                                </dt>
-                                <dd>
-                                    @Html.DisplayFor(model => model.AmendedLineItemID)
-                                </dd>
-                            </dl>
-                        }
-                    </div> <!-- end col-->
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
                         @if (Model.Description != null && Model.Description.Length > 0)
                         {
                             <dl>
@@ -315,6 +318,19 @@
                                 </dt>
                                 <dd>
                                     @Html.DisplayFor(model => model.Description)
+                                </dd>
+                            </dl>
+                        }
+                    </div> <!-- end col-->
+                    <div class="col-sm-3" id="AmendedIDDiv">
+                        @if (Model.AmendedLineItemID != null && Model.AmendedLineItemID.Length > 0)
+                        {
+                            <dl>
+                                <dt>
+                                    @Html.DisplayNameFor(model => model.AmendedLineItemID)
+                                </dt>
+                                <dd>
+                                    @Html.DisplayFor(model => model.AmendedLineItemID)
                                 </dd>
                             </dl>
                         }

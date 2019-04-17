@@ -487,7 +487,7 @@ namespace EPS3.Helpers
             }
             if (encumbrance.AmendedLineItemID != null && encumbrance.AmendedLineItemID != "")
             {
-                encumbranceInfo += "<strong>Corrects FLAIR ID:</strong> " + encumbrance.AmendedLineItemID + "<br />";
+                encumbranceInfo += "<strong>Amended LOA:</strong> " + encumbrance.AmendedLineItemID + "<br />";
             }
             encumbranceInfo += "<strong>Last Updated:</strong> " + encumbrance.LastEditedDate + " by " + encumbrance.LastEditedUser.FirstName + " " + encumbrance.LastEditedUser.LastName + "<br />";
 
