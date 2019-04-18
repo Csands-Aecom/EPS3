@@ -28,7 +28,7 @@ namespace EPS3.Controllers
         public async Task<IActionResult> Index()
         {
             ViewBag.UserIsAdmin = UserIsAdmin();
-            return View(await _context.Users.Include(u => u.Roles).Where(u => u.IsDisabled==0).ToListAsync());
+            return View(await _context.Users.Include(u => u.Roles).ToListAsync());
         }
 
         // GET: Users/Details/5
@@ -115,12 +115,14 @@ namespace EPS3.Controllers
             {
                 UserVM.User = await _context.Users
                 .Include(u => u.Roles)
-                .Where(u => u.IsDisabled == 0)
                 .SingleOrDefaultAsync(u => u.UserID == id);
                 string userRoles = "";
-                foreach (UserRole role in UserVM.User.Roles)
+                if (UserVM.User.Roles != null)
                 {
-                    userRoles += role.Role;
+                    foreach (UserRole role in UserVM.User.Roles)
+                    {
+                        userRoles += role.Role;
+                    }
                 }
                 ViewBag.UserRoles = userRoles;
                 List<String> rolesList = new List<String>
@@ -181,7 +183,8 @@ namespace EPS3.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(user);
+            //ModelState is not valid
+            return RedirectToAction(nameof(Edit));
         }
 
         // GET: Users/Delete/5

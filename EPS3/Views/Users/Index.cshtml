@@ -15,6 +15,11 @@
                 <a asp-action="Create">Create New</a>
             </h4>
         }
+        <input type="hidden" id="UserRoles" name="UserRoles" value="@ViewBag.Roles"/>
+
+    </div>
+    <div>
+        <input type="checkbox" name="showDisabledCheckbox" id="showDisabledCheckbox" onchange="toggleDisabledUsers()" />Show Disabled Users
     </div>
     <div class="panel-body">
 
@@ -45,8 +50,14 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
+                    var isDisabled = item.IsDisabled == 1 ? "disabledUser" : "";
+                    var display = item.IsDisabled == 1 ? "style=display:none" : "";
+                        <tr class="@isDisabled" @display>
                         <td>
+                        @if(item.IsDisabled == 1)
+                        {
+                            <span  style="color: red"><strong>Disabled</strong></span>
+                        }
                             @Html.DisplayFor(modelItem => item.FirstName)
                         </td>
                         <td>

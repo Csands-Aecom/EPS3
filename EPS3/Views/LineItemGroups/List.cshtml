@@ -95,7 +95,29 @@
             </table>
         </div> <!-- end tab for key -->
     }
-    <div id="tabs-Reports">
-        To view reports, visit <a href="http://dotstpgis1/eps" target="_blank">the Legacy EPS application.</a>
-    </div>
-</div> <!-- end tabs div-->
+        <div id="tabs-Reports">
+            <div class="row">
+                <div class="col-sm-12">
+                    To view reports, visit <a href="http://dotstpgis1/eps" target="_blank">the Legacy EPS application.</a>
+                </div>
+
+                <div class="col-sm-12">
+                    <hr />
+                </div>
+                </div> <!-- end row -->
+                <div class="row">
+                    <div class="col-sm-3">
+                        Find an Encumbrance Request by ID: 
+                        <input type="text" name="findGroupID" id="findGroupID" onkeyup="validateFindGroupID()" placeholder="Enter an Encumbrance ID" /> 
+                        <input type="button" disabled name="findEncumbranceButton" id="findEncumbranceButton" value="Find Encumbrance Request" onclick="findEncumbrance()" /></p>
+                    </div>
+                    <div class="col-sm-3">
+                        Find a Contract by Contract Number:   
+                        <input type="hidden" id="ContractID" name="ContractID" onchange="validateFindContract()" />
+                        <input type="hidden" id="ContractStatus" name="ContractStatus" />
+                        <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Enter a Contract Number" /> 
+                        <input type="button" disabled name="findContractButton" id="findContractButton" value="Find Contract" onclick="findContract()" />
+                    </div>
+                </div> <!-- end row -->
+            </div>
+            </div> <!-- end tabs div-->

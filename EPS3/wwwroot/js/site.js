@@ -628,15 +628,21 @@ function OpenCloseContractDialog(contractID, contractNumber, contractStatus) {
         open: function (event, ui) {
             $("#ContractSelector").hide();
             $(this).html("");
-            var contents = "<p>Please select a closure type: </p>"
-            contents += "<input type='radio' name='closureType' id='close50' />Close Status 50 <br />";
-            contents += "<input type='radio' name='closureType' id='close98' />Close Status 98 <br />";
-            contents += "<p>To remove line items from this Encumbrance Request, use the <strong>Delete</strong> link for that line in the <strong>Financial Information</strong> section of the form.</p>";
-            contents += "<p>I certify that the amounts being released are not required for current and future obligations. </p>";
-            contents += "<input type='radio' name='amountsYesNo' id='amountsYes' />Yes ";
-            contents += "<input type='radio' name='amountsYesNo' id='amountsNo'  />No  ";
-            contents += "<input type='radio' name='amountsYesNo' id='amountsNA'  />N/A ";
-            contents += "</p>";
+            var contents = "<p>Please select a closure type: </p>";
+            contents += "<table><tr><th>&nbsp;</th><th>&nbsp;</th></tr><tr>";
+            contents += "<td><input type='radio' name='closureType' id='close50' class='radio inline' style='vertical-align: middle; margin: 0px;' /></td><td><label class='radio-inline'> Close Status 50 </label></td>";
+            contents += "</tr><tr>";
+            contents += "<td><input type='radio' name='closureType' id='close98' class='radio inline' style='vertical-align: middle; margin: 0px;' /></td><td><label class='radio-inline'> Close Status 98 </label></td>";
+            contents += "</tr></table><br/>";
+            //contents += "<p>To remove line items from this Encumbrance Request, use the <strong>Delete</strong> link for that line in the <strong>Financial Information</strong> section of the form.</p>";
+            contents += "I certify that the amounts being released are not required for current and future obligations.";
+            contents += "<table><tr><th>&nbsp;</th><th>&nbsp;</th></tr><tr>";
+            contents += "<td><input type='radio' name='amountsYesNo' id='amountsYes' /></td><td> Yes</td>";
+            contents += "</tr><tr>";
+            contents += "<td><input type='radio' name='amountsYesNo' id='amountsNo'  /></td><td> No</td>";
+            contents += "</tr><tr>";
+            contents += "<td><input type='radio' name='amountsYesNo' id='amountsNA'  /></td><td> N/A</td>";
+            contents += "</tr></table><br/>";
             contents += "Comments: <br/>";
             contents += "<input type='textarea' name='ClosureComments' id='ClosureComments' />";
             contents += "<input type='hidden' name='CloseContractID' id='CloseContractID' value='" + contractID + "'>";
@@ -2368,5 +2374,49 @@ function findMatchingContract() {
                 }
             }
         });
+    }
+}
+
+//rudimentary search tools
+function validateFindGroupID() {
+    if ($("#findGroupID").val()) {
+        $("#findEncumbranceButton").prop("disabled", false);
+    } else {
+        $("#findEncumbranceButton").prop("disabled", true);
+    }
+}
+function validateFindContract() {
+    if ($("#ContractID").val()) {
+        $("#findContractButton").prop("disabled", false);
+    } else {
+        $("#findContractButton").prop("disabled", true);
+    }
+}
+function findEncumbrance() {
+    var url = window.location;
+    var id = $("#findGroupID").val();
+    var path = url + "/../Manage?id=" + id;
+    window.location.href = path;
+}
+function findContract() {
+    var url = window.location;
+    var id = $("#ContractID").val();
+    var path = url + "/../../Contracts/Details?id=" + id;
+    window.location.href = path;
+}
+function toggleDisabledUsers() {
+    if ($("#showDisabledCheckbox").is(":checked"))
+    {
+        $(".disabledUser").show();
+    } else {
+        $(".disabledUser").hide();
+    }
+}
+
+function updateUserIsDisabled() {
+    if ($("#reEnable").is(":checked")) {
+        $("#User_IsDisabled").val(1)
+    } else {
+        $("#User_IsDisabled").val(0)
     }
 }
