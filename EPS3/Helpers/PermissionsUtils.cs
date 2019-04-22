@@ -377,5 +377,24 @@ namespace EPS3.Helpers
 
             return resultList;
         }
+
+        public decimal GetTotalAmountOfAllEncumbrances(int ContractID)
+        {
+            List<LineItemGroup> encumbrances = _context.LineItemGroups.AsNoTracking()
+                .Include(l => l.LineItems)
+                .Where(l => l.ContractID == ContractID).ToList();
+            decimal totalAmount = 0.0m;
+            foreach (LineItemGroup encumbrance in encumbrances)
+            {
+                if (encumbrance.LineItemType != ConstantStrings.Advertisement)
+                {
+                    foreach (LineItem lineitem in encumbrance.LineItems)
+                    {
+                        totalAmount += lineitem.Amount;
+                    }
+                }
+            }
+            return totalAmount;
+        }
     }
 }

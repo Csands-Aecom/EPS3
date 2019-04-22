@@ -17,11 +17,13 @@ namespace EPS3.Controllers
     {
         private readonly EPSContext _context;
         private readonly ILogger<MessagesController> _logger;
+        private PermissionsUtils _pu;
 
         public MessagesController(EPSContext context, ILoggerFactory loggerFactory)
         {
             _context = context;
             _logger = loggerFactory.CreateLogger<MessagesController>();
+            _pu = new PermissionsUtils(_context);
         }
 
         // GET: Messages
@@ -33,6 +35,7 @@ namespace EPS3.Controllers
             {
                 return RedirectToAction("List", "LineItemGroups");
             }
+            ViewBag.Roles = _pu.GetUserRoles(user.UserLogin);
             var recipients = _context.MessageRecipients
                 .Where(m => m.User == user)
                 .AsNoTracking()

@@ -105,7 +105,6 @@ namespace EPS3.Controllers
                 erViewModel.LineItemGroups = lineItemGroups;
 
                 Dictionary<int, decimal> groupAmounts = new Dictionary<int, decimal>();
-                decimal contractAmount = 0.0m;
                 Boolean canBeClosed = !contract.CurrentStatus.Contains("Closed");
                 foreach (LineItemGroup encumbrance in lineItemGroups)
                 {
@@ -115,8 +114,6 @@ namespace EPS3.Controllers
                         groupAmount += lineItem.Amount;
                     }
                     groupAmounts.Add(encumbrance.GroupID, groupAmount);
-                    contractAmount += groupAmount;
-
                     // check if all line item groups can be closed
                     if (!encumbrance.CurrentStatus.Contains(ConstantStrings.CFMComplete) && !encumbrance.CurrentStatus.Contains("Closed"))
                     {
@@ -125,7 +122,7 @@ namespace EPS3.Controllers
                 }
                 ViewBag.CanClose = canBeClosed;
                 ViewBag.GroupAmounts = groupAmounts;
-                ViewBag.ContractAmount = contractAmount;
+                ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contract.ContractID);
             }
             catch (Exception e)
             {
@@ -504,6 +501,8 @@ namespace EPS3.Controllers
             {
                 return NotFound();
             }
+            ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contractVM.Contract.ContractID);
+
             ViewData["ContractTypes"] = _context.ContractTypes.OrderBy(c => c.ContractTypeCode);
             ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
             ViewData["Compensations"] = _context.Compensations.OrderBy(c => c.CompensationID);

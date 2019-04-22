@@ -4,17 +4,6 @@
     ViewData["Title"] = "Edit Contract Information";
 }
 
-<script>
-    @{
-        decimal TotalAmount = 0.00M;
-        foreach (LineItem item in (Model.LineItems))
-        {
-            TotalAmount = TotalAmount + item.Amount;
-        }
-        decimal SumTotalAmount = @ViewBag.Contract.ContractTotal + TotalAmount;
-    }
-</script>
-
 <form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="Contract.ContractID" id="Contract_ContractID" value="@Model.Contract.ContractID" />
@@ -125,10 +114,10 @@
                             <div id="budgetCeilingMessage" class="error"></div>
                         </dd>
                         <dt>
-                            Amendment Amount
+                            Total of Encumbrance Requests
                         </dt>
                         <dd>
-                            <b style="font-size: 1.2em;"> @string.Format("{0:C}", @TotalAmount)</b>
+                            <b style="font-size: 1.2em;"> @string.Format("{0:C}", ViewBag.ContractAmount)</b>
                         </dd>
                     </dl>
                 </div>
@@ -175,12 +164,6 @@
                                 </span>
                             </div>
                             @Html.ValidationMessageFor(model => model.Contract.ServiceEndingDate, "")
-                        </dd>
-                        <dt>
-                            Contract Total Amount
-                        </dt>
-                        <dd>
-                            <b style="font-size: 1.2em;"> @string.Format("{0:C}", @SumTotalAmount)</b>
                         </dd>
                     </dl>
                 </div>

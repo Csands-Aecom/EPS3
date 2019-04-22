@@ -27,6 +27,7 @@ namespace EPS3.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
+
             ViewBag.UserIsAdmin = UserIsAdmin();
             return View(await _context.Users.Include(u => u.Roles).ToListAsync());
         }
@@ -74,6 +75,7 @@ namespace EPS3.Controllers
 
             if (GetRolesList(user).Contains(ConstantStrings.AdminRole))
             {
+                ViewBag.Roles = _pu.GetUserRoles(user.UserLogin);
                 return View();
             }
             else
@@ -113,6 +115,7 @@ namespace EPS3.Controllers
             User user = GetCurrentUser();
             if (GetRolesList(user).Contains(ConstantStrings.AdminRole))
             {
+                ViewBag.Roles = _pu.GetUserRoles(user.UserLogin);
                 UserVM.User = await _context.Users
                 .Include(u => u.Roles)
                 .SingleOrDefaultAsync(u => u.UserID == id);
@@ -198,6 +201,7 @@ namespace EPS3.Controllers
             User user = GetCurrentUser();
             if (GetRolesList(user).Contains(ConstantStrings.AdminRole))
             {
+                ViewBag.Roles = _pu.GetUserRoles(user.UserLogin);
                 var userToDelete = await _context.Users
                     .Include(u => u.Roles)
                     .Where(u => u.IsDisabled == 0)

@@ -58,15 +58,11 @@
                         <tr>
                             <td>
                                 <a href="/Contracts/Details?id=@item.Contract.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
-                                @if (key == ConstantStrings.Advertisement)
+                                @if (item.LineItemType.Equals(ConstantStrings.Advertisement))
                                 {
                                     @if (item.CurrentStatus == ConstantStrings.CFMReady || item.CurrentStatus == ConstantStrings.CFMComplete)
                                     {
                                         <span class="float-right"><a href="/LineItemGroups/Award?id=@item.GroupID"> Award </a></span>
-                                    }
-                                    else
-                                    {
-                                        <span class="float-right" title="Advertisement does not exist.">Award</span>
                                     }
                                 }
                             </td>
@@ -109,14 +105,14 @@
                     <div class="col-sm-3">
                         Find an Encumbrance Request by ID: 
                         <input type="text" name="findGroupID" id="findGroupID" onkeyup="validateFindGroupID()" placeholder="Enter an Encumbrance ID" /> 
-                        <input type="button" disabled name="findEncumbranceButton" id="findEncumbranceButton" value="Find Encumbrance Request" onclick="findEncumbrance()" /></p>
+                        <input type="button" class="disabled" disabled name="findEncumbranceButton" id="findEncumbranceButton" value="Find Encumbrance Request" onclick="findEncumbrance()" /></p>
                     </div>
                     <div class="col-sm-3">
                         Find a Contract by Contract Number:   
                         <input type="hidden" id="ContractID" name="ContractID" onchange="validateFindContract()" />
                         <input type="hidden" id="ContractStatus" name="ContractStatus" />
                         <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Enter a Contract Number" /> 
-                        <input type="button" disabled name="findContractButton" id="findContractButton" value="Find Contract" onclick="findContract()" />
+                        <input type="button" class="disabled" disabled name="findContractButton" id="findContractButton" value="Find Contract" onclick="findContract()" />
                     </div>
                 </div> <!-- end row -->
             </div>

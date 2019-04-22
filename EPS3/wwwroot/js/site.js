@@ -352,14 +352,15 @@ function initForms() {
         select: function (event, ui) {
             $("#ContractSelector").val(ui.item.label);
             $("#ContractID").val(ui.item.ContractID);
+            validateFindContract();
             // show the ContractPanel
-            if ($("#ContractPanel")) {
+            if ($("#ContractPanel").length > 0) {
                 showContractPanel(ui.item.ContractID);
                 if ($("#ContractSelector").val().toUpperCase() === "NEW") {
                     $("#ContractNumber").val("NEW");
                 }
             }
-            if ($("#LineItemsPanel")) {
+            if ($("#LineItemsPanel").length > 0) {
                 displayLineItemsPanelOrMessage();
             }
             return false;
@@ -469,6 +470,7 @@ function addDialogs() {
             $("#ContractTypeSelector").zIndex = $("#ContractDialog").zIndex + 1;
             //Vendors
             $("#VendorSelector").zIndex = $("#ContractDialog").zIndex + 1;
+            $("#ContractNumber").focus();
         },
         buttons: {
             "Cancel": function () {
@@ -538,6 +540,7 @@ function showHideButtons() {
     $("#noButtonDiv").hide();
     if ($("#ContractID").val() && $("#ContractID").val() > 0) {
         $("#OpenContractInformationDiv").hide();
+        $("#OpenContractInformationSpan").hide();
     }
     if (!($("#LineItemsPanel").is(":visible"))) {
         return false;
@@ -930,6 +933,32 @@ function addLineItemComment() {
     $("LineItemCommentForm").submit();
     // close dialog and return focus to /Contracts/Edit
 }
+
+function opendeleteEncumbranceDialog(id) {
+    $("#deleteEncumbranceDialog").dialog({
+        autoOpen: false,
+        width: 600,
+        resizable: false,
+        title: "Permanently delete Encumbrance Request #" + id,
+        modal: true,
+        open: function (event, ui) {
+            $(this).html("");
+            var deleteMessage = "<p>Would you like to permanently delete Encumbrance Request #" + id + "?</p>";
+            $(this).append(deleteMessage);
+        },
+        buttons: {
+            "Cancel": function () {
+                $(this).dialog("close");
+            },
+            "Delete": function () {
+                window.open("/LineitemGroups/Delete?id=" + id, "_self");
+                $(this).dialog("close");
+            }
+        }
+    });
+    $("#deleteEncumbranceDialog").dialog("open");
+}
+
 function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
     var titleText = (submitTo == "Draft") ? "Save Encumbrance" : "Submit Encumbrance to " + submitTo;
     var buttonText = (submitTo == "Draft") ? "Save" : "Submit";
@@ -955,7 +984,8 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             } else if (submitTo === "CFM") {
                 defaultComment = "";
             } else if (submitTo === "Complete") {
-                defaultComment = "";
+                notifyChecked = "checked";
+                defaultComment = "Input to CFM.";
             }
             if (submitTo === currentStatus) {
                 defaultComment = "";
@@ -1452,6 +1482,7 @@ function openContractDialog() {
     $("#ContractTypeSelector").autocomplete("option", "appendTo", "#ContractDialog");
     $("#VendorSelector").autocomplete("option", "appendTo", "#ContractDialog");
     if ($("#ContractSelector").val() === "NEW") { $("#ContractNumber").val("NEW"); }
+    $("#ContractNumber").focus();
 }
 
 function clearContract() {
@@ -1932,6 +1963,7 @@ function SaveInitialEncumbrance() {
     // Now that this is saved, hide the Contract Information button
     if ($("#ContractPanel").is(":visible")) {
         $("#OpenContractInformationDiv").hide();
+        $("#OpenContractInformationSpan").hide();
     }
     // Open the Financial Information Form
     if (ValidateEncumbrance()) {
@@ -2381,28 +2413,28 @@ function findMatchingContract() {
 function validateFindGroupID() {
     if ($("#findGroupID").val()) {
         $("#findEncumbranceButton").prop("disabled", false);
+        $("#findEncumbranceButton").removeClass("disabled");
     } else {
         $("#findEncumbranceButton").prop("disabled", true);
+        $("#findEncumbranceButton").addClass("disabled");
     }
 }
 function validateFindContract() {
     if ($("#ContractID").val()) {
         $("#findContractButton").prop("disabled", false);
+        $("#findContractButton").removeClass("disabled");
     } else {
         $("#findContractButton").prop("disabled", true);
+        $("#findContractButton").addClass("disabled");
     }
 }
 function findEncumbrance() {
-    var url = window.location;
     var id = $("#findGroupID").val();
-    var path = url + "/../Manage?id=" + id;
-    window.location.href = path;
+    window.open("/LineItemGroups/Manage?id=" + id, "_self");
 }
 function findContract() {
-    var url = window.location;
     var id = $("#ContractID").val();
-    var path = url + "/../../Contracts/Details?id=" + id;
-    window.location.href = path;
+    window.open( "/Contracts/Details?id=" + id, "_self");
 }
 function toggleDisabledUsers() {
     if ($("#showDisabledCheckbox").is(":checked"))

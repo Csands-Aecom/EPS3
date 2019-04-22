@@ -3,7 +3,11 @@
 @{
     ViewData["Title"] = "Details";
 }
-
+<script>
+    @{      
+        decimal SumTotalAmount = @Model.Contract.ContractTotal + @ViewBag.ContractAmount;
+    }
+</script>
 <div class="container-fluid">
     <div class="panel panel-default" data-toggle="collapse" aria-expanded="true" id="contractPanel" name="contractPanel">
         <div class="panel-heading" id="contractPanelHead" name="contractPanelHead">
@@ -93,7 +97,7 @@
                             Total of Encumbrance Requests
                         </dt>
                         <dd>
-                            $@ViewBag.ContractAmount.ToString("#,##0.00")
+                            <b style="font-size: 1.2em;"> @string.Format("{0:C}" ,@ViewBag.ContractAmount)</b>
                         </dd>
                     </dl>
                 </div>
@@ -187,11 +191,14 @@
     {
         <div class="panel panel-default" data-toggle="collapse" aria-expanded="true" id="encumbrancePanel_@encumbrance.GroupID" name="encumbrancePanel_@encumbrance.GroupID">
             <div class="panel-heading" id="encumbrancePanelHead_@encumbrance.GroupID" name="encumbrancePanelHead_@encumbrance.GroupID">
-                <h4>Encumbrance Request @encumbrance.GroupID</h4>
+                <h4>Encumbrance Request <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@encumbrance.GroupID">@encumbrance.GroupID</a></h4>
                 @if ((ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID) && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
                 {
                     <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@encumbrance.GroupID">Update Encumbrance Request</a>
-
+                }
+                @if (ViewBag.Roles.Contains(ConstantStrings.Originator)  && encumbrance.CurrentStatus.Equals(ConstantStrings.CFMComplete))
+                {
+                    <a href="/LineItemGroups/Amend?id=@encumbrance.GroupID" title="Click here to open a new Encumbrance Request that duplicates this one.">New Amendment</a>
                 }
                 <div class="row">
                     <div class="col-sm-2">

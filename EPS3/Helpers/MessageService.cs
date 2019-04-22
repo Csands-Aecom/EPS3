@@ -379,13 +379,21 @@ namespace EPS3.Helpers
 
         public void SendMail(Message msg, List<User> recipients)
         {
+            string mailPrefix = "";
             try
             {
+                var appSettingsJson = AppSettingsJson.GetAppSettings();
+                mailPrefix = appSettingsJson["EPSMailSubjectPrefix"];
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                mailPrefix = "EPS Test";
+            }
+            try { 
                 MailAddress sender = new MailAddress(msg.FromUser.Email, msg.FromUser.FullName);
                 MailMessage mail = new MailMessage(){
                     From = sender,
-                    Subject = "[EPS Test]: " + msg.Subject,
-                   //Subject = "[EPS]: " + msg.Subject,
+                    Subject = "[" + mailPrefix + "]: " + msg.Subject,
                     Body = msg.Body,
                     IsBodyHtml = true
                 };

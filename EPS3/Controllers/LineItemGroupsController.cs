@@ -158,7 +158,7 @@ namespace EPS3.Controllers
                     // select the LineItemTypes list to display:
 
                     if (AllEncumbrancesAreComplete(ViewBag.Contract) 
-                        && ViewBag.CurrentUser.UserID == Encumbrance.OriginatorUser.UserID)
+                        && (ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserID == Encumbrance.OriginatorUser.UserID))
                     {
                         // finance reviewer can close the Contract
                         ViewBag.LineItemTypes = null;
@@ -180,7 +180,13 @@ namespace EPS3.Controllers
                     {
                         ViewBag.AwardBanner = true;
                     }
-                        ViewBag.Contract = Contract;
+                    if (Encumbrance.CurrentStatus.Equals(ConstantStrings.Draft) && Encumbrance.LineItemType.Equals(ConstantStrings.Amendment)
+                        && Encumbrance.Description != null && Encumbrance.Description.Contains("Duplicate of Encumbrance"))
+                    {
+                        ViewBag.AmendBanner = true;
+                    }
+                    ViewBag.Contract = Contract;
+                    ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contractID);
                     return View(Encumbrance);
                 }
             }
@@ -233,8 +239,12 @@ namespace EPS3.Controllers
                 {
                     return NotFound();
                 }
-                return View(encumbrance);
-            }catch(Exception e)
+                //_context.Entry(encumbrance).State = EntityState.Deleted;
+                _context.LineItemGroups.Remove(encumbrance);
+                _context.SaveChanges();
+                return RedirectToAction("List");
+            }
+            catch (Exception e)
             {
                 _logger.LogError("LineItemGroupsController.Delete Error:" + e.GetBaseException());
                 Log.Error("LineItemGroupsController.Delete  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
@@ -621,7 +631,7 @@ namespace EPS3.Controllers
         [HttpGet]
         public IActionResult Award(int id)
         {
-            /*TODO: The id is GroupID for the Advertisement Encumbrance request
+            /*  The id is GroupID for the Advertisement Encumbrance request
             *   This method Awards that request in the following way:
             *   1. Create a new encumbrance with the same contract of type ConstantStrings.Award
             *   2. Duplicate each LineItem in the Advertisement with identical information except NEGATIVE values for the Amounts
@@ -719,6 +729,74 @@ namespace EPS3.Controllers
                 Log.Error("LineItemGroupsController.Award Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
             return RedirectToAction("Manage", new { id = newAwardID } );
+        }
+
+        [HttpGet]
+        public IActionResult Amend(int id)
+        {
+            /*  The id is GroupID for the Advertisement Encumbrance request
+            *   This method creates a new request that is a duplicate of the original in the following way:
+            *   1. Create a new encumbrance with the same contract of type ConstantStrings.Amendmen
+            *   2. Duplicate each LineItem in the original encumbrance with identical information
+            *   3. Open the new Amendment encumbrance in the Manage page.
+            *   5. Show the Amend banner warning the user to update the Vendor and Amounts
+            */
+
+            /* Select the existing encumbrance */
+            LineItemGroup original = _context.LineItemGroups.AsNoTracking().SingleOrDefault(g => g.GroupID == id);
+            if (original == null)
+            {
+                ViewBag.AwardMessage = "This is not a valid encumbrnace.";
+                return RedirectToAction("List");
+            }
+
+            int newAmendID = 0;
+            try
+            {
+                // Make the new Amendment LineItemGroup record
+                LineItemGroup newRequest = new LineItemGroup(original.ContractID, _pu.GetUser(GetLogin()).UserID);
+                newRequest.LineItemType = ConstantStrings.Amendment;
+                newRequest.CurrentStatus = ConstantStrings.Draft;
+                newRequest.IncludesContract = 1;
+                newRequest.Description = "Duplicate of Encumbrance #" + original.GroupID + ". " + original.Description;
+                _context.LineItemGroups.Add(newRequest);
+                _context.SaveChanges();
+                newAmendID = newRequest.GroupID;
+
+                Contract contract = _context.Contracts.AsNoTracking()
+                    .SingleOrDefault(c => c.ContractID == newRequest.ContractID);
+                // Make a new Status record for the Award referencing the Advertisement ID
+                LineItemGroupStatus newStatus = new LineItemGroupStatus()
+                {
+                    CurrentStatus = ConstantStrings.Draft,
+                    LineItemGroupID = newRequest.GroupID,
+                    SubmittalDate = DateTime.Now,
+                    Comments = "New Encumbrance for Contract " + contract.ContractNumber + ", duplicate of Encumbrance #" + original.GroupID + ".",
+                    UserID = newRequest.OriginatorUserID
+                };
+                _context.LineItemGroupStatuses.Add(newStatus);
+                _context.SaveChanges();
+
+                // Make copies of LineItems from the original in the newRequest
+                List<LineItem> priorLines = _context.LineItems.AsNoTracking().Where(l => l.LineItemGroupID == id).ToList();
+                foreach (LineItem priorLine in priorLines)
+                {
+                    LineItem newLine = new LineItem(priorLine);
+                    newLine.LineItemGroupID = newRequest.GroupID;
+                    newLine.LineItemType = ConstantStrings.Amendment;
+                    _context.LineItems.Add(newLine);
+                    _context.SaveChanges();
+                }
+
+                // Show the amendment banner on the Manage page
+                ViewBag.AmendBanner = true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("LineItemGroupsController.Amend Error:" + e.GetBaseException());
+                Log.Error("LineItemGroupsController.Amend Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+            }
+            return RedirectToAction("Manage", new { id = newAmendID });
         }
 
 
