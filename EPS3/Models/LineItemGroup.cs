@@ -60,6 +60,10 @@ namespace EPS3.Models
         [StringLength(10)]
         public string FlairAmendmentID { get; set; }
 
+        [Display(Name = "Amended FLAIR LOA ID")]
+        [StringLength(10)]
+        public string AmendedFlairLOAID { get; set; }
+
         [Display(Name = "User Assigned Amendment ID")]
         [StringLength(10)]
         public string UserAssignedID { get; set; }

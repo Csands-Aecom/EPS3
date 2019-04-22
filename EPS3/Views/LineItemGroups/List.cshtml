@@ -42,6 +42,9 @@
                             @Html.DisplayNameFor(model => model[key].First().LineItemType)
                         </th>
                         <th>
+                            Financial Project Number(s)
+                        </th>
+                        <th>
                             @Html.DisplayNameFor(model => model[key].First().OriginatedDate)
                         </th>
                         <th>
@@ -75,6 +78,22 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.LineItemType)
                             </td>
+                            <td>@{                                     
+                                List<string> finProjNums = new List<string>();
+
+                                @foreach (LineItem li in item.LineItems)
+                                {
+                                    if(!finProjNums.Contains(li.FinancialProjectNumber))
+                                    {
+                                        finProjNums.Add(li.FinancialProjectNumber);
+                                    }
+                                }
+                                @foreach(string fpNum in finProjNums)
+                                {
+                                    <div>@fpNum</div>
+                                }
+                                }
+                            </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.OriginatedDate)
                             </td>
@@ -92,15 +111,17 @@
         </div> <!-- end tab for key -->
     }
         <div id="tabs-Reports">
-            <div class="row">
+            @if (ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.AdminRole))
+            {
+              <div class="row">
                 <div class="col-sm-12">
                     To view reports, visit <a href="http://dotstpgis1/eps" target="_blank">the Legacy EPS application.</a>
                 </div>
-
                 <div class="col-sm-12">
                     <hr />
                 </div>
-                </div> <!-- end row -->
+              </div> <!-- end row -->
+            }
                 <div class="row">
                     <div class="col-sm-3">
                         Find an Encumbrance Request by ID: 

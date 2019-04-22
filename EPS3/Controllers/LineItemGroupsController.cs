@@ -868,6 +868,7 @@ namespace EPS3.Controllers
                 allLineIDs = _context.LineItemGroups.AsNoTracking()
                 .Where(l => l.Contract.CurrentStatus != (ConstantStrings.CloseContract))
                 .Include(l => l.Contract)
+                .Include(l => l.LineItems)
                 .OrderByDescending(l => l.GroupID)
                 .Take(200)
                 .ToList();
@@ -881,6 +882,7 @@ namespace EPS3.Controllers
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
                     .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
                     .Include(l => l.Contract)
+                    .Include(l => l.LineItems)
                     .ToList();
                 if (roles.Contains(ConstantStrings.Originator))
                 {
@@ -893,6 +895,7 @@ namespace EPS3.Controllers
                 List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
                     .Include(l => l.Contract)
+                    .Include(l => l.LineItems)
                     .ToList();
                 if (roles.Contains(ConstantStrings.FinanceReviewer))
                 {
@@ -904,6 +907,7 @@ namespace EPS3.Controllers
                 List<LineItemGroup> wpLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
                     .Include(l => l.Contract)
+                    .Include(l => l.LineItems)
                     .ToList();
                 if (roles.Contains(ConstantStrings.WPReviewer))
                 {
@@ -915,6 +919,7 @@ namespace EPS3.Controllers
                 List<LineItemGroup> cfmLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
                     .Include(l => l.Contract)
+                    .Include(l => l.LineItems)
                     .ToList();
                 if (roles.Contains(ConstantStrings.CFMSubmitter))
                 {
@@ -925,6 +930,7 @@ namespace EPS3.Controllers
                 // add Groups that have been input to CFM
                 List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
+                    .Include(l => l.LineItems)
                     .Include(l => l.Contract)
                     .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                     .OrderByDescending(l => l.GroupID)
@@ -936,6 +942,7 @@ namespace EPS3.Controllers
                 // add  Groups that are closed
                 List<LineItemGroup> closeGroups = _context.LineItemGroups.AsNoTracking()
                         .Where(l => l.CurrentStatus.Contains("Closed"))
+                        .Include(l => l.LineItems)
                         .Include(l => l.Contract)
                         .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                         .OrderByDescending(l => l.GroupID)
@@ -954,6 +961,7 @@ namespace EPS3.Controllers
                     .Where(l => l.OriginatorUser.UserID == user.UserID && l.CurrentStatus != "Closed")
                     .Include(l => l.Contract)
                     .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
+                    .Include(l => l.LineItems)
                     .OrderByDescending(l => l.GroupID)
                     .Take(200)
                     .ToList();
@@ -969,6 +977,7 @@ namespace EPS3.Controllers
                     &&  l.CurrentStatus.Equals(ConstantStrings.CFMComplete)
                     && l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                 .Include(l => l.Contract)
+                .Include(l => l.LineItems)
                 .ToList();
             // For each adGroup, if the contract has a matching, submitted, Award group, then add it to Award groups
             List<LineItemGroup> awardedGroups = new List<LineItemGroup>();
