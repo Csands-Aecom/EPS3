@@ -39,13 +39,7 @@
                     </div>
                     <div class="ui-dialog ui-front" id="deleteEncumbranceDialog" name="deleteEncumbranceDialog"></div>
                 }
-                @if (ViewBag.ActionItemTypes != null && Model != null && ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals("Complete"))
-                {
-                    <div>
-                        <br />
-                        <a href="javascript:OpenCloseContractDialog(@ViewBag.Contract.ContractID, @ViewBag.Contract.ContractNumber, @ViewBag.Contract.CurrentStatus)">Close this contract</a>
-                    </div>
-                }
+
             </div>
             <div class="col-sm-2">
                 <span id="EncHeaderContract"></span>
@@ -128,6 +122,7 @@
                             else
                             {
                                 @Html.DisplayFor(model => model.LineItemType)
+                                @Html.HiddenFor(model => model.LineItemType)
                             }
                             <br />
                             <div name="NewEndDateDiv" class="input-group date hidden">
@@ -388,9 +383,11 @@
         </div>
 
         <div id="ContractToggleDiv"><a href="javascript:toggleContractPanel()">Collapse</a></div>
-        @if (ViewBag.ActionItemTypes != null)
+        @if (ViewBag.ActionItemTypes != null && Model != null && ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals("Complete"))
         {
-            <div><a href="javascript:OpenCloseContractDialog(@ViewBag.Contract.ContractID, @ViewBag.Contract.ContractNumber, @ViewBag.Contract.CurrentStatus)">Close this contract</a></div>
+            <div>
+                <a href="javascript:OpenCloseContractDialog(@ViewBag.Contract.ContractID, @ViewBag.Contract.ContractNumber, @ViewBag.Contract.CurrentStatus)">Close this contract</a>
+            </div>
         }
     </div>
     <div class="panel-body" id="ContractPanelBody">

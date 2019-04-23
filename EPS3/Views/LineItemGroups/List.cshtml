@@ -61,9 +61,9 @@
                         <tr>
                             <td>
                                 <a href="/Contracts/Details?id=@item.Contract.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
-                                @if (item.LineItemType.Equals(ConstantStrings.Advertisement))
+                                @if (ViewBag.AdIDs != null && item.LineItemType.Equals(ConstantStrings.Advertisement))
                                 {
-                                    @if (item.CurrentStatus == ConstantStrings.CFMReady || item.CurrentStatus == ConstantStrings.CFMComplete)
+                                    @if (ViewBag.AdIDs.Contains(item.GroupID))
                                     {
                                         <span class="float-right"><a href="/LineItemGroups/Award?id=@item.GroupID"> Award </a></span>
                                     }

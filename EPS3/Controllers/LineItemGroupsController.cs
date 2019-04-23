@@ -848,7 +848,15 @@ namespace EPS3.Controllers
             if (ViewBag.Roles.Contains(ConstantStrings.Originator))
             {
                 lineItemGroupsMap.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
-            }            
+            }
+            // pass a list of valid Advertisement GroupIDs for a lookup in the ViewBag
+            List<int> adIDs = new List<int>();
+            foreach(LineItemGroup ad in lineItemGroupsMap[ConstantStrings.Advertisement])
+            {
+                adIDs.Add(ad.GroupID);
+            }
+            ViewBag.AdIDs = adIDs;
+
             Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(lineItemGroupsMap);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
             return View(lineItemGroupsMap);
