@@ -105,7 +105,7 @@ namespace EPS3.Helpers
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
-                        recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.WPReviewer)).Select(u => u.UserID).ToList();
+                        recipientIDs = otherRecipients; //(List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.WPReviewer)).Select(u => u.UserID).ToList();
                         break;
                     case ConstantStrings.WPToCFM:
                         msg.Subject = "Please review encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " is ready for CFM Input";

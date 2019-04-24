@@ -536,25 +536,33 @@ namespace EPS3.Controllers
                     // update existing
                     LineItemGroup existingGroup = _context.LineItemGroups
                         .SingleOrDefault(g => g.GroupID == groupID);
-                    newLineItemGroup.LastEditedDate = DateTime.Now;
-                    existingGroup.AmendedLineItemID = newLineItemGroup.AmendedLineItemID;
-                    existingGroup.ContractID = newLineItemGroup.ContractID;
                     oldStatus = existingGroup.CurrentStatus;
-                    existingGroup.CurrentStatus = newComment.status;
-                    existingGroup.Description = newLineItemGroup.Description;
-                    existingGroup.FlairAmendmentID = newLineItemGroup.FlairAmendmentID;
-                    existingGroup.IncludesContract = newLineItemGroup.IncludesContract;
-                    existingGroup.IsEditable = newLineItemGroup.IsEditable;
-                    existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
-                    existingGroup.UserAssignedID = newLineItemGroup.UserAssignedID;
-                    existingGroup.LettingDate = newLineItemGroup.LettingDate;
-                    existingGroup.AdvertisedDate = newLineItemGroup.AdvertisedDate;
-                    if (!newLineItemGroup.LineItemType.Equals(existingGroup.LineItemType))
+                    // If submission is from WP or CFM Ready, 
+                    // do not update Contract, LineItemGroup, or LineItems. 
+                    // Only 1. update LineItemGroup.CurrentStatus
+                    // and  2. Add new Status record.
+                    if (!oldStatus.Contains("Work Program") && !oldStatus.Contains("CFM Ready"))
                     {
-                        existingGroup.LineItemType = newLineItemGroup.LineItemType;
+                        newLineItemGroup.LastEditedDate = DateTime.Now;
+                        existingGroup.AmendedLineItemID = newLineItemGroup.AmendedLineItemID;
+                        existingGroup.ContractID = newLineItemGroup.ContractID;
+                        existingGroup.Description = newLineItemGroup.Description;
+                        existingGroup.FlairAmendmentID = newLineItemGroup.FlairAmendmentID;
+                        existingGroup.IncludesContract = newLineItemGroup.IncludesContract;
+                        existingGroup.IsEditable = newLineItemGroup.IsEditable;
+                        existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
+                        existingGroup.UserAssignedID = newLineItemGroup.UserAssignedID;
+                        existingGroup.LettingDate = newLineItemGroup.LettingDate;
+                        existingGroup.AdvertisedDate = newLineItemGroup.AdvertisedDate;
+                        if (!newLineItemGroup.LineItemType.Equals(existingGroup.LineItemType))
+                        {
+                            existingGroup.LineItemType = newLineItemGroup.LineItemType;
+                        }
+                        existingGroup.Contract = contract;
                     }
-                    existingGroup.Contract = contract;
-                    _context.Update(existingGroup);
+                        // Update CurrentStatus, even for WP or CFM review
+                        existingGroup.CurrentStatus = newComment.status;
+                        _context.Update(existingGroup);
                     newLineItemGroup = existingGroup;
                 }
                 _context.SaveChanges();
@@ -585,11 +593,11 @@ namespace EPS3.Controllers
                     //msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, sender);
 
 
-                    // For now, just add the sender to the recipients list
+                    // For now, just add the originator to the recipients list
 
                     if (newComment.notify)
                     {
-                        newComment.wpIDs.Add(newComment.userID);
+                        newComment.wpIDs.Add(newLineItemGroup.OriginatorUserID);
                     }
                     msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
                 }

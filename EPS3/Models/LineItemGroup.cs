@@ -29,6 +29,7 @@ namespace EPS3.Models
             this.LastEditedDate = DateTime.Now;
             this.OriginatedDate = DateTime.Now;
             this.CurrentStatus = ConstantStrings.Draft;
+            this.Description = Description;
             this.IsEditable = 1;
         }
 
