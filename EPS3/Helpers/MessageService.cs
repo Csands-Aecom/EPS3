@@ -480,7 +480,8 @@ namespace EPS3.Helpers
             string encumbranceInfo = "";
             encumbranceInfo += "<strong>Encumbrance Type:</strong> " + encumbrance.LineItemType + "<br />";
             encumbranceInfo += "<strong>Status:</strong> " + encumbrance.CurrentStatus + "<br />";
-            encumbranceInfo += "<strong>Encumbrance Total:</strong> " + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceTotal.ToString())) + "<br />";
+            encumbranceInfo += "<strong>Encumbrance Total:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceTotal.ToString())) + "<br />";
+            encumbranceInfo += "<strng>Description: </strong> " + encumbrance.Description + "<br />";
             if (encumbrance.LineID6S != null && encumbrance.LineID6S != "")
             {
                 encumbranceInfo += "<strong>6s:</strong> " + encumbrance.LineID6S + "<br />";
@@ -497,7 +498,15 @@ namespace EPS3.Helpers
             {
                 encumbranceInfo += "<strong>Amended LOA:</strong> " + encumbrance.AmendedLineItemID + "<br />";
             }
-            encumbranceInfo += "<strong>Last Updated:</strong> " + encumbrance.LastEditedDate + " by " + encumbrance.LastEditedUser.FirstName + " " + encumbrance.LastEditedUser.LastName + "<br />";
+            if (encumbrance.AdvertisedDate != null)
+            {
+                encumbranceInfo += "<strong>Advertised Date:</strong> " + String.Format("{0:MM/dd/yyyy}", encumbrance.AdvertisedDate) + "<br />";
+            }
+            if (encumbrance.LettingDate != null)
+            {
+                encumbranceInfo += "<strong>Letting Date:</strong> " + String.Format("{0:MM/dd/yyyy}", encumbrance.LettingDate) + "<br />";
+            }
+            encumbranceInfo += "<strong>Last Updated:</strong> " + String.Format("{0:MM/dd/yyyy HH:mm}", encumbrance.LastEditedDate) + " by " + encumbrance.LastEditedUser.FirstName + " " + encumbrance.LastEditedUser.LastName + "<br />";
 
             return encumbranceInfo;
         }

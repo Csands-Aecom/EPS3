@@ -115,7 +115,7 @@ namespace EPS3.Models
         public int LineItemGroupID { get; set; }
         public virtual LineItemGroup LineItemGroup { get; set; }
         public string FiscalYearRange {
-            get { return FiscalYear.ToString() + " - " + (FiscalYear + 1).ToString(); }
+            get { return (FiscalYear - 1).ToString() + " - " + FiscalYear.ToString(); }
         }
         public string FormattedFiscalYear()
         {

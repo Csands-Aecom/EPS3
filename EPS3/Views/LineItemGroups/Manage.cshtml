@@ -282,6 +282,7 @@
                                 @Html.DisplayNameFor(model => model.UserAssignedID)
                             </dt>
                             <dd>
+                                @Html.HiddenFor(model => model.UserAssignedID)
                                 @Html.DisplayFor(model => model.UserAssignedID)
                             </dd>
                         </dl>
@@ -293,6 +294,7 @@
                                 @Html.DisplayNameFor(model => model.AdvertisedDate)
                             </dt>
                             <dd>
+                                @Html.HiddenFor(model => model.AdvertisedDate)
                                 @Model.AdvertisedDate.Value.ToString("MM/dd/yyyy")
                             </dd>
                         </dl>
@@ -304,6 +306,7 @@
                                 @Html.DisplayNameFor(model => model.LettingDate)
                             </dt>
                             <dd>
+                                @Html.HiddenFor(model => model.LettingDate)
                                 @Model.LettingDate.Value.ToString("MM/dd/yyyy")
                             </dd>
                         </dl>
@@ -317,6 +320,7 @@
                                 @Html.DisplayNameFor(model => model.FlairAmendmentID)
                             </dt>
                             <dd>
+                                @Html.HiddenFor(model => model.FlairAmendmentID)
                                 @Html.DisplayFor(model => model.FlairAmendmentID)
                             </dd>
                         </dl>
@@ -332,6 +336,7 @@
                                 @Html.DisplayNameFor(model => model.Description)
                             </dt>
                             <dd>
+                                @Html.HiddenFor(model => model.Description)
                                 @Html.DisplayFor(model => model.Description)
                             </dd>
                         </dl>
@@ -345,6 +350,7 @@
                                 @Html.DisplayNameFor(model => model.AmendedLineItemID)
                             </dt>
                             <dd>
+                                @Html.HiddenFor(model => model.AmendedLineItemID)
                                 @Html.DisplayFor(model => model.AmendedLineItemID)
                             </dd>
                         </dl>

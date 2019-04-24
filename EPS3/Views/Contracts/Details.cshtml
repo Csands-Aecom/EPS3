@@ -211,13 +211,13 @@
                         @if (encumbrance.AdvertisedDate != null)
                         {
                             <label for="@encumbrance.AdvertisedDate">Advertised Date:</label>
-                            @encumbrance.AdvertisedDate
+                            @encumbrance.AdvertisedDate.Value.ToString("MM/dd/yyyy")
                         }
                         
                         @if (encumbrance.LettingDate != null)
                         {
                             <label for="@encumbrance.LettingDate">Letting Date:</label>
-                            @encumbrance.LettingDate
+                            @encumbrance.LettingDate.Value.ToString("MM/dd/yyyy")
                         }
                     </div>
                     <div class="col-sm-2">

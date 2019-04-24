@@ -845,17 +845,18 @@ namespace EPS3.Controllers
             {
                 lineItemGroupsMap.Add(mapKey, categorizedLineItemGroups[mapKey]);
             }
-            if (ViewBag.Roles.Contains(ConstantStrings.Originator))
+
+            if (ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.AdminRole))
             {
                 lineItemGroupsMap.Add(ConstantStrings.Advertisement, getAdvertisedLineItemGroups());
+                // pass a list of valid Advertisement GroupIDs for a lookup in the ViewBag
+                List<int> adIDs = new List<int>();
+                foreach (LineItemGroup ad in lineItemGroupsMap[ConstantStrings.Advertisement])
+                {
+                    adIDs.Add(ad.GroupID);
+                }
+                ViewBag.AdIDs = adIDs;
             }
-            // pass a list of valid Advertisement GroupIDs for a lookup in the ViewBag
-            List<int> adIDs = new List<int>();
-            foreach(LineItemGroup ad in lineItemGroupsMap[ConstantStrings.Advertisement])
-            {
-                adIDs.Add(ad.GroupID);
-            }
-            ViewBag.AdIDs = adIDs;
 
             Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(lineItemGroupsMap);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
@@ -884,20 +885,28 @@ namespace EPS3.Controllers
             else
             {
                 string roles = _pu.GetUserRoles(user.UserLogin);
-
-                // add Group IDs for Groups in Draft if user has the originator role and is the originator of the encumbrance
-                List<LineItemGroup> origLineIDs = _context.LineItemGroups.AsNoTracking()
-                    .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
-                    .Where(l => l.Contract.User.UserLogin.Equals(user.UserLogin))
-                    .Include(l => l.Contract)
-                    .Include(l => l.LineItems)
-                    .ToList();
-                if (roles.Contains(ConstantStrings.Originator))
+                List<LineItemGroup> origLineIDs = new List<LineItemGroup>();
+                if (roles.Contains(ConstantStrings.AdminRole))
                 {
-                    results.Add(ConstantStrings.Draft, origLineIDs);
+                    // add Group IDs for all Groups in Draft if user is Admin
+                    origLineIDs = _context.LineItemGroups.AsNoTracking()
+                        .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
+                        .Include(l => l.Contract)
+                        .Include(l => l.LineItems)
+                        .ToList();
                 }
+                else if(roles.Contains(ConstantStrings.Originator))
+                {
+                    // add Group IDs for Groups in Draft if user has the originator role and is the originator of the encumbrance
+                    origLineIDs = _context.LineItemGroups.AsNoTracking()
+                        .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
+                        .Where(l => l.OriginatorUser.UserLogin.Equals(user.UserLogin))
+                        .Include(l => l.Contract)
+                        .Include(l => l.LineItems)
+                        .ToList();
+                }
+                results.Add(ConstantStrings.Draft, origLineIDs);
                 allLineIDs.AddRange(origLineIDs);
-
 
                 // add Line IDs for Groups in Finance if user has Finance role
                 List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()

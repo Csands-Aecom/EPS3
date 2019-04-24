@@ -875,11 +875,13 @@ function openEditVendorDialog() {
 }
 function closeEditedVendor() {
     $("#editVendorDialog").dialog("close");
+    $("#editVendorPanel").hide();
     $("#VendorSelector").show();
     $("#ContractTypeSelector").show();
 }
 function saveEditedVendor() {
     $("#editVendorDialog").dialog("close");
+    $("#editVendorPanel").hide();
     $("EditVendorForm").submit();
     $("#VendorSelector").show();
     $("#ContractTypeSelector").show();
