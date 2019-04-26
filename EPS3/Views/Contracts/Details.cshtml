@@ -219,6 +219,12 @@
                             <label for="@encumbrance.LettingDate">Letting Date:</label>
                             @encumbrance.LettingDate.Value.ToString("MM/dd/yyyy")
                         }
+                        
+                        @if (encumbrance.RenewalDate != null)
+                        {
+                            <label for="@encumbrance.RenewalDate">Renewal Ending Date:</label>
+                            @encumbrance.RenewalDate.Value.ToString("MM/dd/yyyy")
+                        }
                     </div>
                     <div class="col-sm-2">
                         <label for="encumbranceAmount_@encumbrance.GroupID">Amount:</label>
@@ -297,25 +303,25 @@
                             <thead>
                                 <tr>
                                     <th>
+                                        <label for="FinancialProjectNumber">Fin Proj #</label>
+                                    </th>
+                                    <th>
+                                        <label for="FiscalYear">Fiscal Year</label>
+                                    </th>
+                                    <th>
+                                        <label for="Fund">Fund</label>
+                                    </th>
+                                    <th>
                                         <label for="OrgCode">Organization Code</label>
                                     </th>
                                     <th>
-                                        <label for="ExpansionObject">Expansion Option</label>
+                                        <label for="Category">Category</label>
                                     </th>
                                     <th>
                                         <label for="FlairObject">Object Code</label>
                                     </th>
                                     <th>
-                                        <label for="Amount">Amount</label>
-                                    </th>
-                                    <th>
-                                        <label for="FinancialProjectNumber">Fin Proj #</label>
-                                    </th>
-                                    <th>
-                                        <label for="WorkActivity">Work Activity</label>
-                                    </th>
-                                    <th>
-                                        <label for="Category">Category</label>
+                                        <label for="WorkActivity">Work Activity (FCT)</label>
                                     </th>
                                     <th>
                                         <label for="OCA">OCA</label>
@@ -324,10 +330,10 @@
                                         <label for="StateProgram">State Program</label>
                                     </th>
                                     <th>
-                                        <label for="FiscalYear">Fiscal Year</label>
+                                        <label for="ExpansionObject">Expansion Option</label>
                                     </th>
                                     <th>
-                                        <label for="Fund">Fund</label>
+                                        <label for="Amount">Amount</label>
                                     </th>
                                     <th>
                                         &nbsp;
@@ -339,25 +345,25 @@
                                 {
                                     <tr>
                                         <td>
+                                            <span id="FinancialProjectNumber" name="FinancialProjectNumber">@item.FinancialProjectNumber</span>
+                                        </td>
+                                        <td>
+                                            <span id="FiscalYear" name="FiscalYear">@item.FiscalYear</span>
+                                        </td>
+                                        <td>
+                                            <span id="Fund" name="Fund">@item.Fund.FundSelector</span>
+                                        </td>
+                                        <td>
                                             <span id="OrgCode" name="OrgCode">55-@item.OrgCode</span>
                                         </td>
                                         <td>
-                                            <span id="ExpansionObject" name="ExpansionObject">@item.ExpansionObject</span>
+                                            <span id="Category" name="Category">@item.Category.CategorySelector</span>
                                         </td>
                                         <td>
                                             <span id="FlairObject" name="FlairObject">@item.FlairObject</span>
                                         </td>
                                         <td>
-                                            <span id="Amount" name="Amount">@item.Amount.ToString("C")</span>
-                                        </td>
-                                        <td>
-                                            <span id="FinancialProjectNumber" name="FinancialProjectNumber">@item.FinancialProjectNumber</span>
-                                        </td>
-                                        <td>
                                             <span id="WorkActivity" name="WorkActivity">@item.WorkActivity</span>
-                                        </td>
-                                        <td>
-                                            <span id="Category" name="Category">@item.Category.CategorySelector</span>
                                         </td>
                                         <td>
                                             <span id="OCA" name="OCA">@item.OCA.OCASelector</span>
@@ -366,10 +372,10 @@
                                             <span id="StateProgram" name="StateProgram">@item.StateProgram.ProgramSelector</span>
                                         </td>
                                         <td>
-                                            <span id="FiscalYear" name="FiscalYear">@item.FiscalYear</span>
+                                            <span id="ExpansionObject" name="ExpansionObject">@item.ExpansionObject</span>
                                         </td>
                                         <td>
-                                            <span id="Fund" name="Fund">@item.Fund.FundSelector</span>
+                                            <span id="Amount" name="Amount">@item.Amount.ToString("C")</span>
                                         </td>
                                         <td>
                                             @if ((ViewBag.Roles.Contains(ConstantStrings.Originator)

@@ -99,6 +99,10 @@ namespace EPS3.Models
 
         [Display(Name = "Letting Date")]
         public DateTime? LettingDate { get; set; }
-            
+
+
+        [Display(Name = "Renewal Ending Date")]
+        public DateTime? RenewalDate { get; set; }
+
     }
 }

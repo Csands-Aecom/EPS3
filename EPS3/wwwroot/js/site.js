@@ -754,6 +754,16 @@ function displayLineItemsPanelOrMessage() {
         $("#AdvertisementAdDate").hide();
         $("#AdvertisementLetDate").hide();
     }
+    if (encumbranceType === "Amendment to LOA") {
+        $("#AmendedIDDiv").show();
+    } else {
+        $("#AmendedIDDiv").hide();
+    }
+    if (encumbranceType === "Renewal") {
+        $("#RenewalEndingDate").show();
+    } else {
+        $("#RenewalEndingDate").hide();
+    }
 }
 function collapseSection() {
     $(this).nextUntil("tr.groupHeader").toggle();
@@ -1012,7 +1022,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                 var receiptBox = "<input type='checkbox' id='receiptBox' name='receiptBox' checked /> Send a submission receipt to the originator. <br />";
                 $(this).append(receiptBox);
             } else {
-            // add a checkbox to send a notification to the originator
+                // add a checkbox to send a notification to the originator
                 var notifyOriginatorBox = "<input type='checkbox' id='notifyBox' name='notifyBox' " + notifyChecked + " /> Notify the originator of this update. <br />";
                 $(this).append(notifyOriginatorBox);
             }
@@ -1025,7 +1035,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                     var wpUser = wpUsers[i];
                     //recips.push(wpUsers[i]);
                     // properties from json are rendered in lower case
-                    wpBox += "<input type='checkbox' id='wpUser_" + wpUser.userID + "' name='wpUser_" + wpUser.userID + "' value="+ wpUser.userID +" /> " + wpUser.firstName + " " + wpUser.lastName + " <br />";
+                    wpBox += "<input type='checkbox' id='wpUser_" + wpUser.userID + "' name='wpUser_" + wpUser.userID + "' value=" + wpUser.userID + " /> " + wpUser.firstName + " " + wpUser.lastName + " <br />";
                 }
                 wpBox += "</div>";
                 $(this).append(wpBox);
@@ -1045,6 +1055,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
         },
     });
     $("#SubmissionDialog").dialog("open");
+    if ($("#itemReduced").length > 0) { $("#itemReduced").focus(); } else { $("#commentText").focus(); }
 }
 
 function getWPUsers(status) {
@@ -1445,7 +1456,7 @@ function setDefaultUserAssignedID(){
     $("#AmendedIDDiv").hide();
     if (encumbranceType === "Renewal") {
         prefix = "RNW#";
-        $("#NewEndDate").show();
+        $("#RenewalEndingDate").show();
     }
     if (encumbranceType === "Supplemental") {
         prefix = "SUP#";
@@ -1455,6 +1466,9 @@ function setDefaultUserAssignedID(){
         //$("#AmendedIDDiv").show();
     }
     if (encumbranceType === "Amendment") {
+        prefix = "AMD#";
+    }
+    if (encumbranceType === "Amendment to LOA") {
         prefix = "AMD#";
         $("#AmendedIDDiv").show();
     }
@@ -1505,6 +1519,7 @@ function openContractDialogExisting(id) {
 
     $("#ContractTypeSelector").autocomplete("option", "appendTo", "#ContractDialog");
     $("#VendorSelector").autocomplete("option", "appendTo", "#ContractDialog");
+    $("#ContractNumber").focus();
 }
 
 function getLineOrder() {
@@ -1638,7 +1653,7 @@ function SaveContractModal() {
     Contract.DescriptionOfWork = $("#DescriptionOfWork").val();
     Contract.EndingDate = $("#EndingDate").val();
     Contract.IsRenewable = 0;
-    if ($("#IsRenewable1").val()){ Contract.IsRenewable = 1; }; // undefined
+    if ($("#IsRenewable1").is(":checked")){ Contract.IsRenewable = 1; }; 
     Contract.MaxLoaAmount = $("#MaxLoaAmount").val();
     Contract.ModifiedDate = $("#ModifiedDate").val(); // set in save method
     Contract.ProcurementID = $("#ProcurementID").val();
@@ -1800,23 +1815,23 @@ function getNewLineItemRow(lineItem) {
         tableText += "<br/> <span title=\"" + lineItem.Comments + "\">Comments</span>"
     }
     tableText += "</td>";
-    tableText += "<td>" + lineItem.OrgCode + "</td>";
     tableText += "<td>" + lineItem.FinancialProjectNumber + "</td>";
-    var sp_array = lineItem.StateProgramName.split("-");
-    tableText += "<td title='" + sp_array[1].trim() + "'>" + sp_array[0].trim() + "<input type='hidden' id='" + itemKey + "_StateProgramID' value='" + lineItem.StateProgramID + "'/> </td>";
-    var cn_array = lineItem.CategoryName.split("-");
-    tableText += "<td title='" + cn_array[1].trim() + "'>" + cn_array[0].trim() + "<input type='hidden' id='" + itemKey + "_CategoryID' value='" + lineItem.CategoryID + "'/> </td>";
-    tableText += "<td>" + lineItem.WorkActivity + "</td>";
-    var oca_array = lineItem.OcaName.split("-");
-    tableText += "<td title='" + oca_array[1].trim() + "'>" + oca_array[0].trim() + "<input type='hidden' id='" + itemKey + "_OCAID' value='" + lineItem.OcaID + "'/> </td>";
-    tableText += "<td>" + lineItem.EO + "</td>";
-    tableText += "<td>" + lineItem.FlairObject + "</td>";
-    var fund_array = lineItem.FundName.split("-");
-    tableText += "<td title='" + fund_array[1].trim() + "'>" + fund_array[0].trim() + "<input type='hidden' id='" + itemKey + "_FundID' value='" + lineItem.FundID + "'/> </td>";
     tableText += "<td>" + (FY - 1) + " - " + FY;
     tableText += "<input type='hidden' id='FY_" + lineItem.LineItemID + "' name='FY_" + lineItem.LineItemID + "' value=" + lineItem.FiscalYear + "'>";
     tableText += "<span id='FYWarning_" + lineItem.LineItemID + "' name='FYWarning_" + lineItem.LineItemID + "' class='FYWarning' style=\"display: none\" title='This item occurs after the ending date of the contract.'>*</span>";
     tableText += "</td>";
+    var fund_array = lineItem.FundName.split("-");
+    tableText += "<td title='" + fund_array[1].trim() + "'>" + fund_array[0].trim() + "<input type='hidden' id='" + itemKey + "_FundID' value='" + lineItem.FundID + "'/> </td>";
+    tableText += "<td>" + lineItem.OrgCode + "</td>";
+    var cn_array = lineItem.CategoryName.split("-");
+    tableText += "<td title='" + cn_array[1].trim() + "'>" + cn_array[0].trim() + "<input type='hidden' id='" + itemKey + "_CategoryID' value='" + lineItem.CategoryID + "'/> </td>";
+    tableText += "<td>" + lineItem.FlairObject + "</td>";
+    tableText += "<td>" + lineItem.WorkActivity + "</td>";
+    var oca_array = lineItem.OcaName.split("-");
+    tableText += "<td title='" + oca_array[1].trim() + "'>" + oca_array[0].trim() + "<input type='hidden' id='" + itemKey + "_OCAID' value='" + lineItem.OcaID + "'/> </td>";
+    var sp_array = lineItem.StateProgramName.split("-");
+    tableText += "<td title='" + sp_array[1].trim() + "'>" + sp_array[0].trim() + "<input type='hidden' id='" + itemKey + "_StateProgramID' value='" + lineItem.StateProgramID + "'/> </td>";
+    tableText += "<td>" + lineItem.EO + "</td>";
     var cleanAmount = parseFloat(lineItem.Amount.replace(/,/g, "").replace("$", "").replace("(", "-").replace(")", ""));
     tableText += "<td>" + lineItem.Amount + "<input type='hidden' id='" + itemKey + "_Amount' value='" + cleanAmount + "'/>";
 
@@ -2017,11 +2032,21 @@ function ValidateEncumbrance() {
     } else if ($("#LineItemType").val()==="Advertisement" && (status=="Draft" || status=="Finance")) {
         //Require Advertised Date and Letting Date for Advertisements
         if (!$("#AdvertisedDate").val()) {
-            msg += "An Advertised Date is required for an advertisement encumbrance request. <br/>";
+            msg += "An Advertised Date is required for an Advertisement encumbrance request. <br/>";
             isErrorFree = false;
         }
         if (!$("#LettingDate").val()) {
-            msg += "A Letting Date is required for an advertisement encumbrance request. <br/>";
+            msg += "A Letting Date is required for an Advertisement encumbrance request. <br/>";
+            isErrorFree = false;
+        }
+    } else if ($("#LineItemType").val() === "Renewal" && (status == "Draft" || status == "Finance")) {
+        if (!$("#RenewalDate").val()) {
+            msg += "A Renewal Ending Date is required for a Renewal encumbrance request. <br/>";
+            isErrorFree = false;
+        }
+    } else if ($("#LineItemType").val() === "Amendment2LOA" && (status == "Draft" || status == "Finance")) {
+        if (!$("#AmendedLOAFLAIRID").val()) {
+            msg += "A FLAIR ID for the amended LOA is required for an Amendment to LOA encumbrance request. <br/>";
             isErrorFree = false;
         }
     }
@@ -2204,6 +2229,9 @@ function SaveEncumbrance(commentJson) {
     }
     if ($("#LettingDate").val()) {
         encumbrance.LettingDate = $("#LettingDate").val();
+    }
+    if ($("#RenewalDate").val()) {
+        encumbrance.RenewalDate = $("#RenewalDate").val();
     }
     if (!encumbrance.CurrentStatus) { encumbrance.CurrentStatus = 'Draft'; }
  
@@ -2445,6 +2473,31 @@ function toggleDisabledUsers() {
     } else {
         $(".disabledUser").hide();
     }
+}
+
+function awardAdvertisement(id, con) {
+    $("#awardDialog").dialog({
+        autoOpen: false,
+        width: 600,
+        resizable: false,
+        title: "Award Contract " + con,
+        modal: true,
+        open: function (event, ui) {
+            $(this).html("");
+            var awardMessage = "<p>Click Award to create the Award encumbrance request for Contract #" + con + "?</p>";
+            $(this).append(awardMessage);
+        },
+        buttons: {
+            "Cancel": function () {
+                $(this).dialog("close");
+            },
+            "Award": function () {
+                window.open("/LineitemGroups/Award?id=" + id, "_self");
+                $(this).dialog("close");
+            }
+        }
+    });
+    $("#awardDialog").dialog("open");
 }
 
 function updateUserIsDisabled() {

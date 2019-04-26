@@ -541,28 +541,30 @@ namespace EPS3.Controllers
                     // do not update Contract, LineItemGroup, or LineItems. 
                     // Only 1. update LineItemGroup.CurrentStatus
                     // and  2. Add new Status record.
-                    if (!oldStatus.Contains("Work Program") && !oldStatus.Contains("CFM Ready"))
+                    if (!oldStatus.Equals(ConstantStrings.SubmittedWP))
                     {
-                        newLineItemGroup.LastEditedDate = DateTime.Now;
                         existingGroup.AmendedLineItemID = newLineItemGroup.AmendedLineItemID;
                         existingGroup.ContractID = newLineItemGroup.ContractID;
                         existingGroup.Description = newLineItemGroup.Description;
                         existingGroup.FlairAmendmentID = newLineItemGroup.FlairAmendmentID;
                         existingGroup.IncludesContract = newLineItemGroup.IncludesContract;
                         existingGroup.IsEditable = newLineItemGroup.IsEditable;
-                        existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
                         existingGroup.UserAssignedID = newLineItemGroup.UserAssignedID;
                         existingGroup.LettingDate = newLineItemGroup.LettingDate;
                         existingGroup.AdvertisedDate = newLineItemGroup.AdvertisedDate;
+                        existingGroup.RenewalDate = newLineItemGroup.RenewalDate;
+                        existingGroup.AmendedFlairLOAID = newLineItemGroup.AmendedFlairLOAID;
                         if (!newLineItemGroup.LineItemType.Equals(existingGroup.LineItemType))
                         {
                             existingGroup.LineItemType = newLineItemGroup.LineItemType;
                         }
                         existingGroup.Contract = contract;
                     }
-                        // Update CurrentStatus, even for WP or CFM review
-                        existingGroup.CurrentStatus = newComment.status;
-                        _context.Update(existingGroup);
+                    // Update CurrentStatus, even for WP or CFM review
+                    existingGroup.LastEditedDate = DateTime.Now;
+                    existingGroup.CurrentStatus = newComment.status;
+                    existingGroup.LastEditedUserID = newLineItemGroup.LastEditedUserID;
+                    _context.Update(existingGroup);
                     newLineItemGroup = existingGroup;
                 }
                 _context.SaveChanges();

@@ -125,7 +125,7 @@ namespace EPS3.Helpers
                         msg.Body += "<p>No further action is required. You may view this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
                         // Send only to TPK Encumbrance mailbox
-                        recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
+                        recipientIDs = new List<int> { encumbrance.OriginatorUserID }; ;
                         break;
                     case ConstantStrings.CloseContract:
                         msg.Subject = "Request to Close Contract #" + contract.ContractNumber;
@@ -481,7 +481,7 @@ namespace EPS3.Helpers
             encumbranceInfo += "<strong>Encumbrance Type:</strong> " + encumbrance.LineItemType + "<br />";
             encumbranceInfo += "<strong>Status:</strong> " + encumbrance.CurrentStatus + "<br />";
             encumbranceInfo += "<strong>Encumbrance Total:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceTotal.ToString())) + "<br />";
-            encumbranceInfo += "<strng>Description: </strong> " + encumbrance.Description + "<br />";
+            encumbranceInfo += "<strong>Description: </strong> " + encumbrance.Description + "<br />";
             if (encumbrance.LineID6S != null && encumbrance.LineID6S != "")
             {
                 encumbranceInfo += "<strong>6s:</strong> " + encumbrance.LineID6S + "<br />";
@@ -498,6 +498,10 @@ namespace EPS3.Helpers
             {
                 encumbranceInfo += "<strong>Amended LOA:</strong> " + encumbrance.AmendedLineItemID + "<br />";
             }
+            if (encumbrance.AmendedFlairLOAID != null && encumbrance.AmendedFlairLOAID != "")
+            {
+                encumbranceInfo += "<strong>Amended LOA FLAIR ID:</strong> " + encumbrance.AmendedFlairLOAID + "<br />";
+            }
             if (encumbrance.AdvertisedDate != null)
             {
                 encumbranceInfo += "<strong>Advertised Date:</strong> " + String.Format("{0:MM/dd/yyyy}", encumbrance.AdvertisedDate) + "<br />";
@@ -505,6 +509,10 @@ namespace EPS3.Helpers
             if (encumbrance.LettingDate != null)
             {
                 encumbranceInfo += "<strong>Letting Date:</strong> " + String.Format("{0:MM/dd/yyyy}", encumbrance.LettingDate) + "<br />";
+            }
+            if (encumbrance.RenewalDate != null)
+            {
+                encumbranceInfo += "<strong>Renewal Date:</strong> " + String.Format("{0:MM/dd/yyyy}", encumbrance.RenewalDate) + "<br />";
             }
             encumbranceInfo += "<strong>Last Updated:</strong> " + String.Format("{0:MM/dd/yyyy HH:mm}", encumbrance.LastEditedDate) + " by " + encumbrance.LastEditedUser.FirstName + " " + encumbrance.LastEditedUser.LastName + "<br />";
 
