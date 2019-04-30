@@ -528,18 +528,22 @@ namespace EPS3.Helpers
                 linesInfo += "<tr>";
                 linesInfo += "<td>" + item.LineNumber + "</td>";
                 linesInfo += "<td>" + item.LineItemID + "</td>";
-                linesInfo += "<td>55-" + item.OrgCode + "</td>";
                 linesInfo += "<td>" + item.FinancialProjectNumber + "</td>";
-                linesInfo += "<td>" + item.StateProgram.ProgramSelector + "</td>";
-                linesInfo += "<td>" + item.Category.CategorySelector + "</td>";
-                linesInfo += "<td>" + item.WorkActivity + "</td>";
-                linesInfo += "<td>" + item.OCA.OCASelector + "</td>";
-                linesInfo += "<td>" + item.ExpansionObject + "</td>";
-                linesInfo += "<td>" + item.FlairObject + "</td>";
-                linesInfo += "<td>" + item.Fund.FundSelector + "</td>";
                 linesInfo += "<td>" + item.FiscalYearRange + "</td>";
+                linesInfo += "<td>" + item.Fund.FundCode + "</td>";
+                linesInfo += "<td>55-" + item.OrgCode + "</td>";
+                linesInfo += "<td>" + item.Category.CategoryCode + "</td>";
+                linesInfo += "<td>" + item.FlairObject + "</td>";
+                linesInfo += "<td>" + item.WorkActivity + "</td>";
+                linesInfo += "<td>" + item.OCA.OCACode + "</td>";
+                linesInfo += "<td>" + item.StateProgram.ProgramCode + "</td>";
+                linesInfo += "<td>" + item.ExpansionObject + "</td>";
                 linesInfo += "<td>$" + string.Format("{0:#.00}", Convert.ToDecimal(item.Amount.ToString())) + "</td>";
                 linesInfo += "</tr>";
+                if(item.Comments != null)
+                {
+                    linesInfo += "<tr><td colspan=13><strong>Comments:</strong>" + item.Comments + "</td></tr>";
+                }
             }
             linesInfo += "</tbody></table>";
             return linesInfo;

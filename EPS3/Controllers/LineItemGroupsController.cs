@@ -895,29 +895,6 @@ namespace EPS3.Controllers
             else
             {
                 string roles = _pu.GetUserRoles(user.UserLogin);
-                List<LineItemGroup> origLineIDs = new List<LineItemGroup>();
-                if (roles.Contains(ConstantStrings.AdminRole))
-                {
-                    // add Group IDs for all Groups in Draft if user is Admin
-                    origLineIDs = _context.LineItemGroups.AsNoTracking()
-                        .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
-                        .Include(l => l.Contract)
-                        .Include(l => l.LineItems)
-                        .ToList();
-                }
-                else if(roles.Contains(ConstantStrings.Originator))
-                {
-                    // add Group IDs for Groups in Draft if user has the originator role and is the originator of the encumbrance
-                    origLineIDs = _context.LineItemGroups.AsNoTracking()
-                        .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
-                        .Where(l => l.OriginatorUser.UserLogin.Equals(user.UserLogin))
-                        .Include(l => l.Contract)
-                        .Include(l => l.LineItems)
-                        .ToList();
-                }
-                results.Add(ConstantStrings.Draft, origLineIDs);
-                allLineIDs.AddRange(origLineIDs);
-
                 // add Line IDs for Groups in Finance if user has Finance role
                 List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
@@ -953,6 +930,29 @@ namespace EPS3.Controllers
                     results.Add(ConstantStrings.CFMReady, cfmLineIDs);
                 }
                 allLineIDs.AddRange(cfmLineIDs);
+
+                List<LineItemGroup> origLineIDs = new List<LineItemGroup>();
+                if (roles.Contains(ConstantStrings.AdminRole))
+                {
+                    // add Group IDs for all Groups in Draft if user is Admin
+                    origLineIDs = _context.LineItemGroups.AsNoTracking()
+                        .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
+                        .Include(l => l.Contract)
+                        .Include(l => l.LineItems)
+                        .ToList();
+                }
+                else if(roles.Contains(ConstantStrings.Originator))
+                {
+                    // add Group IDs for Groups in Draft if user has the originator role and is the originator of the encumbrance
+                    origLineIDs = _context.LineItemGroups.AsNoTracking()
+                        .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
+                        .Where(l => l.OriginatorUser.UserLogin.Equals(user.UserLogin))
+                        .Include(l => l.Contract)
+                        .Include(l => l.LineItems)
+                        .ToList();
+                }
+                results.Add(ConstantStrings.Draft, origLineIDs);
+                allLineIDs.AddRange(origLineIDs);
 
                 // add Groups that have been input to CFM
                 List<LineItemGroup> cfmGroups = _context.LineItemGroups.AsNoTracking()

@@ -116,7 +116,7 @@ namespace EPS3.Models
             typeList.Add(new SelectListItem { Text = "Select A Type", Value = "None" });
             typeList.Add(new SelectListItem { Text = "New Contract", Value = NewContract });
             typeList.Add(new SelectListItem { Text = "Advertisement", Value = Advertisement });
-            //typeList.Add(new SelectListItem { Text = "Award", Value = Award });
+            typeList.Add(new SelectListItem { Text = "Award", Value = Award });
             typeList.Add(new SelectListItem { Text = "Amendment", Value = Amendment });
             typeList.Add(new SelectListItem { Text = "Amendment to LOA", Value = Amendment2LOA });
             typeList.Add(new SelectListItem { Text = "Supplemental", Value = Supplemental });

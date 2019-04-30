@@ -812,12 +812,18 @@ function updateContractStatus() {
 }
 function openAddVendorDialog() {
     $("#addVendorDialog").dialog("open");
+    $("#addVendorDialog #VendorCode").bind("blur", function () {
+        setVendorValidationMessage($("#addVendorDialog #vendorMessage"), this.value);
+    });
     $("#VendorSelector").hide();
     $("#ContractTypeSelector").hide();
 }
 
 function openAddVendorPanel() {
     $("#addVendorPanel").show();
+    $("#addVendorPanel #VendorCode").bind("blur", function () {
+        setVendorValidationMessage($("#addVendorPanel #vendorMessage"), this.value);
+    });
 }
 function hideAddVendorPanel() {
     $("#addVendorPanel").hide();
@@ -838,6 +844,9 @@ function openEditVendorPanel() {
     //populate the dialog form
     $("#editVendorPanel #VendorID").val($("#VendorID").val());
     var vendor = $("#VendorSelector").val();
+    $("#editVendorPanel #VendorCode").bind("blur", function () {
+        setVendorValidationMessage($("#editVendorPanel #vendorMessage"), this.value);
+    });
     var dashIndex = vendor.indexOf("-");
     var vendorCode = vendor.substring(0, dashIndex - 1).trim();
     var vendorName = vendor.substring(dashIndex + 1, vendor.length).trim();
@@ -847,7 +856,18 @@ function openEditVendorPanel() {
 function hideEditVendorPanel() {
     $("#editVendorPanel").hide();
 }
+function setVendorValidationMessage(vendorMessageDiv, vCode) {
+    if (validateVendorCode(vCode)) {
+        vendorMessageDiv.text("");
+    } else {
+        vendorMessageDiv.text("Vendor Number must be 'F' or 'S' plus 12 digits.");
+    }
+}
 function addNewVendor() {
+    if (!validateVendorCode($("#VendorCode").val())) {
+        return false;
+    }
+    if ($("#VendorName").val().length < 1) { return false; }
     Vendor = {};
     Vendor.VendorName = $("#VendorName").val();
     Vendor.VendorCode = $("#VendorCode").val();
@@ -866,11 +886,20 @@ function addNewVendor() {
         }
     });
 }
+function validateVendorCode(vCode) {
+    // VendorCode must be "F" or "S" plus 12 numeric digits
+    var pattern = /^(F|S)\d{12}/;
+    if (vCode.length === 13 && vCode.match(pattern)){ return true; }
+    return false;
+}
 function enableEditVendor() {
     $("#editVendorLink").show();
 }
 function openEditVendorDialog() {
     $("#editVendorDialog").dialog("open");
+    $("#editVendorDialog #VendorCode").bind("blur", function () {
+        setVendorValidationMessage($("#editVendorDialog #vendorMessage"), this.value);
+    });
     $("#VendorSelector").hide();
     $("#ContractTypeSelector").hide();
 
@@ -890,6 +919,8 @@ function closeEditedVendor() {
     $("#ContractTypeSelector").show();
 }
 function saveEditedVendor() {
+    if (!validateVendorCode($("VendorCode").val())) { return false; }
+    if ($("VendorName").val().length < 1) { return false; }
     $("#editVendorDialog").dialog("close");
     $("#editVendorPanel").hide();
     $("EditVendorForm").submit();
@@ -920,6 +951,8 @@ function updateVendor(source) {
         Vendor.VendorName = $("#editVendorDialog #VendorName").val();
         Vendor.VendorCode = $("#editVendorDialog #VendorCode").val();
     }
+    if (!validateVendorCode(Vendor.VendorCode)) { return false; }
+    if (Vendor.VendorName.length < 1) { return false; }
     $.ajax({
         url: "/Vendors/UpdateVendor",
         type: "POST",
@@ -1029,7 +1062,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             // if CurrentStatus is Finance and submitTo is WorkProgram, add a set of checkboxes to select WP recipients
             if (currentStatus === "Finance" && submitTo === "Work Program") {
                 var wpBox = "<div name='wpRecipients' id='wpRecipients'>";
-                wpBox += "Select the Work Program recipients to be notified: <br/>";
+                wpBox += "Select the Work Program reviewers to be notified: <br/>";
                 //var recips = [];
                 for (var i in wpUsers) {
                     var wpUser = wpUsers[i];
@@ -1040,6 +1073,8 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                 wpBox += "</div>";
                 $(this).append(wpBox);
             }
+            // add a message div
+            $(this).append("<div id='validationDiv'></div>");
         },
         buttons: {
             "Cancel": function () {
@@ -1047,10 +1082,12 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                 $(this).dialog("close");
             },
             "Complete": function () {
-                $("#ContractSelector").show();
-                $(this).dialog("close");
-                var commentJson = getSubmissionDetails();
-                SaveEncumbrance(commentJson);
+                if (getSubmissionValidation()) {
+                    $("#ContractSelector").show();
+                    $(this).dialog("close");
+                    var commentJson = getSubmissionDetails();
+                    SaveEncumbrance(commentJson);
+                }
             }
         },
     });
@@ -1073,6 +1110,7 @@ function getWPUsers(status) {
 }
 
 function getSubmissionDetails() {
+
     // make a json object from the information in the SubmissionDialog and return it
     var jsonString = "{";
     jsonString += "\"status\" : \"" + $("#newStatus").val() + "\", "; 
@@ -1083,7 +1121,7 @@ function getSubmissionDetails() {
     if ($("#notifyBox").is(":checked")) {
         jsonString += "\"notify\" : \"true\", ";
     }
-    if ($("#wpRecipients")) {
+    if ($("#wpRecipients").length > 0) {
         jsonString += "\"wpIDs\" : [";
         $("[id^='wpUser_']").each(function () {
             if ($(this).is(":checked")) {
@@ -1113,6 +1151,23 @@ function getSubmissionDetails() {
     jsonString += "}";
 
     return jsonString;
+}
+
+function getSubmissionValidation() {
+    var valid = true;
+    // perform validation and return false if no wp recipients are selected
+    if ($("#wpRecipients").length > 0) {
+        valid = false;
+        $("[id^='wpUser_']").each(function () {
+            if ($(this).is(":checked")) {
+                valid = true;
+            }
+        });
+        if (!valid) {
+            $("#validationDiv").html("<p><font color='red'>Please select at least one Work Program reviewer.</font></p>");
+        }
+    }
+    return valid;
 }
 
 function openFileAttachmentDialog() {
