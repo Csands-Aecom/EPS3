@@ -38,6 +38,8 @@ namespace EPS3.DataContexts
         public DbSet<Message> Messages { get; set; }
         public DbSet<MessageRecipient> MessageRecipients  { get; set; }
 
+        // Read only model from Views
+        public DbSet<VEncumbrance> VEncumbrances { get; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 

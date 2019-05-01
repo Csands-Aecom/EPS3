@@ -197,7 +197,7 @@
                                 <input type="hidden" id="VendorID" name="VendorID" value="@Model.Contract.VendorID" onchange="updateContractVendorID()" />
                                 <input type="text" class="form-control" id="VendorSelector" name="VendorSelector" value="@ViewBag.myVendor.VendorSelector" />
                                 <span id="VendorClear" class="glyphicon glyphicon-remove-circle float-right " style="margin-right : 10px; vertical-align: text-bottom"></span>
-                                @Html.ValidationMessageFor(model => model.Contract.VendorID, "If the Vendor is not known, select AD.")
+                                @Html.ValidationMessageFor(model => model.Contract.VendorID, "Select AD for Advertisement.")
                             </div>
                         </dd>
                         <dd>

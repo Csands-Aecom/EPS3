@@ -388,7 +388,12 @@ namespace EPS3.Controllers
                 {
                     changeType = ConstantStrings.WPToCFM;
                 }
-                //5. CFM Complete
+                //5. CFM Ready back to WP Review
+                if (oldStatus.Equals(ConstantStrings.CFMReady) && newStatus.Equals(ConstantStrings.SubmittedWP))
+                {
+                    changeType = ConstantStrings.CFMToWP;
+                }
+                //6. CFM Complete
                 if ((oldStatus.Equals(ConstantStrings.CFMReady)) && newStatus.Equals(ConstantStrings.CFMComplete))
                 {
                     changeType = ConstantStrings.CFMComplete;

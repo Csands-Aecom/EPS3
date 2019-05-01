@@ -165,7 +165,7 @@
                 <dd>
                     <input type="hidden" id="VendorID" name="VendorID" />
                     <input type="text" id="VendorSelector" name="VendorSelector" />
-                    @Html.ValidationMessageFor(model => model.VendorID, "If the Vendor is not known, select AD.")
+                    @Html.ValidationMessageFor(model => model.VendorID, "Select AD for Advertisement.")
                 </dd>
                 <p></p>
                 <dt>

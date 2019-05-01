@@ -117,6 +117,15 @@ namespace EPS3.Helpers
                         // Send only to TPK Encumbrance mailbox
                         recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
                         break;
+                case ConstantStrings.CFMToWP:
+                        msg.Subject = "Please review encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " requires additional Work Program Review";
+                        msg.Body = "<p>" + submitter.FullName + " has returned encumbrance request #" + encumbrance.GroupID + " from CFM for additional Work Program review for contract " + contract.ContractNumber + ".</p>\n";
+                        if (comments.Length > 0)
+                        { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
+                        msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
+                            "EPS Application</a>.</p>";
+                        recipientIDs = otherRecipients;;
+                        break;
                     case ConstantStrings.CFMComplete:
                         msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been input into CFM";
                         msg.Body = "<p>" + submitter.FullName + " has input encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " into CFM.</p>\n";

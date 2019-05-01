@@ -586,6 +586,8 @@ function showHideButtons() {
     if ((currentStatus === "CFM") && roles.indexOf("CFM Submitter") >= 0) {
         $("#btnEncumbranceRollback").val("Reject back to Originator");
         $("#btnEncumbranceRollback").show();
+        $("#btnEncumbranceWP").val("Return to Work Program");
+        $("#btnEncumbranceWP").show();
         $("#btnEncumbranceSaveAsIs").show();
         $("#btnEncumbranceComplete").val("Update to CFM Complete");
         $("#btnEncumbranceComplete").show();
@@ -1060,7 +1062,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                 $(this).append(notifyOriginatorBox);
             }
             // if CurrentStatus is Finance and submitTo is WorkProgram, add a set of checkboxes to select WP recipients
-            if (currentStatus === "Finance" && submitTo === "Work Program") {
+            if (submitTo === "Work Program") {
                 var wpBox = "<div name='wpRecipients' id='wpRecipients'>";
                 wpBox += "Select the Work Program reviewers to be notified: <br/>";
                 //var recips = [];

@@ -24,6 +24,7 @@ namespace EPS3.Models
         public const string ContractComplete52 = "Closed 52";
         public const string ContractComplete98 = "Closed 98";
         public const string ContractArchived = "Contract has been archived";
+        public const string Closed = "Closed";
 
         // Encumbrance Status values
         public const string Draft = "Draft";
@@ -48,6 +49,7 @@ namespace EPS3.Models
         public const string CFMToDraft = "CFMToDraft";
         public const string FinanceToWP = "FinanceToWP";
         public const string WPToCFM = "WPToCFM";
+        public const string CFMToWP = "CFMToWP";
         public const string RequestClose = "RequestCloseContract";
         public const string CloseContract = "CloseContract";
 
