@@ -53,6 +53,9 @@
                         <th>
                             Encumbrance Amount
                         </th>
+                        <th>
+                            Originator
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,22 +76,31 @@
                                 <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => @item.CurrentStatus)
+                                @Html.DisplayFor(modelItem => @item.EncumbranceStatus)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.LineItemType)
                             </td>
                             <td>
-                               @Html.DisplayFor(modelItem => item.FinancialProjectNumbers)
+                               @if (@item.FinancialProjectNumbers != null)
+                               {
+                                   foreach(string fpNum in item.FinProjList())
+                                   {
+                                       @fpNum<br/>
+                                   }
+                               }
+                            </td>
+                            <td>
+                                @item.OriginatedDate.ToString("yyyy-MM-dd hh:ss tt")
+                            </td>
+                        <td>
+                                @item.LastEditedDate.ToString("yyyy-MM-dd hh:ss tt")
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.OriginatedDate)
-                        </td>
+                            @item.TotalAmountString()
                         <td>
-                            @Html.DisplayFor(modelItem => item.LastEditedDate)
-                        </td>
-                        <td>
-                           $ @Html.DisplayFor(modelItem => String.Format("{0:n}", item.TotalAmount))
+                            @Html.DisplayFor(modelItem => item.FirstName)
+                            @Html.DisplayFor(modelItem => item.LastName)
                         </td>
                     </tr>
                 }
@@ -118,6 +130,7 @@
             <div class="col-sm-3">
                 Find a Contract by Contract Number:
                 <input type="hidden" id="ContractID" name="ContractID" onchange="validateFindContract()" />
+                <input type="hidden" id="SuppressNewScript" name="SuppressNewScript" value="true" />
                 <input type="hidden" id="ContractStatus" name="ContractStatus" />
                 <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Enter a Contract Number" />
                 <input type="button" class="disabled" disabled name="findContractButton" id="findContractButton" value="Find Contract" onclick="findContract()" />

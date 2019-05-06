@@ -237,6 +237,10 @@ namespace EPS3.Controllers
             } catch (Exception e) {
                 _logger.LogError("LineItemsController.AddNewLineItem Error:" + e.GetBaseException());
             }
+            if (newLineItem.LineItemType.Equals(ConstantStrings.NewContract) || newLineItem.LineItemType.Equals(ConstantStrings.Award) || newLineItem.LineItemType.Equals(ConstantStrings.Advertisement))
+            {
+                UpdateContractTotal(newLineItem);
+            }
             ExtendedLineItem wrapperLineItem = GetExtendedLineItem(newLineItem.LineItemID);
             string result = JsonConvert.SerializeObject(wrapperLineItem);
             return Json(result);
@@ -779,6 +783,29 @@ namespace EPS3.Controllers
             return results;
         }
 
+        private void UpdateContractTotal(LineItem lineItem)
+        {
+            // A line item has been added with LineItemType = {Award, Advertisement, New Contract}
+            // Reset the parent Contract's ContractTotal value to the total of the new encumbrance
+            LineItemGroup encumbrance = _context.LineItemGroups
+                .Include(g => g.LineItems)
+                .AsNoTracking()
+                .SingleOrDefault(g => g.GroupID == lineItem.LineItemGroupID);
+            //verify the encumbrance line item type is one of the three selected
+            if (encumbrance.LineItemType.Equals(ConstantStrings.NewContract) || encumbrance.LineItemType.Equals(ConstantStrings.Award) || encumbrance.LineItemType.Equals(ConstantStrings.Advertisement))
+            {
+                // get the total of all LineItems in this encumbrance
+                decimal sum = 0.00M;
+                foreach(LineItem item in encumbrance.LineItems)
+                {
+                    sum += item.Amount;
+                }
+                Contract contract = _context.Contracts.SingleOrDefault(c => c.ContractID == encumbrance.ContractID);
+                contract.ContractTotal = sum;
+                _context.Contracts.Update(contract);
+                _context.SaveChanges();
+            }
+        }
 
         public ExtendedLineItem GetExtendedLineItem(int lineItemID)
         {

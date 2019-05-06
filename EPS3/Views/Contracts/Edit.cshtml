@@ -3,6 +3,11 @@
 @{
     ViewData["Title"] = "Edit Contract Information";
 }
+<script>
+    $(document).ready(function () {
+        initContractControls();
+    });
+</script>
 
 <form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -30,7 +35,7 @@
                         <dd>
                             @if (Model.Contract.CurrentStatus.Equals(ConstantStrings.ContractDrafted) || Model.Contract.CurrentStatus.Equals(ConstantStrings.ContractNew))
                             {
-                                @Html.TextBoxFor(model => model.Contract.ContractNumber, new { style="text-transform:uppercase" })
+                                @Html.TextBoxFor(model => model.Contract.ContractNumber, new { style = "text-transform:uppercase" })
                             }
                             else
                             {
@@ -342,86 +347,86 @@
             <h4>Contract Status</h4>
         </div>
         <div class='panel-body'>
-                <form asp-controller="ContractStatus" asp-action="Create" id="ContractStatusForm" name="ContractStatusForm">
-                    <div asp-validation-summary='ModelOnly' class='text-danger'></div>
-                    <div class='form-group'>
-                        <b>Contract:</b>  @Model.Contract.ContractNumber
-                    </div>
-                    <div class='form-group'>
-                        <b>Current Status:</b> @Model.Contract.CurrentStatus
-                    </div>
+            <form asp-controller="ContractStatus" asp-action="Create" id="ContractStatusForm" name="ContractStatusForm">
+                <div asp-validation-summary='ModelOnly' class='text-danger'></div>
+                <div class='form-group'>
+                    <b>Contract:</b>  @Model.Contract.ContractNumber
+                </div>
+                <div class='form-group'>
+                    <b>Current Status:</b> @Model.Contract.CurrentStatus
+                </div>
 
-                    <div>
-                        <dl>
-                            <dt>
-                                <b>New Status</b>
-                            </dt>
-                            <dd>
-                                <select id='CurrentStatus' name='CurrentStatus' class='form-control'>
-                                   @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-                                   || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-                                   || (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == ViewBag.Contract.UserID))
-                                    {
+                <div>
+                    <dl>
+                        <dt>
+                            <b>New Status</b>
+                        </dt>
+                        <dd>
+                            <select id='CurrentStatus' name='CurrentStatus' class='form-control'>
+                                @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+                               || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
+                               || (ViewBag.Roles.Contains(ConstantStrings.Originator) && ViewBag.CurrentUser.UserID == ViewBag.Contract.UserID))
+                                {
                                     <option value='ContractDrafted'>@ConstantStrings.ContractDrafted</option>
                                     <option value='ContractInCFM'>@ConstantStrings.ContractInCFM</option>
-                                    }
-                                  @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-                                  || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
-                                    {
+                                }
+                                @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
+                               || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer))
+                                {
                                     <option value='ContractComplete50'>@ConstantStrings.ContractComplete50</option>
                                     <option value='ContractComplete52'>@ConstantStrings.ContractComplete52</option>
                                     <option value='ContractComplete98'>@ConstantStrings.ContractComplete98</option>
                                     <option value='ContractArchived'>@ConstantStrings.ContractArchived</option>
-                                    }
-                                </select>
-                            </dd>
-                        </dl>
-                    </div>
-                    <div>
-                        <dl>
-                            <dt>
-                                Comments
-                            </dt>
-                            <dd>
-                                <textarea id='Comments' name='Comments' class='form-control'></textarea>
-                            </dd>
-                        </dl>
-                    </div>
-                    <div class='form-group'>
-                        <input type='hidden' id='ContractID' name="ContractID" value='@ViewBag.Contract.ContractID' />
-                        <input type='hidden' id='UserID' name='UserID' value='@ViewBag.CurrentUser.UserID' />
-                        <input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
-                        <input type='submit' value='Update' class='btn btn-default' />
-                    </div>
-                </form>
-            </div> <!-- end panel body -->
-        </div> <!-- end panel -->
-    </div> <!-- end contractStatusDialog -->
-    <div id="addVendorDialog" title="Add New Vendor" style="display: none;">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4>Add New Vendor</h4>
-            </div>
-            <div class='panel-body'>
-                <form asp-controller="Vendors" asp-action="Create" id="AddVendorForm" name="AddVendorForm">
-                    <label for="VendorCode">Vendor Number:</label>
-                    <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" />
-                    <br />
-                    <label for="VendorName">Vendor Name:</label>
-                    <input type="text" name="VendorName" id="VendorName" width="350" />
-                    <br />
-                    <div id="vendorMessage" name="vendorMessage"></div>
-                    <br />
+                                }
+                            </select>
+                        </dd>
+                    </dl>
+                </div>
+                <div>
+                    <dl>
+                        <dt>
+                            Comments
+                        </dt>
+                        <dd>
+                            <textarea id='Comments' name='Comments' class='form-control'></textarea>
+                        </dd>
+                    </dl>
+                </div>
+                <div class='form-group'>
                     <input type='hidden' id='ContractID' name="ContractID" value='@ViewBag.Contract.ContractID' />
-                    <input type='button' value='Add Vendor' class='btn btn-default' onclick='addNewVendor()' />
-                </form>
-            </div> <!-- end panel body -->
-        </div> <!-- end panel -->
-    </div> <!-- end AddVendor dialog -->
-        <div>
-            <a asp-action="Index">Back to List</a>
+                    <input type='hidden' id='UserID' name='UserID' value='@ViewBag.CurrentUser.UserID' />
+                    <input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
+                    <input type='submit' value='Update' class='btn btn-default' />
+                </div>
+            </form>
+        </div> <!-- end panel body -->
+    </div> <!-- end panel -->
+</div> <!-- end contractStatusDialog -->
+<div id="addVendorDialog" title="Add New Vendor" style="display: none;">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>Add New Vendor</h4>
         </div>
+        <div class='panel-body'>
+            <form asp-controller="Vendors" asp-action="Create" id="AddVendorForm" name="AddVendorForm">
+                <label for="VendorCode">Vendor Number:</label>
+                <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" />
+                <br />
+                <label for="VendorName">Vendor Name:</label>
+                <input type="text" name="VendorName" id="VendorName" width="350" />
+                <br />
+                <div id="vendorMessage" name="vendorMessage"></div>
+                <br />
+                <input type='hidden' id='ContractID' name="ContractID" value='@ViewBag.Contract.ContractID' />
+                <input type='button' value='Add Vendor' class='btn btn-default' onclick='addNewVendor()' />
+            </form>
+        </div> <!-- end panel body -->
+    </div> <!-- end panel -->
+</div> <!-- end AddVendor dialog -->
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
 
-        @section Scripts {
-            @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-        }
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

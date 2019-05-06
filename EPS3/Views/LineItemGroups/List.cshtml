@@ -53,6 +53,9 @@
                         <th>
                             Encumbrance Amount
                         </th>
+                        <th>
+                            Originator
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,13 +98,16 @@
                                 }
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.OriginatedDate)
+                                @item.OriginatedDate.ToString("yyyy-MM-dd hh:ss tt")
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.LastEditedDate)
+                                @item.LastEditedDate.ToString("yyyy-MM-dd hh:ss tt")
                             </td>
                             <td>
                                 @ViewBag.EncumbranceAmounts[item.GroupID]
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.OriginatorUser.FullName)
                             </td>
                         </tr>
                     }
@@ -130,6 +136,7 @@
                     </div>
                     <div class="col-sm-3">
                         Find a Contract by Contract Number:   
+                        <input type="hidden" id="SuppressNewScript" name="SuppressNewScript" value="true" />
                         <input type="hidden" id="ContractID" name="ContractID" onchange="validateFindContract()" />
                         <input type="hidden" id="ContractStatus" name="ContractStatus" />
                         <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Enter a Contract Number" /> 

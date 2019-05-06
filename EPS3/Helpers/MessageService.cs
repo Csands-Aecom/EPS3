@@ -509,7 +509,7 @@ namespace EPS3.Helpers
             }
             if (encumbrance.AmendedFlairLOAID != null && encumbrance.AmendedFlairLOAID != "")
             {
-                encumbranceInfo += "<strong>Amended LOA FLAIR ID:</strong> " + encumbrance.AmendedFlairLOAID + "<br />";
+                encumbranceInfo += "<strong>Amended/Corrected FLAIR ID:</strong> " + encumbrance.AmendedFlairLOAID + "<br />";
             }
             if (encumbrance.AdvertisedDate != null)
             {

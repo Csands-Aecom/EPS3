@@ -3,7 +3,11 @@
 @{
     ViewData["Title"] = "Create Contract";
 }
-
+<script>
+    $(document).ready(function () {
+        initContractControls();
+    });
+</script>
 
 <form asp-action="Create" name="createContractForm" id="createContractForm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -28,6 +32,7 @@
                         <dd>
                             @Html.TextBoxFor(model => model.ContractNumber, new { style = "text-transform:uppercase", @onchange = "findMatchingContract()" })
                             @Html.ValidationMessageFor(model => model.ContractNumber, "A five character Contract Number is required.")
+                            <input type="hidden" id="DuplicateContract" name="DuplicateContract" />
                         </dd>
                     </dl>
                 </div>
@@ -69,10 +74,10 @@
                             <span class="input-group-addon">
                                 <label for="ContractTotal">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.ContractTotal, new { Value = "0.00" })
+                                    @Html.DisplayFor(model => model.ContractTotal, new { Value = "0.00", title = "Contract Inital Amount is set by Amendment, Award, or New Contract encumbrance request." })
                                 </label>
                             </span>
-                            @Html.ValidationMessageFor(model => model.ContractTotal, "The default Contract Total is $0.00.")
+                            @Html.ValidationMessageFor(model => model.ContractTotal, "The default Contract Inital Amount is $0.00.")
                         </dd>
                         <dt>
                             @Html.DisplayNameFor(model => model.MaxLoaAmount)

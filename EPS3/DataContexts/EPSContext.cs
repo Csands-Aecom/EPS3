@@ -7,6 +7,7 @@ using EPS3.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using EPS3.Helpers;
+using System.Data.Entity.Infrastructure;
 
 namespace EPS3.DataContexts
 {
@@ -39,10 +40,12 @@ namespace EPS3.DataContexts
         public DbSet<MessageRecipient> MessageRecipients  { get; set; }
 
         // Read only model from Views
-        public DbSet<VEncumbrance> VEncumbrances { get; }
+        public DbSet<VEncumbrance> VEncumbrances { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            modelBuilder.
+            Entity<VEncumbrance>().ToTable("VEncumbrances")
+            .Property(v => v.GroupID).HasColumnName("GroupID");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

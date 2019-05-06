@@ -208,6 +208,8 @@
                     <div class="col-sm-2">
                         <label for="@encumbrance.LineItemType">Type:</label>
                         @encumbrance.LineItemType
+                    </div>
+                    <div class="col-sm-2">
                         @if (encumbrance.AdvertisedDate != null)
                         {
                             <label for="@encumbrance.AdvertisedDate">Advertised Date:</label>
@@ -216,7 +218,7 @@
                         
                         @if (encumbrance.LettingDate != null)
                         {
-                            <label for="@encumbrance.LettingDate">Letting Date:</label>
+                           <br /> <label for="@encumbrance.LettingDate">Letting Date:</label>
                             @encumbrance.LettingDate.Value.ToString("MM/dd/yyyy")
                         }
                         
@@ -230,16 +232,23 @@
                         <label for="encumbranceAmount_@encumbrance.GroupID">Amount:</label>
                         $@ViewBag.GroupAmounts[encumbrance.GroupID].ToString("#,##0.00")
                     </div>
-                    @if (encumbrance.UserAssignedID != null)
+                    @if (encumbrance.UserAssignedID != null && encumbrance.UserAssignedID.Length > 0)
                     {
                     <div class="col-sm-2">
                         <label for="@encumbrance.UserAssignedID">ID:</label>
                         @encumbrance.UserAssignedID
-                        @if(encumbrance.AmendedLineItemID != null)
+                        @if(encumbrance.AmendedLineItemID != null && encumbrance.AmendedLineItemID.Length > 0)
                         {
                             <label for="@encumbrance.AmendedLineItemID"> for LOA#</label>
                             @encumbrance.AmendedLineItemID
                         }
+                    </div>
+                    }
+                    @if (encumbrance.AmendedFlairLOAID != null && encumbrance.AmendedFlairLOAID.Length > 0)
+                    {
+                    <div class="col-sm-2">
+                        <label for="@encumbrance.AmendedFlairLOAID">Amended/Corrected FLAIR ID:</label>
+                        @encumbrance.AmendedFlairLOAID
                     </div>
                     }
                 </div>

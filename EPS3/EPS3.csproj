@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <UserSecretsId>83d5d75c-6db9-405c-8732-dc64f2f7ef99</UserSecretsId>
 	<PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
 	<ApplicationIcon />
 	<OutputType>WinExe</OutputType>
 	<StartupObject />
+	<Version>2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -120,12 +120,22 @@ function initForms() {
         $("#OrgCode").val("55-" + orgCode);
     });
 
-    //Vendors
-    $("#VendorSelector").autocomplete({
+    //Contract (for LineItemGroups/Manage)
+    $("#ContractSelector").blur(function (event, ui) {
+        // if the value is "NEW" then open the Contract Dialog
+        var contractNumber = $("#ContractSelector").val().toUpperCase();
+        if (contractNumber === "NEW") {
+            if ($("#SuppressNewScript").length > 0) {
+                $("#ContractID").trigger('change');
+            } else {
+                openContractDialog();
+            }
+        }
+    }).autocomplete({
         source: function (request, response) {
             $.ajax({
                 autoFocus: true,
-                url: "/Contracts/ListVendors",
+                url: "/LineItemGroups/ListContracts",
                 type: "POST",
                 dataType: "json",
                 data: { searchString: request.term },
@@ -134,31 +144,147 @@ function initForms() {
                     var lastSelector = "";
                     var lastID = 0;
                     response($.map(data, function (item) {
-                        var vendorSelector = item.vendorCode + " - " + item.vendorName;
-                        lastSelector = vendorSelector;
-                        lastID = item.vendorID;
+                        var ContractSelector = item.contractNumber;
+                        lastSelector = ContractSelector;
+                        lastID = item.contractID;
                         counter++;
-                        $("#VendorIDValidation").hide();
-                        return { label: vendorSelector, value: item.vendorSelector, vendorID: item.vendorID };
+                        $("#ContractIDValidation").hide();
+                        return { label: item.contractNumber, value: item.contractNumber, ContractID: item.contractID };
                     }));
                     // if autocomplete has a single match, select it
                     if (counter == 1) {
-                        $("#VendorSelector").val(lastSelector);
-                        $("#VendorID").val(lastID);
+                        $("#ContractSelector").val(lastSelector);
+                        $("#ContractID").val(lastID);
+                        // show the ContractPanel
+                        if ($("#ContractPanel")) {
+                            showContractPanel(lastID);
+                        }
+                        if ($("#LineItemsPanel")) {
+                            displayLineItemsPanelOrMessage();
+                        }
                     }
                 }
             });
         },
         select: function (event, ui) {
-            $("#VendorSelector").val(ui.item.label);
-            $("#VendorID").val(ui.item.vendorID);
-            enableEditVendor();
+            $("#ContractSelector").val(ui.item.label);
+            $("#ContractID").val(ui.item.ContractID);
+            if ($("#SuppressNewScript").length > 0) {
+                $("#ContractID").trigger('change');
+                return false;
+            }
+            // show the ContractPanel
+            if ($("#ContractPanel").length > 0) {
+                showContractPanel(ui.item.ContractID);
+                if ($("#ContractSelector").val().toUpperCase() === "NEW") {
+                    $("#ContractNumber").val("NEW");
+                }
+            }
+            if ($("#LineItemsPanel").length > 0) {
+                displayLineItemsPanelOrMessage();
+            }
             return false;
         }
     });
-    $("#VendorSelector").bind('blur', function () {
-        updateContractVendor()
+
+    if ($("#ContractPanel")) {
+        showContractPanel($("#ContractID").val());
+    }
+
+
+    // set Encumbrance Total
+    setEncumbranceTotal();
+    setContractAmountTotal();
+   
+} // *** end of initForms which is the body of the ready function ***
+
+function initContractControls() {
+    //datepicker 
+    $(function () {
+        $(".datepicker").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            /* fix buggy IE focus functionality */
+            fixFocusIE: false,
+
+            /* blur needed to correctly handle placeholder text */
+            onSelect: function (dateText, inst) {
+                this.fixFocusIE = true;
+                $(this).blur().change().focus();
+            },
+            onClose: function (dateText, inst) {
+                this.fixFocusIE = true;
+                this.focus();
+            }
+        });
     });
+    //contract selector)
+    $("#ContractSelector").blur(function (event, ui) {
+        // if the value is "NEW" then open the Contract Dialog
+        var contractNumber = $("#ContractSelector").val().toUpperCase();
+        if (contractNumber === "NEW") {
+            if ($("#SuppressNewScript").length > 0) {
+                $("#ContractID").trigger('change');
+            } else {
+                openContractDialog();
+            }
+        }
+    }).autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                autoFocus: true,
+                url: "/LineItemGroups/ListContracts",
+                type: "POST",
+                dataType: "json",
+                data: { searchString: request.term },
+                success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
+                    response($.map(data, function (item) {
+                        var ContractSelector = item.contractNumber;
+                        lastSelector = ContractSelector;
+                        lastID = item.contractID;
+                        counter++;
+                        $("#ContractIDValidation").hide();
+                        return { label: item.contractNumber, value: item.contractNumber, ContractID: item.contractID };
+                    }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#ContractSelector").val(lastSelector);
+                        $("#ContractID").val(lastID);
+                        // show the ContractPanel
+                        if ($("#ContractPanel")) {
+                            showContractPanel(lastID);
+                        }
+                        if ($("#LineItemsPanel")) {
+                            displayLineItemsPanelOrMessage();
+                        }
+                    }
+                }
+            });
+        },
+        select: function (event, ui) {
+            $("#ContractSelector").val(ui.item.label);
+            $("#ContractID").val(ui.item.ContractID);
+            if ($("#SuppressNewScript").length > 0) {
+                $("#ContractID").trigger('change');
+                return false;
+            }
+            // show the ContractPanel
+            if ($("#ContractPanel").length > 0) {
+                showContractPanel(ui.item.ContractID);
+                if ($("#ContractSelector").val().toUpperCase() === "NEW") {
+                    $("#ContractNumber").val("NEW");
+                }
+            }
+            if ($("#LineItemsPanel").length > 0) {
+                displayLineItemsPanelOrMessage();
+            }
+            return false;
+        }
+    });
+
     //Contract Types
     $("#ContractTypeSelector").autocomplete({
         source: function (request, response) {
@@ -199,6 +325,84 @@ function initForms() {
         updateContractContractType()
     });
 
+    //Vendors
+    $("#VendorSelector").autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                autoFocus: true,
+                url: "/Contracts/ListVendors",
+                type: "POST",
+                dataType: "json",
+                data: { searchString: request.term },
+                success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
+                    response($.map(data, function (item) {
+                        var vendorSelector = item.vendorCode + " - " + item.vendorName;
+                        lastSelector = vendorSelector;
+                        lastID = item.vendorID;
+                        counter++;
+                        $("#VendorIDValidation").hide();
+                        return { label: vendorSelector, value: item.vendorSelector, vendorID: item.vendorID };
+                    }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#VendorSelector").val(lastSelector);
+                        $("#VendorID").val(lastID);
+                    }
+                }
+            });
+        },
+        select: function (event, ui) {
+            $("#VendorSelector").val(ui.item.label);
+            $("#VendorID").val(ui.item.vendorID);
+            enableEditVendor();
+            return false;
+        }
+    });
+    $("#VendorSelector").bind('blur', function () {
+        updateContractVendor();
+    });
+}
+
+function initLineItemControls() {
+    //Category
+    $("#CategorySelector").autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                autoFocus: true,
+                url: "/LineItems/ListCategories",
+                type: "POST",
+                dataType: "json",
+                data: { searchString: request.term },
+                success: function (data) {
+                    var counter = 0;
+                    var lastSelector = "";
+                    var lastID = 0;
+                    response($.map(data, function (item) {
+                        var CategorySelector = item.categoryCode + " - " + item.categoryName;
+                        lastSelector = CategorySelector;
+                        lastID = item.categoryID;
+                        counter++;
+                        $("#CategoryIDValidation").hide();
+                        return { label: CategorySelector, value: item.categorySelector, CategoryID: item.categoryID };
+                    }));
+                    // if autocomplete has a single match, select it
+                    if (counter == 1) {
+                        $("#CategorySelector").val(lastSelector);
+                        $("#CategoryID").val(lastID);
+                    }
+                }
+            });
+        },
+        select: function (event, ui) {
+            $("#CategorySelector").val(ui.item.label);
+            $("#CategoryID").val(ui.item.CategoryID);
+            return false;
+        }
+    });
+
     //OCA
     $("#OCASelector").autocomplete({
         source: function (request, response) {
@@ -234,6 +438,7 @@ function initForms() {
             return false;
         }
     });
+
 
     //Fund
     $("#FundSelector").autocomplete({
@@ -271,117 +476,13 @@ function initForms() {
         }
     });
 
-    //Category
-    $("#CategorySelector").autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                autoFocus: true,
-                url: "/LineItems/ListCategories",
-                type: "POST",
-                dataType: "json",
-                data: { searchString: request.term },
-                success: function (data) {
-                    var counter = 0;
-                    var lastSelector = "";
-                    var lastID = 0;
-                    response($.map(data, function (item) {
-                        var CategorySelector = item.categoryCode + " - " + item.categoryName;
-                        lastSelector = CategorySelector;
-                        lastID = item.categoryID;
-                        counter++;
-                        $("#CategoryIDValidation").hide();
-                        return { label: CategorySelector, value: item.categorySelector, CategoryID: item.categoryID };
-                    }));
-                    // if autocomplete has a single match, select it
-                    if (counter == 1) {
-                        $("#CategorySelector").val(lastSelector);
-                        $("#CategoryID").val(lastID);
-                    }
-                }
-            });
-        },
-        select: function (event, ui) {
-            $("#CategorySelector").val(ui.item.label);
-            $("#CategoryID").val(ui.item.CategoryID);
-            return false;
-        }
-    });
-
-    //Contract (for LineItemGroups/Manage)
-    $("#ContractSelector").blur(function (event, ui) {
-        // if the value is "NEW" then open the Contract Dialog
-        var contractNumber = $("#ContractSelector").val().toUpperCase();
-        if (contractNumber === "NEW") {
-            openContractDialog();
-        }
-    }).autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                autoFocus: true,
-                url: "/LineItemGroups/ListContracts",
-                type: "POST",
-                dataType: "json",
-                data: { searchString: request.term },
-                success: function (data) {
-                    var counter = 0;
-                    var lastSelector = "";
-                    var lastID = 0;
-                    response($.map(data, function (item) {
-                        var ContractSelector = item.contractNumber;
-                        lastSelector = ContractSelector;
-                        lastID = item.contractID;
-                        counter++;
-                        $("#ContractIDValidation").hide();
-                        return { label: item.contractNumber, value: item.contractNumber, ContractID: item.contractID };
-                    }));
-                    // if autocomplete has a single match, select it
-                    if (counter == 1) {
-                        $("#ContractSelector").val(lastSelector);
-                        $("#ContractID").val(lastID);
-                        // show the ContractPanel
-                        if ($("#ContractPanel")) {
-                            showContractPanel(lastID);
-                        }
-                        if ($("#LineItemsPanel")) {
-                            displayLineItemsPanelOrMessage();
-                        }
-                    }
-                }
-            });
-        },
-        select: function (event, ui) {
-            $("#ContractSelector").val(ui.item.label);
-            $("#ContractID").val(ui.item.ContractID);
-            validateFindContract();
-            // show the ContractPanel
-            if ($("#ContractPanel").length > 0) {
-                showContractPanel(ui.item.ContractID);
-                if ($("#ContractSelector").val().toUpperCase() === "NEW") {
-                    $("#ContractNumber").val("NEW");
-                }
-            }
-            if ($("#LineItemsPanel").length > 0) {
-                displayLineItemsPanelOrMessage();
-            }
-            return false;
-        }
-    });
-
-    if ($("#ContractPanel")) {
-        showContractPanel($("#ContractID").val());
-    }
-
+    //FY list
     $("#FiscalYearList").change(function () {
         $("#FiscalYear").val($("#FiscalYearList").val());
         $("#LineItem_FiscalYear").val($("#FiscalYearList").val());
         return false;
     }).change();
-
-    // set Encumbrance Total
-    setEncumbranceTotal();
-    setContractAmountTotal();
-   
-} // *** end of initForms which is the body of the ready function ***
+}
 
 function addDialogs() {
     // update Contract Status dialog link
@@ -462,9 +563,12 @@ function addDialogs() {
         modal: true,
         open: function (event, ui) {
             var url = "/LineItemGroups/NewContractPartial";
+            if ($("#ContractID").val() > 0) {
+                url = "/LineItemGroups/NewContractPartial/" + $("#ContractID").val();
+            }
             $(this).load(url, function () {
-                // very important to initForms() to enable date pickers and autocompletes
-                initForms();
+                initContractControls();
+                $("#ContractNumber").focus();
             });
             //Contract Types
             $("#ContractTypeSelector").zIndex = $("#ContractDialog").zIndex + 1;
@@ -516,7 +620,7 @@ function addDialogs() {
         },
     }).load("/LineItemGroups/NewLineItemPartial", function () {
         // very important to initForms() to enable date pickers and autocompletes
-        initForms();
+        initLineItemControls();
     });
 }
 
@@ -722,7 +826,7 @@ function displayLineItemsPanelOrMessage() {
     var encumbranceType = $("#LineItemType").val();
     var encumbranceStatus = $("#GroupStatus").val();
     //update encumbrance panel header
-    if (encumbranceType != null && encumbranceType.length > 0 && encumbranceType != "None") {
+    if (encumbranceType != null && encumbranceType.length > 0 && encumbranceType !== "None") {
         $("#EncHeaderEncType").html("Type: <h4>" + encumbranceType + "</h4>");
     }
     if (encumbranceStatus != null && encumbranceStatus.length > 0) {
@@ -739,7 +843,7 @@ function displayLineItemsPanelOrMessage() {
     //$("#EncHeaderEncAmount").html("Amount: <h4>" + getEncumbranceAmount() + "</h4>");
 
     if (contractID > 0 && encumbranceType
-        && encumbranceType.length > 0 && encumbranceType != "None"
+        && encumbranceType.length > 0 && encumbranceType !== "None"
         && groupID > 0) {
         $("#LineItemsPanel").show();
         showHideButtons();
@@ -747,24 +851,26 @@ function displayLineItemsPanelOrMessage() {
         $("#messageSpan").text("Click \"Input Financial Information\" to open Financial Information panel.");
     }
 
-    // For advertisement, show Advertised Date and Letting Date
-
+    // For advertisement, show specialty fields for LineItemGroups based on LineItemType
+    $("#AdvertisementAdDate").hide();
+    $("#AdvertisementLetDate").hide();
+    $("#AmendedIDDiv").hide();
+    $("#RenewalEndingDate").hide();
+    $("#AmendedLineItemDef").hide();
+    $("#AmendedFlairIDDef").hide();
     if (encumbranceType === "Advertisement") {
         $("#AdvertisementAdDate").show();
         $("#AdvertisementLetDate").show();
-    } else {
-        $("#AdvertisementAdDate").hide();
-        $("#AdvertisementLetDate").hide();
-    }
-    if (encumbranceType === "Amendment to LOA") {
+    } else if (encumbranceType === "Correction") {
         $("#AmendedIDDiv").show();
-    } else {
-        $("#AmendedIDDiv").hide();
-    }
-    if (encumbranceType === "Renewal") {
+        $("#AmendedLineItemDef").hide();
+        $("#AmendedFlairIDDef").show();
+    } else if (encumbranceType === "Amendment to LOA") {
+        $("#AmendedIDDiv").show();
+        $("#AmendedLineItemDef").show();
+        $("#AmendedFlairIDDef").show();
+    } else if (encumbranceType === "Renewal") {
         $("#RenewalEndingDate").show();
-    } else {
-        $("#RenewalEndingDate").hide();
     }
 }
 function collapseSection() {
@@ -1529,6 +1635,9 @@ function setDefaultUserAssignedID(){
         prefix = "AMD#";
         $("#AmendedIDDiv").show();
     }
+    if (encumbranceType === "Correction") {
+        $("#AmendedIDDiv").show();
+    }
     if (prefix.length > 0 && $("#UserAssignedID").val().length === 0) {
         $("#UserAssignedID").val(prefix); // at client request, changed from (prefix + encNumber);
     }
@@ -1570,10 +1679,6 @@ function clearContract() {
 function openContractDialogExisting(id) {
     $("#ContractDialog").dialog("open");
     $("#ContractSelector").hide();
-
-    url = "/LineItemGroups/NewContractPartial/" + id;
-    $('#ContractDialog').load(url, function () { initForms(); });
-
     $("#ContractTypeSelector").autocomplete("option", "appendTo", "#ContractDialog");
     $("#VendorSelector").autocomplete("option", "appendTo", "#ContractDialog");
     $("#ContractNumber").focus();
@@ -2121,6 +2226,12 @@ function ValidateContract() {
     // Check all required fields on the Contract form for valid values
     var isErrorFree = true; // set to false when an error is found
     var msg = "";
+    displayContractMessage(msg);
+    if ($("#DuplicateContract").val() === "true") {
+        msg += "The Contract Number must be unique. <br/>";
+        isErrorFree = false;
+    }
+
     if (!$("#ContractTypeID").val()) {
         msg += "Please select a Contract Type. <br/>";
         isErrorFree = false;
@@ -2183,8 +2294,8 @@ function ValidateLineItem() {
         msg += "Please enter a valid Organization Code. <br/>";
         isErrorFree = false;
     } else {
-        if ((orgCode.indexOf("55-") >= 0) && (orgCode.length != 12)
-            || (orgCode.indexOf("55-") < 0) && (orgCode.length != 9)) {
+        if ((orgCode.indexOf("55-") >= 0) && (orgCode.length !== 12)
+            || (orgCode.indexOf("55-") < 0) && (orgCode.length !== 9)) {
             msg += "The Organization Code must be \"55-\" followed by 9 digits. <br/>";
             isErrorFree = false;
         }
@@ -2194,7 +2305,7 @@ function ValidateLineItem() {
         msg += "Please enter an 11 character Financial Project Number. <br/>";
         isErrorFree = false;
     } else {
-        if (finProjNum.length != 11) {
+        if (finProjNum.length !== 11) {
             msg += "The Financial Project Number must be 11 characters long. <br/>";
             isErrorFree = false;
         }
@@ -2212,7 +2323,7 @@ function ValidateLineItem() {
         msg += "Please enter a three digit Work Activity. <br/>";
         isErrorFree = false;
     } else {
-        if (workActivity.length != 3) {
+        if (workActivity.length !== 3) {
             msg += "The Work Activity must be three digits long. <br/>";
             isErrorFree = false;
         }
@@ -2226,7 +2337,7 @@ function ValidateLineItem() {
         msg += "Please enter a two character Expansion Option. <br/>";
         isErrorFree = false;
     } else {
-        if (eo.length != 2) {
+        if (eo.length !== 2) {
             msg += "The EO must be two characters long. <br/>";
             isErrorFree = false;
         }
@@ -2236,7 +2347,7 @@ function ValidateLineItem() {
         msg += "Please select a FLAIR Object Code. <br/>";
         isErrorFree = false;
     } else {
-        if (objCode.length != 6) {
+        if (objCode.length !== 6) {
             msg += "The FLAIR Object Code must be six digits long. <br/>";
             isErrorFree = false;
         }
@@ -2280,6 +2391,9 @@ function SaveEncumbrance(commentJson) {
     encumbrance.CurrentStatus = $("#CurrentStatus").val();
     if ($("#AmendedLineItemID").val()) {
         encumbrance.AmendedLineItemID = $("#AmendedLineItemID").val();
+    }
+    if ($("#AmendedFlairLOAID").val()) {
+        encumbrance.AmendedFlairLOAID = $("#AmendedFlairLOAID").val();
     }
     if ($("#AdvertisedDate").val()) {
         encumbrance.AdvertisedDate = $("#AdvertisedDate").val();
@@ -2438,6 +2552,7 @@ function displayMessage(msg) {
     $("#messageSpan").html(msg);
 }
 function displayContractMessage(msg) {
+    msg = "<font color='red'>" + msg + "</font>";
     $("#messageSpanContract").html(msg);
 }
 function displaySubmitMessage(msg) {
@@ -2446,7 +2561,7 @@ function displaySubmitMessage(msg) {
 }
 function showComment(text, title) {
     // open small dialog and display text
-    $("#CommentsDisplayDialog").css("z-index", "102");
+    $("#CommentsDisplayDialog").css("z-index", "9999");
     $("#CommentsDisplayDialog").text(text);
     $("#CommentsDisplayDialog").dialog("open");
     //alert(text);
@@ -2487,9 +2602,12 @@ function findMatchingContract() {
                     contractList += item.contractNumber + "(ID=" + item.contractID + "), ";
                 });
                 contractList = contractList.substr(0, contractList.length - 2);
-                if (contractList.length > 0 && contractNumber.toUpperCase() != "NEW") {
-                    showComment("At least one contract with th Contract Number " + contractNumber + " already exists." +
-                        "\nYou may continue creating a new contract with the same number or close the Contract Dialog and select an existing contract.");
+                if (contractList.length > 0 && contractNumber.toUpperCase() !== "NEW") {
+                    displayContractMessage("A contract with the Contract Number " + contractNumber + " already exists.");
+                    $("#DuplicateContract").val("true");
+                } else {
+                    displayContractMessage("");
+                    $("#DuplicateContract").val("false");
                 }
             }
         });
@@ -2498,7 +2616,7 @@ function findMatchingContract() {
 
 //rudimentary search tools
 function validateFindGroupID() {
-    if ($("#findGroupID").val()) {
+    if ($("#findGroupID").val().length > 0) {
         $("#findEncumbranceButton").prop("disabled", false);
         $("#findEncumbranceButton").removeClass("disabled");
     } else {
@@ -2507,7 +2625,7 @@ function validateFindGroupID() {
     }
 }
 function validateFindContract() {
-    if ($("#ContractID").val()) {
+    if ($("#ContractID").val().length > 0) {
         $("#findContractButton").prop("disabled", false);
         $("#findContractButton").removeClass("disabled");
     } else {

@@ -83,7 +83,7 @@ namespace EPS3.Controllers
                 string roles = _pu.GetUserRoles(user.UserLogin);
                 // add Line IDs for Groups in Finance if user has Finance role
                 List<VEncumbrance> financeEncumbrances = _context.VEncumbrances.AsNoTracking()
-                    .Where(e => e.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                    .Where(e => e.EncumbranceStatus.Equals(ConstantStrings.SubmittedFinance))
                     .ToList();
                 if (roles.Contains(ConstantStrings.FinanceReviewer))
                 {
@@ -93,7 +93,7 @@ namespace EPS3.Controllers
 
                 // add Line IDs for Groups in Work Program if user has WP role
                 List<VEncumbrance> wpEncumbrances = _context.VEncumbrances.AsNoTracking()
-                    .Where(e => e.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
+                    .Where(e => e.EncumbranceStatus.Equals(ConstantStrings.SubmittedWP))
                     .ToList();
                 if (roles.Contains(ConstantStrings.WPReviewer))
                 {
@@ -103,7 +103,7 @@ namespace EPS3.Controllers
 
                 // add Line IDs for Groups in CFM Ready 
                 List<VEncumbrance> cfmEncumbrances = _context.VEncumbrances.AsNoTracking()
-                    .Where(e => e.CurrentStatus.Equals(ConstantStrings.CFMReady))
+                    .Where(e => e.EncumbranceStatus.Equals(ConstantStrings.CFMReady))
                     .ToList();
                 if (roles.Contains(ConstantStrings.CFMSubmitter))
                 {
@@ -116,14 +116,14 @@ namespace EPS3.Controllers
                 {
                     // add Group IDs for all Groups in Draft if user is Admin
                     origEncumbrances = _context.VEncumbrances.AsNoTracking()
-                        .Where(e => e.CurrentStatus.Equals(ConstantStrings.Draft))
+                        .Where(e => e.EncumbranceStatus.Equals(ConstantStrings.Draft))
                         .ToList();
                 }
                 else if (roles.Contains(ConstantStrings.Originator))
                 {
                     // add Group IDs for Groups in Draft if user has the originator role and is the originator of the encumbrance
                     origEncumbrances = _context.VEncumbrances.AsNoTracking()
-                        .Where(e => e.CurrentStatus.Equals(ConstantStrings.Draft) && e.OriginatorUserID==(user.UserID))
+                        .Where(e => e.EncumbranceStatus.Equals(ConstantStrings.Draft) && e.OriginatorUserID==(user.UserID))
                         .ToList();
                 }
                 results.Add(ConstantStrings.Draft, origEncumbrances);
@@ -131,7 +131,7 @@ namespace EPS3.Controllers
 
                 // add Groups that have been input to CFM
                 List<VEncumbrance> completeEncumbrances = _context.VEncumbrances.AsNoTracking()
-                    .Where(e => e.CurrentStatus.Equals(ConstantStrings.CFMComplete) && e.ContractStatus != ConstantStrings.ContractArchived)
+                    .Where(e => e.EncumbranceStatus.Equals(ConstantStrings.CFMComplete) && e.ContractStatus != ConstantStrings.ContractArchived)
                     .OrderByDescending(e => e.GroupID)
                     .ToList();
                 results.Add("Processed", completeEncumbrances);
@@ -139,7 +139,7 @@ namespace EPS3.Controllers
 
                 // add  Groups that are closed
                 List<VEncumbrance> closedEncumbrances = _context.VEncumbrances.AsNoTracking()
-                        .Where(e => e.CurrentStatus.Contains("Closed") && e.ContractStatus != ConstantStrings.ContractArchived)
+                        .Where(e => e.EncumbranceStatus.Contains("Closed") && e.ContractStatus != ConstantStrings.ContractArchived)
                         .OrderByDescending(e => e.GroupID)
                         .ToList();
                 results.Add("Closed", closedEncumbrances);
@@ -151,8 +151,11 @@ namespace EPS3.Controllers
 
         private List<VEncumbrance> getCurrentUserEncumbrances(User user)
         {
+           // _context.Database.
+            var foo = _context.VEncumbrances.First();
+
             List<VEncumbrance> myGroups = _context.VEncumbrances.AsNoTracking()
-                    .Where(e => e.OriginatorUserID == user.UserID && e.CurrentStatus != "Closed" &&  e.ContractStatus != ConstantStrings.ContractArchived)
+                    .Where(e => e.OriginatorUserID == user.UserID && e.EncumbranceStatus != "Closed" &&  e.ContractStatus != ConstantStrings.ContractArchived)
                     .OrderByDescending(e => e.GroupID)
                     .ToList();
 
@@ -164,7 +167,7 @@ namespace EPS3.Controllers
             // add  Groups that are unawarded Advertisements
             List<VEncumbrance> adGroups = _context.VEncumbrances.AsNoTracking()
                 .Where(e => e.LineItemType.Equals(ConstantStrings.Advertisement)
-                    && e.CurrentStatus.Equals(ConstantStrings.CFMComplete)
+                    && e.EncumbranceStatus.Equals(ConstantStrings.CFMComplete)
                     && e.ContractStatus != ConstantStrings.ContractArchived)
                 .ToList();
             // For each adGroup, if the contract has a matching, submitted, Award group, then add it to Award groups

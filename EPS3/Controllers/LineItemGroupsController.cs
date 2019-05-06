@@ -893,6 +893,7 @@ namespace EPS3.Controllers
                 .Where(l => l.Contract.CurrentStatus != (ConstantStrings.CloseContract))
                 .Include(l => l.Contract)
                 .Include(l => l.LineItems)
+                .Include(l => l.OriginatorUser)
                 .OrderByDescending(l => l.GroupID)
                 .Take(200)
                 .ToList();
@@ -905,6 +906,7 @@ namespace EPS3.Controllers
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
                     .Include(l => l.Contract)
                     .Include(l => l.LineItems)
+                    .Include(l => l.OriginatorUser)
                     .ToList();
                 if (roles.Contains(ConstantStrings.FinanceReviewer))
                 {
@@ -917,6 +919,7 @@ namespace EPS3.Controllers
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
                     .Include(l => l.Contract)
                     .Include(l => l.LineItems)
+                    .Include(l => l.OriginatorUser)
                     .ToList();
                 if (roles.Contains(ConstantStrings.WPReviewer))
                 {
@@ -929,6 +932,7 @@ namespace EPS3.Controllers
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMReady))
                     .Include(l => l.Contract)
                     .Include(l => l.LineItems)
+                    .Include(l => l.OriginatorUser)
                     .ToList();
                 if (roles.Contains(ConstantStrings.CFMSubmitter))
                 {
@@ -944,6 +948,7 @@ namespace EPS3.Controllers
                         .Where(l => l.CurrentStatus.Equals(ConstantStrings.Draft))
                         .Include(l => l.Contract)
                         .Include(l => l.LineItems)
+                        .Include(l => l.OriginatorUser)
                         .ToList();
                 }
                 else if(roles.Contains(ConstantStrings.Originator))
@@ -954,6 +959,7 @@ namespace EPS3.Controllers
                         .Where(l => l.OriginatorUser.UserLogin.Equals(user.UserLogin))
                         .Include(l => l.Contract)
                         .Include(l => l.LineItems)
+                        .Include(l => l.OriginatorUser)
                         .ToList();
                 }
                 results.Add(ConstantStrings.Draft, origLineIDs);
@@ -964,6 +970,7 @@ namespace EPS3.Controllers
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.CFMComplete))
                     .Include(l => l.LineItems)
                     .Include(l => l.Contract)
+                    .Include(l => l.OriginatorUser)
                     .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                     .OrderByDescending(l => l.GroupID)
                     .Take(200)
@@ -976,6 +983,7 @@ namespace EPS3.Controllers
                         .Where(l => l.CurrentStatus.Contains("Closed"))
                         .Include(l => l.LineItems)
                         .Include(l => l.Contract)
+                        .Include(l => l.OriginatorUser)
                         .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                         .OrderByDescending(l => l.GroupID)
                         .Take(200)
@@ -994,6 +1002,7 @@ namespace EPS3.Controllers
                     .Include(l => l.Contract)
                     .Where(l => l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                     .Include(l => l.LineItems)
+                    .Include(l => l.OriginatorUser)
                     .OrderByDescending(l => l.GroupID)
                     .Take(200)
                     .ToList();
@@ -1010,6 +1019,7 @@ namespace EPS3.Controllers
                     && l.Contract.CurrentStatus != ConstantStrings.ContractArchived)
                 .Include(l => l.Contract)
                 .Include(l => l.LineItems)
+                .Include(l => l.OriginatorUser)
                 .ToList();
             // For each adGroup, if the contract has a matching, submitted, Award group, then add it to Award groups
             List<LineItemGroup> awardedGroups = new List<LineItemGroup>();

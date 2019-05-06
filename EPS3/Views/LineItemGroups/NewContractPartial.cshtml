@@ -16,6 +16,7 @@
                         <dd>
                             @Html.TextBoxFor(model => model.ContractNumber, new { style = "text-transform:uppercase", @onchange = "findMatchingContract()" })
                             @Html.ValidationMessageFor(model => model.ContractNumber, "A five character Contract Number is required.")
+                            <input type="hidden" id="DuplicateContract" name="DuplicateContract" />
                         </dd>
                     </dl>
                 </div>
@@ -26,12 +27,13 @@
                             <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract Type from the list of options."></span>
                         </dt>
                         <dd>
-                            @if (Model != null) {
+                            @if (Model != null) 
+                            {
                                 <input type="hidden" id="ContractTypeID" name="ContractTypeID" value="@Model.ContractTypeID" />
                                 <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" value="@Model.ContractType.ContractTypeSelector" style="text-transform:uppercase" />
                             } else {
                                 <input type="hidden" id="ContractTypeID" name="ContractTypeID" />
-                                <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" style="text-transform:uppercase" />
+                                <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" placeholder="Begin typing, then select" style="text-transform:uppercase" />
                             }
                         </dd>
                     </dl>
@@ -42,7 +44,8 @@
                             @Html.DisplayNameFor(model => model.IsRenewable)
                         </dt>
                         <dd>
-                                @if(Model != null) {
+                                @if(Model != null) 
+                                {
                                     @if (Model.IsRenewable > 0) {
                                         <div class="custom-control custom-radio">
                                                Yes <input id="IsRenewable1" name="IsRenewable" type="radio" class="custom-control-input" value="1">
@@ -78,10 +81,10 @@
                             <span class="input-group-addon">
                                 <label for="ContractTotal">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.ContractTotal, new { @type = "number", Value = "0.00" })
+                                    @Html.DisplayFor(model => model.ContractTotal, new { @type = "number", Value = "0.00", title="Contract Inital Amount is set by Amendment, Award, or New Contract encumbrance request."})
                                 </label>
                             </span>
-                            @Html.ValidationMessageFor(model => model.ContractTotal, "The default Contract Total is $0.00.")
+                            @Html.ValidationMessageFor(model => model.ContractTotal, "The default Contract Initial Amount is $0.00.")
                         </dd>
                         <dt>
                             @Html.DisplayNameFor(model => model.MaxLoaAmount)
@@ -117,7 +120,7 @@
                         </dt>
                         <dd>
                             <div class="input-group date">
-                                @Html.TextBoxFor(model => model.BeginningDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
+                                @Html.TextBoxFor(model => model.BeginningDate, "{0:MM/dd/yyyy}" , new { @class = "datepicker", placeholder = "MM/DD/YYYY" })
                                 <span class="input-group-addon">
                                     <label for="BeginningDate">
                                         <span class="glyphicon glyphicon-calendar btn btn-default"></span>
@@ -131,7 +134,7 @@
                         </dt>
                         <dd>
                             <div class="input-group date">
-                                @Html.TextBoxFor(model => model.EndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
+                                @Html.TextBoxFor(model => model.EndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker", placeholder = "MM/DD/YYYY" })
                                 <span class="input-group-addon">
                                     <label for="EndingDate">
                                         <span class="glyphicon glyphicon-calendar btn btn-default"></span>
@@ -145,7 +148,7 @@
                         </dt>
                         <dd>
                             <div class="input-group date">
-                                @Html.TextBoxFor(model => model.ServiceEndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
+                                @Html.TextBoxFor(model => model.ServiceEndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker", placeholder = "MM/DD/YYYY" })
                                 <span class="input-group-addon">
                                     <label for="ServiceEndingDate">
                                         <span class="glyphicon glyphicon-calendar btn btn-default"></span>
@@ -170,7 +173,7 @@
                             <label for="CompensationID">Contract Funding Terms</label>
                         </dt>
                         <dd>
-                            @Html.DropDownList("CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationSelector"), " ", new { @onchange = "updateBudgetCeiling()" })
+                            @Html.DropDownList("CompensationID", new SelectList((IEnumerable<Compensation>)ViewData["Compensations"], "CompensationID", "CompensationSelector"), " ", new { @onchange = "updateBudgetCeiling()"})
 
                             @Html.ValidationMessageFor(model => model.CompensationID, "")
                         </dd>
@@ -186,7 +189,7 @@
                                 <input type="text" id="VendorSelector" name="VendorSelector" value="@Model.Vendor.VendorSelector" />
                                 } else {
                                 <input type="hidden" id="VendorID" name="VendorID" />
-                                <input type="text" id="VendorSelector" name="VendorSelector" />
+                                <input type="text" id="VendorSelector" name="VendorSelector" placeholder="Begin typing, then select from the list"  />
                                 }
                                 <br />Select <strong><em>AD</em></strong> for Advertisement.
                             </dd>
@@ -260,7 +263,7 @@
                             @Html.DisplayNameFor(model => model.DescriptionOfWork)
                         </dt>
                         <dd>
-                            @Html.TextAreaFor(model => model.DescriptionOfWork, new { @rows = "3", @cols = "200", style = "min-width: 80%" })
+                            @Html.TextAreaFor(model => model.DescriptionOfWork, new { @rows = "3", @cols = "200", style = "min-width: 80%", placeholder= "Input a description for the work to be done under this contract." })
                             @Html.ValidationMessageFor(model => model.DescriptionOfWork, "Please provide a description of the work to be completed under this contract.")
                         </dd>
                     </dl>

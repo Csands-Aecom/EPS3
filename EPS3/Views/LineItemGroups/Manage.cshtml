@@ -76,18 +76,18 @@
                         <br /> <span id="OpenContractInformationSpan">Enter Existing Contract Number</span>
                     </dt>
                     <dd>
-                        @if (ViewBag.ContractID > 0)
+                    @if (ViewBag.ContractID > 0)
                     {
                         <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
                         <input type="hidden" id="ContractStatus" name="ContractStatus" value="@ViewBag.Contract.CurrentStatus" />
                         <input type="text" style="text-transform:uppercase" id="ContractSelector" name="ContractSelector" value="@ViewBag.Contract.ContractNumber" />
-                }
-                else
-                {
-                    <input type="hidden" id="ContractID" name="ContractID" />
-                    <input type="hidden" id="ContractStatus" name="ContractStatus" />
-                    <input type="text" id="ContractSelector" name="ContractSelector" />
-            }
+                    }
+                    else
+                    {
+                        <input type="hidden" id="ContractID" name="ContractID" />
+                        <input type="hidden" id="ContractStatus" name="ContractStatus" />
+                        <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Begin typing and select from list" />
+                    }
                     </dd>
                     <dt id="OpenContractInformationDiv">
                         Or
@@ -133,7 +133,7 @@
                         @Html.DisplayNameFor(model => model.UserAssignedID)
                     </dt>
                     <dd>
-                        @Html.TextBoxFor(model => model.UserAssignedID)
+                        @Html.TextBoxFor(model => model.UserAssignedID, new { placeholder = "Label for this request" })
                     </dd>
                 </dl>
                 <dl id="AdvertisementAdDate" name="AdvertisementAdDate" >
@@ -142,7 +142,7 @@
                     </dt>
                     <dd>
                         <div class="input-group date">
-                            @Html.TextBoxFor(model => model.AdvertisedDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
+                            @Html.TextBoxFor(model => model.AdvertisedDate, "{0:MM/dd/yyyy}", new { @class = "datepicker", placeholder="MM/DD/YYYY" })
                             <span class="input-group-addon">
                                 <label for="AdvertisedDate">
                                     <span class="glyphicon glyphicon-calendar btn btn-default"></span>
@@ -157,7 +157,7 @@
                     </dt>
                     <dd>
                         <div class="input-group date">
-                            @Html.TextBoxFor(model => model.LettingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
+                            @Html.TextBoxFor(model => model.LettingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker", placeholder = "MM/DD/YYYY" })
                             <span class="input-group-addon">
                                 <label for="LettingDate">
                                     <span class="glyphicon glyphicon-calendar btn btn-default"></span>
@@ -172,7 +172,7 @@
                     </dt>
                     <dd>
                         <div class="input-group date">
-                            @Html.TextBoxFor(model => model.RenewalDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
+                            @Html.TextBoxFor(model => model.RenewalDate, "{0:MM/dd/yyyy}", new { @class = "datepicker", placeholder = "MM/DD/YYYY" })
                             <span class="input-group-addon">
                                 <label for="RenewalDate">
                                     <span class="glyphicon glyphicon-calendar btn btn-default"></span>
@@ -196,7 +196,7 @@
                 <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
                 @DateTime.Now.Date.ToShortDateString()
             </span>
-    }
+        }
             </div> <!-- end col -->
         </div> <!-- end row-->
         <div class="row">
@@ -206,70 +206,48 @@
                         @Html.DisplayNameFor(model => model.Description)
                     </dt>
                     <dd>
-                        @Html.TextAreaFor(model => model.Description, new { style = "width:100%" })
+                        @Html.TextAreaFor(model => model.Description, new { style = "width:100%", placeholder="Input a description of the encumbrance request." })
                     </dd>
                 </dl>
             </div> <!-- end col-->
-            @if (Model != null && Model.LineItemType.Equals(ConstantStrings.Amendment))
-        {
+       
             <div class="col-sm-3" id="AmendedIDDiv" name="AmendedIDDiv">
-                <dl>
+                <dl id="AmendedLineItemDef" name="AmendedLineItemDef">
                     <dt>
                         @Html.DisplayNameFor(model => model.AmendedLineItemID)
                     </dt>
                     <dd>
-                        @Html.TextBoxFor(model => model.AmendedLineItemID)
+                        @Html.TextBoxFor(model => model.AmendedLineItemID, new { placeholder="Number of the Amended LOA"})
                     </dd>
                 </dl>
-                <dl>
+                <dl id="AmendedFlairIDDef" name="AmendedFlairIDDef">
                     <dt>
                         @Html.DisplayNameFor(model => model.AmendedFlairLOAID)
                     </dt>
                     <dd>
-                        @Html.TextBoxFor(model => model.AmendedFlairLOAID)
+                        @Html.TextBoxFor(model => model.AmendedFlairLOAID, new { placeholder = "FLAIR ID of the prior request" })
                     </dd>
                 </dl>
             </div>
-    }
-    else
-    {
-        <div class="col-sm-3" id="AmendedIDDiv" name="AmendedIDDiv" style="display: none">
-            <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.AmendedFlairLOAID)
-                </dt>
-                <dd>
-                    @Html.TextBoxFor(model => model.AmendedFlairLOAID)
-                </dd>
-            </dl>
-            <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.AmendedLineItemID)
-                </dt>
-                <dd>
-                    @Html.TextBoxFor(model => model.AmendedLineItemID)
-                </dd>
-            </dl>
-        </div>
-}<!-- end col-->
+         <!-- end col-->
 
         </div> <!-- end row-->
         @if (ViewBag.AwardBanner != null && ViewBag.AwardBanner == true)
-    {
+        {
         <div class="row">
             <div class="col-sm-12" fa-align-right alert">
                 Please update the Contract Vendor and awarded amounts for this Contract Award.
             </div>
         </div>
-}
+        }
         @if (ViewBag.AmendBanner != null && ViewBag.AmendBanner == true)
-    {
+        {
         <div class="row">
             <div class="col-sm-12 fa-align-right alert">
                 Please update the Encumbrance Type and Financial Information details.
             </div>
         </div>
-}
+        }
         }
         else
         {
@@ -363,7 +341,7 @@
         </div> <!-- end row-->
         <div class="row">
             <div class="col-sm-6">
-                @if (Model.Description != null && Model.Description.Length > 0)
+            @if (Model.Description != null && Model.Description.Length > 0)
             {
                 <dl>
                     <dt>
@@ -374,11 +352,11 @@
                         @Html.DisplayFor(model => model.Description)
                     </dd>
                 </dl>
-        }
+            }
             </div> <!-- end col-->
-            <div class="col-sm-3" id="AmendedIDDiv">
-                @if (Model.AmendedLineItemID != null && Model.AmendedLineItemID.Length > 0)
-            {
+            <div class="col-sm-3">
+           @if (Model.AmendedLineItemID != null && Model.AmendedLineItemID.Length > 0)
+           {
                 <dl>
                     <dt>
                         @Html.DisplayNameFor(model => model.AmendedLineItemID)
@@ -388,7 +366,19 @@
                         @Html.DisplayFor(model => model.AmendedLineItemID)
                     </dd>
                 </dl>
-        }
+           }
+           @if(Model.AmendedFlairLOAID != null && Model.AmendedFlairLOAID.Length > 0)
+           { 
+                <dl>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.AmendedFlairLOAID)
+                    </dt>
+                    <dd>
+                        @Html.HiddenFor(model => model.AmendedFlairLOAID)
+                        @Html.DisplayFor(model => model.AmendedFlairLOAID)
+                    </dd>
+                </dl>
+            }
             </div> <!-- end col-->
         </div> <!-- end row-->
         }
@@ -464,12 +454,13 @@
             </div> <!-- end panel-heading -->
             <div class="panel-body" id="LineItemsPanelBody" name="LineItemsPanelBody">
                 @if (Model == null
-                || ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
-                || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && (Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance) || Model.CurrentStatus.Equals(ConstantStrings.CFMReady)))
-                || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
+              || ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
+              || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+              || (@ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter) && Model.CurrentStatus.Equals(ConstantStrings.CFMReady))
+              || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
 
                 {
-                <a href="javascript:openLineItemDialog()">Add Financial Information</a>
+                    <a href="javascript:openLineItemDialog()">Add Financial Information</a>
                 }
                 <table name="LineItemsTable" id="LineItemsTable" class="table table-striped table-bordered">
                     <thead>
@@ -517,67 +508,68 @@
                     </thead>
                     <tbody id="LineItemsTableBody">
                         @if (ViewBag.LineItemCount > 0)
-            {
-                foreach (LineItem lineItem in ViewBag.LineItems)
-                {
-                    <tr class='groupItem' id='row_item_@lineItem.LineItemID'>
-                        <td id='@lineItem.LineNumber'>
-                            @lineItem.LineNumber<input type='hidden' id='item_@lineItem.LineItemID' value='@lineItem.LineItemID' /> <br />
-                            @if (Model == null
-               || ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
-               || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance) || Model.CurrentStatus.Equals(ConstantStrings.CFMReady))
-               || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
-                {
-                    <a href='javascript:editLineItem(@lineItem.LineItemID, false)'> Edit</a> <br />
-                    <a href='javascript:editLineItem(@lineItem.LineItemID, true)'>Duplicate</a> <br />
-                    <a href='javascript:deleteLineItem(@lineItem.LineItemID)'>Delete</a> <br />
-    }
-                        </td>
-                        <td>
-                            @lineItem.LineItemID
-                            @if (@lineItem.FlairAmendmentID != null && @lineItem.FlairAmendmentID.Length > 0)
-                {
-                    <br /> @lineItem.FlairAmendmentID
-    }
-                            @if (@lineItem.LineID6S != null && @lineItem.LineID6S.Length > 0)
-                {
-                    <br /> <strong>6s: </strong> @lineItem.LineID6S
-    }
-                            @if (@lineItem.Comments != null && @lineItem.Comments.Length > 0)
-                {
-                    <br /> <span title="@lineItem.Comments">Comments</span>
-    }
-                        </td>
-                        <td>@lineItem.FinancialProjectNumber</td>
-                        @{
-                var priorYear = lineItem.FiscalYear - 1;
-                <td>
-                    @priorYear.ToString() - @lineItem.FiscalYear
-                    <input type="hidden" id="FY_@(lineItem.LineItemID)" name="FY_@(lineItem.LineItemID)" value="@(lineItem.FiscalYear)">
-                    <span id='FYWarning_@(lineItem.LineItemID)' name='FYWarning_@(lineItem.LineItemID)' class='FYWarning' style='display: none' title='This item occurs after the ending date of the contract.'>*</span>
-                </td>
+                        {
+                            foreach (LineItem lineItem in ViewBag.LineItems)
+                            {
+                                <tr class='groupItem' id='row_item_@lineItem.LineItemID'>
+                                    <td id='@lineItem.LineNumber'>
+                                        @lineItem.LineNumber<input type='hidden' id='item_@lineItem.LineItemID' value='@lineItem.LineItemID' /> <br />
+                                        @if (Model == null
+                          || ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
+                          || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                          || (@ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter) && Model.CurrentStatus.Equals(ConstantStrings.CFMReady))
+                          || (((@ViewBag.Roles.Contains(ConstantStrings.Originator) || @ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)) && Model.CurrentStatus.Equals(ConstantStrings.CFMComplete)))))
+                                        {
+                                            <a href='javascript:editLineItem(@lineItem.LineItemID, false)'> Edit</a> <br />
+                                            <a href='javascript:editLineItem(@lineItem.LineItemID, true)'>Duplicate</a> <br />
+                                            <a href='javascript:deleteLineItem(@lineItem.LineItemID)'>Delete</a> <br />
+                                        }
+                                    </td>
+                                    <td>
+                                        @lineItem.LineItemID
+                                        @if (@lineItem.FlairAmendmentID != null && @lineItem.FlairAmendmentID.Length > 0)
+                                        {
+                                            <br /> @lineItem.FlairAmendmentID
+                                        }
+                                        @if (@lineItem.LineID6S != null && @lineItem.LineID6S.Length > 0)
+                                        {
+                                            <br /> <strong>6s: </strong> @lineItem.LineID6S
+                                        }
+                                        @if (@lineItem.Comments != null && @lineItem.Comments.Length > 0)
+                                        {
+                                            <br /> <span title="@lineItem.Comments">Comments</span>
+                                        }
+                                    </td>
+                                    <td>@lineItem.FinancialProjectNumber</td>
+                                    @{
+                                        var priorYear = lineItem.FiscalYear - 1;
+                                        <td>
+                                            @priorYear.ToString() - @lineItem.FiscalYear
+                                            <input type="hidden" id="FY_@(lineItem.LineItemID)" name="FY_@(lineItem.LineItemID)" value="@(lineItem.FiscalYear)">
+                                            <span id='FYWarning_@(lineItem.LineItemID)' name='FYWarning_@(lineItem.LineItemID)' class='FYWarning' style='display: none' title='This item occurs after the ending date of the contract.'>*</span>
+                                        </td>
+                                    }
+                                    <td title="@lineItem.Fund.FundDescription">@lineItem.Fund.FundCode<input type='hidden' id='item_@(lineItem.LineItemID)_FundID' value='@lineItem.FundID' /> </td>
+                                    <td>55-@lineItem.OrgCode</td>
+                                    <td title="@lineItem.Category.CategoryName">@lineItem.Category.CategoryCode<input type='hidden' id='item_@(lineItem.LineItemID)_CategorID' value='@lineItem.CategoryID' /> </td>
+                                    <td>@lineItem.FlairObject</td>
+                                    <td>@lineItem.WorkActivity</td>
+                                    <td title="@lineItem.OCA.OCAName">@lineItem.OCA.OCACode<input type='hidden' id='item_@(lineItem.LineItemID)_OCAID' value='@lineItem.OCAID' /> </td>
+                                    <td title="@lineItem.StateProgram.ProgramName">@lineItem.StateProgram.ProgramCode <input type='hidden' id='item_@(lineItem.LineItemID)_StateProgramID' value='@lineItem.StateProgramID' /> </td>
+                                    <td>@lineItem.ExpansionObject</td>
+                                    <td>
+                                        @if (ViewBag.LineItemCount > 0 && ViewBag.LineItemsMap != null)
+                                        {
+                                            @lineItem.AmountString<input type='hidden' id='item_@(lineItem.LineItemID)_Amount' value='@lineItem.Amount' />
+                                            {
+                                                var lineItemJson = ViewBag.LineItemsMap[@lineItem.LineItemID];
+                                                <input type="hidden" id="json_item_@lineItem.LineItemID" value="@lineItemJson" />
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
                         }
-                        <td title="@lineItem.Fund.FundDescription">@lineItem.Fund.FundCode<input type='hidden' id='item_@(lineItem.LineItemID)_FundID' value='@lineItem.FundID' /> </td>
-                        <td>55-@lineItem.OrgCode</td>
-                        <td title="@lineItem.Category.CategoryName">@lineItem.Category.CategoryCode<input type='hidden' id='item_@(lineItem.LineItemID)_CategorID' value='@lineItem.CategoryID' /> </td>
-                        <td>@lineItem.FlairObject</td>
-                        <td>@lineItem.WorkActivity</td>
-                        <td title="@lineItem.OCA.OCAName">@lineItem.OCA.OCACode<input type='hidden' id='item_@(lineItem.LineItemID)_OCAID' value='@lineItem.OCAID' /> </td>
-                        <td title="@lineItem.StateProgram.ProgramName">@lineItem.StateProgram.ProgramCode <input type='hidden' id='item_@(lineItem.LineItemID)_StateProgramID' value='@lineItem.StateProgramID' /> </td>
-                        <td>@lineItem.ExpansionObject</td>
-                        <td>
-                            @if (ViewBag.LineItemCount > 0 && ViewBag.LineItemsMap != null)
-                {
-                    @lineItem.AmountString<input type='hidden' id='item_@(lineItem.LineItemID)_Amount' value='@lineItem.Amount' />
-        {
-            var lineItemJson = ViewBag.LineItemsMap[@lineItem.LineItemID];
-            <input type="hidden" id="json_item_@lineItem.LineItemID" value="@lineItemJson" />
-}
-}
-                        </td>
-                    </tr>
-    }
-}
                         <!-- insert new rows here -->
                     </tbody>
                 </table>
@@ -589,6 +581,11 @@
                 </div>
             </div> <!-- end panel-body -->
         </div> <!-- end panel -->
+        @if (Model != null && @ViewBag.Roles.Contains(ConstantStrings.WPReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
+        {
+            @:<div class="panel panel-default"><h4>Purpose of funds:</h4> @Model.Description </div>
+
+        }
         <div class="panel panel-body">
             <div class="col-sm-12">
                 <br />

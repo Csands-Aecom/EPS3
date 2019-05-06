@@ -52,7 +52,7 @@
                             @Html.LabelFor(model => model.OrgCode)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.OrgCode, new { style = "text-transform:uppercase" })
+                            @Html.TextBoxFor(model => model.OrgCode, new { style = "text-transform:uppercase", placeholder="55- +nine digits" })
                             @Html.ValidationMessageFor(model => model.OrgCode, "Org Code must be 55- followed by 9 digits")
                         </dd>
                     </dl>
@@ -63,7 +63,7 @@
                             @Html.LabelFor(model => model.FinancialProjectNumber)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.FinancialProjectNumber, new { style = "text-transform:uppercase", onkeyup="this.value = this.value.replace(/-/, '')" })
+                            @Html.TextBoxFor(model => model.FinancialProjectNumber, new { style = "text-transform:uppercase", onkeyup="this.value = this.value.replace(/-/, '')", placeholder="11 characters" })
                             @Html.ValidationMessageFor(model => model.FinancialProjectNumber, "A Financial Project Number with 11 digits is required.")
                         </dd>
                     </dl>
@@ -89,7 +89,7 @@
                         </dt>
                         <dd>
                             <input type="hidden" id="CategoryID" name="CategoryID" />
-                            <input type="text" id="CategorySelector" name="CategorySelector" style="text-transform:uppercase" />
+                            <input type="text" id="CategorySelector" name="CategorySelector" style="text-transform:uppercase" placeholder="Begin typing, then select" />
                             <span class="field-validation-valid" data-valmsg-for="CategorySelector" data-valmsg-replace="false">A Category is required. Please begin typing and select one from the list.</span>
                         </dd>
                     </dl>
@@ -100,7 +100,7 @@
                             @Html.LabelFor(model => model.WorkActivity) (FCT)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.WorkActivity, new { style = "text-transform:uppercase" })
+                            @Html.TextBoxFor(model => model.WorkActivity, new { style = "text-transform:uppercase", placeholder = "three digits" })
                             @Html.ValidationMessageFor(model => model.WorkActivity, "A Work Activity is required.")
                         </dd>
                     </dl>
@@ -137,7 +137,7 @@
                             @Html.LabelFor(model => model.FlairObject)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.FlairObject, new { style = "text-transform:uppercase" })
+                            @Html.TextBoxFor(model => model.FlairObject, new { style = "text-transform:uppercase", placeholder="six digits" })
                             @Html.ValidationMessageFor(model => model.FlairObject, "A six digit Flair Object is required.")
                         </dd>
                     </dl>
@@ -150,7 +150,7 @@
                         </dt>
                         <dd>
                             <input type="hidden" id="FundID" name="FundID" />
-                            <input type="text" id="FundSelector" name="FundSelector" style="text-transform:uppercase" />
+                            <input type="text" id="FundSelector" name="FundSelector" style="text-transform:uppercase" placeholder="Please begin typing, then select" />
                             <span class="field-validation-valid" data-valmsg-for="FundSelector" data-valmsg-replace="false">A Fund is required. Please begin typing and select one from the list.</span>
                         </dd>
                     </dl>
@@ -194,7 +194,7 @@
                             @Html.LabelFor(model => model.Comments)
                         </dt>
                         <dd>
-                            @Html.TextAreaFor(model => model.Comments, new { @class = "LineItemComment", @style = "width : 100%" })
+                            @Html.TextAreaFor(model => model.Comments, new { @class = "LineItemComment", @style = "width : 100%", placeholder="Optional comment" })
                         </dd>
                     </dl>
                 </div>
