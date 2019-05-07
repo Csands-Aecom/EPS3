@@ -26,7 +26,6 @@ namespace EPS3.DataContexts
         public DbSet<LineItemStatus> LineItemStatuses { get; set; }
         public DbSet<LineItemGroup> LineItemGroups { get; set; }
         public DbSet<LineItemGroupStatus> LineItemGroupStatuses { get; set; }
-        public DbSet<LineItemComment> LineItemComments { get; set; }
         public DbSet<OCA> OCAs { get; set; }
         public DbSet<Procurement> Procurements { get; set; }
         public DbSet<Recipient> Recipients { get; set; }

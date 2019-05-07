@@ -152,7 +152,7 @@ function initForms() {
                         return { label: item.contractNumber, value: item.contractNumber, ContractID: item.contractID };
                     }));
                     // if autocomplete has a single match, select it
-                    if (counter == 1) {
+                    if (counter === 1) {
                         $("#ContractSelector").val(lastSelector);
                         $("#ContractID").val(lastID);
                         // show the ContractPanel
@@ -250,7 +250,7 @@ function initContractControls() {
                         return { label: item.contractNumber, value: item.contractNumber, ContractID: item.contractID };
                     }));
                     // if autocomplete has a single match, select it
-                    if (counter == 1) {
+                    if (counter === 1) {
                         $("#ContractSelector").val(lastSelector);
                         $("#ContractID").val(lastID);
                         // show the ContractPanel
@@ -307,7 +307,7 @@ function initContractControls() {
                         return { label: contractTypeSelector, value: item.contractTypeSelector, contractTypeID: item.contractTypeID, accessKey: item.contractTypeID };
                     }));
                     // if autocomplete has a single match, select it
-                    if (counter == 1) {
+                    if (counter === 1) {
                         $("#ContractTypeSelector").val(lastSelector);
                         $("#ContractTypeID").val(lastID);
                     }
@@ -347,7 +347,7 @@ function initContractControls() {
                         return { label: vendorSelector, value: item.vendorSelector, vendorID: item.vendorID };
                     }));
                     // if autocomplete has a single match, select it
-                    if (counter == 1) {
+                    if (counter === 1) {
                         $("#VendorSelector").val(lastSelector);
                         $("#VendorID").val(lastID);
                     }
@@ -389,7 +389,7 @@ function initLineItemControls() {
                         return { label: CategorySelector, value: item.categorySelector, CategoryID: item.categoryID };
                     }));
                     // if autocomplete has a single match, select it
-                    if (counter == 1) {
+                    if (counter === 1) {
                         $("#CategorySelector").val(lastSelector);
                         $("#CategoryID").val(lastID);
                     }
@@ -425,7 +425,7 @@ function initLineItemControls() {
                         return { label: OCASelector, value: item.ocaSelector, OCAID: item.ocaid };
                     }));
                     // if autocomplete has a single match, select it
-                    if (counter == 1) {
+                    if (counter === 1) {
                         $("#OCASelector").val(lastSelector);
                         $("#OCAID").val(lastID);
                     }
@@ -462,7 +462,7 @@ function initLineItemControls() {
                         return { label: FundSelector, value: item.fundSelector, FundID: item.fundID };
                     }));
                     // if autocomplete has a single match, select it
-                    if (counter == 1) {
+                    if (counter === 1) {
                         $("#FundSelector").val(lastSelector);
                         $("#FundID").val(lastID);
                     }
@@ -826,10 +826,10 @@ function displayLineItemsPanelOrMessage() {
     var encumbranceType = $("#LineItemType").val();
     var encumbranceStatus = $("#GroupStatus").val();
     //update encumbrance panel header
-    if (encumbranceType != null && encumbranceType.length > 0 && encumbranceType !== "None") {
+    if (encumbranceType !== null && encumbranceType !== undefined && encumbranceType.length > 0 && encumbranceType !== "None") {
         $("#EncHeaderEncType").html("Type: <h4>" + encumbranceType + "</h4>");
     }
-    if (encumbranceStatus != null && encumbranceStatus.length > 0) {
+    if (encumbranceStatus !== null && encumbranceStatus !== undefined && encumbranceStatus.length > 0) {
         $("#EncHeaderEncStatus").html("Status: <h4>" + encumbranceStatus + "</h4>");
     }
     var groupID = $("#LineItemGroupID").val();
@@ -911,12 +911,6 @@ function populateFiscalYearList(selectedValue) {
 }
 function openContractStatusDialog() {
     $("#contractStatusDialog").dialog("open");
-}
-function updateContractStatus() {
-    // make sure all values are populated
-    // submit to /ContractStatus/Create controller
-    $("ContractStatusForm").submit();
-    // close dialog and return focus to /Contracts/Edit
 }
 function openAddVendorDialog() {
     $("#addVendorDialog").dialog("open");
@@ -1113,8 +1107,8 @@ function opendeleteEncumbranceDialog(id) {
 }
 
 function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
-    var titleText = (submitTo == "Draft") ? "Save Encumbrance" : "Submit Encumbrance to " + submitTo;
-    var buttonText = (submitTo == "Draft") ? "Save" : "Submit";
+    var titleText = (submitTo === "Draft") ? "Save Encumbrance" : "Submit Encumbrance to " + submitTo;
+    var buttonText = (submitTo === "Draft") ? "Save" : "Submit";
     $("#SubmissionDialog").dialog({
         autoOpen: false,
         width: 600,
@@ -1419,33 +1413,6 @@ function submitEncumbrance(groupID, newStatus) {
             newRow += "<td colspan = '2'> Successfully updated! </td>";
             var headerRow = $("#groupHeader_" + groupID).html(newRow);
             // show confirmation that LineItemGroup was submitted (replace button with acknowledgment)
-        }
-    });
-}
-
-function updateContractStatus() {
-
-    var userID = $("#Contract_UserID").val();
-    var contractID = $("#Contract_ContractID").val();
-    var newStatus = $("#Contract_CurrentStatus").val();
-    var statusComment = $("#ContractStatus_Comments").val();
-
-    var ContractStatusObject = {};
-    ContractStatusObject.UserID = userID;
-    ContractStatusObject.CurrentStatus = newStatus;
-    ContractStatusObject.Comments = statusComment;
-    ContractStatusObject.ContractID = contractID;
-
-    jQuery.ajaxSettings.traditional = true;
-    $.ajax({
-        type: "POST",
-        ContentType: "application/json; charset=utf-8",
-        dataType: 'html',
-        data: { contractStatus : JSON.stringify(ContractStatusObject) },
-        url: '/Contracts/UpdateStatus/',
-        success: function (data) {
-            $("#currentStatusSpan").text(data);
-            $("#UpdateSuccess").text("The contract status has been successfully updated.");
         }
     });
 }
@@ -1855,7 +1822,7 @@ function SaveLineItemModal() {
         lineItem.ContractID = $("#ContractID").val();
     }
     if ($("#LineItemGroupID")) {
-        if ($("#LineItemGroupID").val() == 0) {
+        if ($("#LineItemGroupID").val() === 0) {
             SaveEncumbrance(getDefaultSaveComment());
         }
         lineItem.LineItemGroupID = $("#LineItemGroupID").val();
@@ -1967,13 +1934,13 @@ function getNewLineItemRow(lineItem) {
     }
     tableText += "</td>";
     tableText += "<td>" + lineItem.LineItemID;
-    if (lineItem.FlairAmendmentID != null && lineItem.FlairAmendmentID.length > 0) {
+    if (lineItem.FlairAmendmentID !== null && lineItem.FlairAmendmentID !== undefined && lineItem.FlairAmendmentID.length > 0) {
         tableText += "<br/>" + lineItem.FlairAmendmentID;
     }
-    if (lineItem.LineID6S != null && lineItem.LineID6S.length > 0) {
+    if (lineItem.LineID6S !== null && lineItem.LineID6S !== undefined && lineItem.LineID6S.length > 0) {
         tableText += "<br/> <strong>6s: </strong>" + lineItem.LineID6S;
     }
-    if (lineItem.Comments != null && lineItem.Comments.length > 0) {
+    if (lineItem.Comments !== null && lineItem.Comments !== undefined && lineItem.Comments.length > 0) {
         tableText += "<br/> <span title=\"" + lineItem.Comments + "\">Comments</span>"
     }
     tableText += "</td>";
@@ -2191,7 +2158,7 @@ function ValidateEncumbrance() {
     if (!$("#LineItemType").val() || $("#LineItemType").val() === "None") {
         msg += "Please select an Encumbrance Type. <br/>";
         isErrorFree = false;
-    } else if ($("#LineItemType").val()==="Advertisement" && (status=="Draft" || status=="Finance")) {
+    } else if ($("#LineItemType").val()==="Advertisement" && (status==="Draft" || status==="Finance")) {
         //Require Advertised Date and Letting Date for Advertisements
         if (!$("#AdvertisedDate").val()) {
             msg += "An Advertised Date is required for an Advertisement encumbrance request. <br/>";
@@ -2201,12 +2168,12 @@ function ValidateEncumbrance() {
             msg += "A Letting Date is required for an Advertisement encumbrance request. <br/>";
             isErrorFree = false;
         }
-    } else if ($("#LineItemType").val() === "Renewal" && (status == "Draft" || status == "Finance")) {
+    } else if ($("#LineItemType").val() === "Renewal" && (status === "Draft" || status === "Finance")) {
         if (!$("#RenewalDate").val()) {
             msg += "A Renewal Ending Date is required for a Renewal encumbrance request. <br/>";
             isErrorFree = false;
         }
-    } else if ($("#LineItemType").val() === "Amendment2LOA" && (status == "Draft" || status == "Finance")) {
+    } else if ($("#LineItemType").val() === "Amendment2LOA" && (status === "Draft" || status === "Finance")) {
         if (!$("#AmendedLOAFLAIRID").val()) {
             msg += "A FLAIR ID for the amended LOA is required for an Amendment to LOA encumbrance request. <br/>";
             isErrorFree = false;

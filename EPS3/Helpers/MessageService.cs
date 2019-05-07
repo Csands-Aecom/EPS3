@@ -531,7 +531,7 @@ namespace EPS3.Helpers
         public string GetLineItemsInfo(List<LineItem> lineItems)
         {
             string linesInfo = "";
-            linesInfo += "<table><thead><tr><th>Order</th><th>Line</th><th>Organization Code</th><th>Financial Project Number</th><th>State Program</th><th>Category</th><th>Work Activity</th><th>OCA</th><th>EO</th><th>Object Code</th><th>Fund</th><th>Fiscal Year</th><th>Amount</th></tr></thead><tbody>";
+            linesInfo += "<table><thead><tr><th>Order</th><th>Line</th><th>Financial Project Number</th><th>Fiscal Year</th><th>Fund</th><th>Organization Code</th><th>Category</th><th>Object Code</th><th>Work Activity</th><th>OCA</th><th>State Program</th><th>EO</th><th>Amount</th></tr></thead><tbody>";
             foreach (LineItem item in lineItems)
             {
                 linesInfo += "<tr>";

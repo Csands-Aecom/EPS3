@@ -4,10 +4,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <UserSecretsId>83d5d75c-6db9-405c-8732-dc64f2f7ef99</UserSecretsId>
 	<PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
-	<CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
 	<ApplicationIcon />
 	<OutputType>WinExe</OutputType>
-	<StartupObject></StartupObject>
+	<StartupObject />
 	<Version>2.0.0</Version>
   </PropertyGroup>
 
@@ -22,18 +21,18 @@
     <PackageReference Include="jquery.validate.bootstrap" Version="1.0.0.2" />
     <PackageReference Include="jQuery.Validation" Version="1.17.0" />
     <PackageReference Include="Microsoft.AspNet.Identity.EntityFramework" Version="2.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Cryptography.Internal" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="3.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.3" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Serilog" Version="2.7.1" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
     <PackageReference Include="Vse.Web.Serialization.ControlledSerializationJsonConverter" Version="1.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>

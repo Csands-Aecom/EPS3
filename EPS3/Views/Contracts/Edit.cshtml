@@ -68,12 +68,20 @@
                             @Html.DisplayNameFor(model => model.Contract.IsRenewable)
                         </dt>
                         <dd>
-                            <span>
-                                <label for="IsRenewable1">Yes</label>
-                                <input id="IsRenewable1" name="IsRenewable" type="radio" value="1">
-                                <label for="IsRenewable0">No</label>&nbsp;
-                                <input id="IsRenewable0" name="IsRenewable" type="radio" value="0">
-                            </span>
+                            @if (Model.Contract.IsRenewable > 0) 
+                            {
+                                <div class="custom-control custom-radio">
+                                        Yes <input id="IsRenewable1" name="IsRenewable" type="radio" class="custom-control-input" checked value="1">
+                                        No &nbsp;<input id="IsRenewable0" name="IsRenewable" type="radio" class="custom-control-input" value="0">
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="custom-control custom-radio">
+                                        Yes <input type="radio" class="custom-control-input" id="IsRenewable1" name="IsRenewable" value="1" />
+                                        No &nbsp;<input type="radio" class="custom-control-input" id="IsRenewable0" name="IsRenewable" checked value="0" />
+                                </div>
+                            }
                         </dd>
                     </dl>
                 </div>
@@ -331,7 +339,7 @@
                                 @Html.DisplayFor(modelItem => item.Amount)
                             </td>
                             <td>
-                                <a asp-controller="LineItemGroupss" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a> |
+                                <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a> 
                             </td>
                         </tr>
                     }
