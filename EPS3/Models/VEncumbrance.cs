@@ -19,6 +19,7 @@ namespace EPS3.Models
         public int OriginatorUserID { get; set; }
         public DateTime OriginatedDate { get; set; }
         public DateTime LastEditedDate { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? TotalAmount { get; set; }
         public string FinancialProjectNumbers { get; set; }
         

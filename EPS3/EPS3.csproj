@@ -43,6 +43,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="Views\LineItemGroups\Manage.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

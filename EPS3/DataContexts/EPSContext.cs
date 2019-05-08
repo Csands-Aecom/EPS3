@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EPS3.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 using EPS3.Helpers;
 using System.Data.Entity.Infrastructure;
@@ -52,19 +53,14 @@ namespace EPS3.DataContexts
             try
             {
                 var appSettingsJson = AppSettingsJson.GetAppSettings();
+                var connectionStrings = appSettingsJson["ConnectionStrings"];
                 var connectionString = appSettingsJson["EPSContext"];
+                connectionString = "Data Source=USTLH1LT1506\\TurnpikeTest;Initial Catalog=EPSNew;Integrated Security=True";
             }
             catch (Exception e)
             {
-                // No connection string needed since it is set in Startup, read from appsettings.json
-                optionsBuilder.UseSqlServer(@"Server=USTLH1LT1506\TURNPIKETEST;Database=EPSNew;Trusted_Connection=True;"); //Local
-                //optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL16T;Database=EPSNew;user id=ursWeb;password=ursweb"); //Test
-                //optionsBuilder.UseSqlServer(@"Server=DOTSTPSQL16;Database=EPSNew;user id=ursWeb;password=ursweb"); //Prod
+                Console.Write(e.StackTrace.ToString());
             }
-            // log SQL
-            var lf = new LoggerFactory();
-            lf.AddConsole();
-            optionsBuilder.UseLoggerFactory(lf);
         }
     }
 }

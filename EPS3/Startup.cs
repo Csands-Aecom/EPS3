@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using EPS3.DataContexts;
 using EPS3.Models;
+using EPS3.Helpers;
 using System.Data.Entity;
 using Microsoft.Extensions.Logging;
 using System.IO;
@@ -20,20 +21,30 @@ namespace EPS3
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IHostingEnvironment _env;
+        private readonly IConfiguration _config;
+        private readonly ILoggerFactory _loggerFactory;
+        public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             Configuration = configuration;
+            _config = configuration;
+            _env = env;
+            _loggerFactory = loggerFactory;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString("EPSContext");
+            var logger = _loggerFactory.CreateLogger<Startup>();
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
             string smtpSetup = Configuration.GetSection("Smtp").ToString();
-            Log.Information("Connection String: " + connectionString);
-            Log.Information("Smtp Setup: " + smtpSetup);
+            string connectionString = Configuration.GetConnectionString("EPSContext");
 
             services.Configure<SmtpConfig>(Configuration.GetSection("Smtp"));
             services.Configure<CookiePolicyOptions>(options =>
@@ -43,17 +54,12 @@ namespace EPS3
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             services.AddDbContext<EPSContext>(options => options.UseSqlServer(connectionString));
-            services.AddMvc(options =>
-            {
-            }).AddSessionStateTempDataProvider()
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);            
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {
                 options.Cookie.HttpOnly = true;
             });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

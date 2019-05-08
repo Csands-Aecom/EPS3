@@ -39,6 +39,7 @@ namespace EPS3.Models
         public string AmendedLineItemID { get; set; }
         [Display(Name = "Amount")]
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
         public String AmountString
         {

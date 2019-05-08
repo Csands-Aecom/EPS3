@@ -15,6 +15,7 @@ namespace EPS3.Models
         public DateTime BeginningDate { get; set; }
         [Display(Name = "Budget Ceiling")]
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal BudgetCeiling { get; set; }
         [ForeignKey("CompensationID")]
         [Display(Name = "Contract Funding Terms")]
@@ -29,6 +30,7 @@ namespace EPS3.Models
         public string ContractNumber { get; set; }
         [Display(Name = "Contract Initial Amount")]
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ContractTotal { get; set; }
         [ForeignKey("ContractTypeID")]
         [Display(Name = "Contract Type")]
@@ -50,6 +52,7 @@ namespace EPS3.Models
         public byte IsRenewable { get; set; }
         [Display(Name = "Maximum LOA Amount")]
         [DisplayFormat(DataFormatString = "{0:C}")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal MaxLoaAmount { get; set; }
         [Display(Name ="Modified Date")]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]

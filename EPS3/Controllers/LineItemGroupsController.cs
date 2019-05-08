@@ -653,7 +653,7 @@ namespace EPS3.Controllers
             // update the Advertisement to zero out the values
             // Get the advertisement. This is a list in case there are multiple. There should be only one.
             // If there is more than one, zero them all out.
-            // Return to the AddNewEncumbrance method.
+            // 
             List<LineItemGroup> ads = _context.LineItemGroups
                     .AsNoTracking()
                     .Where(g => g.ContractID == award.ContractID && g.LineItemType.Equals(ConstantStrings.Advertisement))
@@ -673,7 +673,7 @@ namespace EPS3.Controllers
             }
         }
 
-        private IActionResult Award(int id, LineItemGroup award)
+        private IActionResult Award(int id)
         {
             // Overload of the Award method that gets called from the List page.
             // This is an enhancement to handle a new Award encumbrance from the AddNewEncumbrance method called by the Request page
@@ -681,13 +681,13 @@ namespace EPS3.Controllers
             // 1. Use id to lookup the advertisement
             // 2. Duplicate each LineItem in the Advertisement with identical information except NEGATIVE values for the Amounts
             // 3. Add a LineItemStatus to the advertisement in the Award
-
+            Award(id, null);
 
             return RedirectToAction("List");
         }
 
         [HttpGet]
-        public IActionResult Award(int id)
+        public IActionResult Award(int id, LineItemGroup award)
         {
             /*  The id is GroupID for the Advertisement Encumbrance request
             *   This method Awards that request in the following way:
@@ -698,6 +698,7 @@ namespace EPS3.Controllers
             *   5. Show the Award banner warning the user to update the Vendor and Amounts
             *   This Award will replicate the Advertisement, but counter all of it's amounts, leaving the net balance on the contract at $0.00
             */
+            bool awardHasLineItems = (award == null);
 
             /* Verify there is an existing advertisement */
             LineItemGroup advertisement = _context.LineItemGroups.AsNoTracking().SingleOrDefault(g => g.GroupID == id);
@@ -717,62 +718,74 @@ namespace EPS3.Controllers
                 return RedirectToAction("Manage", new { id = priorAward.GroupID } );
             }
 
-            int newAwardID = 0;
-            try
-            {
-                // Make the new Award LineItemGroup record
-                LineItemGroup newAward = new LineItemGroup(advertisement.ContractID, _pu.GetUser(GetLogin()).UserID);
-                newAward.LineItemType = ConstantStrings.Award;
-                newAward.CurrentStatus = ConstantStrings.Draft;
-                newAward.IncludesContract = 1;
-
-                _context.LineItemGroups.Add(newAward);
-                _context.SaveChanges();
-                newAwardID = newAward.GroupID;
-
-                Contract contract = _context.Contracts.AsNoTracking()
-                    .SingleOrDefault(c => c.ContractID == newAward.ContractID);
-                // Make a new Status record for the Award referencing the Advertisement ID
-                LineItemGroupStatus awStatus = new LineItemGroupStatus()
+            if (award == null) {
+                // If the award passed in to this method
+                int newAwardID = 0;
+                try
                 {
-                    CurrentStatus = ConstantStrings.Draft,
-                    LineItemGroupID = newAward.GroupID,
-                    SubmittalDate = DateTime.Now,
-                    Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + " for Advertisement #" + advertisement.GroupID + ".",
-                    UserID = newAward.OriginatorUserID
-                };
-                _context.LineItemGroupStatuses.Add(awStatus);
+                    // Make the new Award LineItemGroup record
+                    LineItemGroup newAward = new LineItemGroup(advertisement.ContractID, _pu.GetUser(GetLogin()).UserID);
+                    newAward.LineItemType = ConstantStrings.Award;
+                    newAward.CurrentStatus = ConstantStrings.Draft;
+                    newAward.IncludesContract = 1;
 
-                // Make a new Ststus record for the Advertisement with the Award ID
-                LineItemGroupStatus adStatus = new LineItemGroupStatus()
-                {
-                    CurrentStatus = ConstantStrings.CFMComplete,
-                    LineItemGroupID = advertisement.GroupID,
-                    SubmittalDate = DateTime.Now,
-                    Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + " Award #" + newAward.GroupID + ".",
-                    UserID = newAward.OriginatorUserID
-                };
-                _context.LineItemGroupStatuses.Add(adStatus);
-
-                _context.SaveChanges();
-
-                // Make LineItems with negative values to cancel the value of the Advertisement
-                List<LineItem> priorLines = _context.LineItems.AsNoTracking().Where(l => l.LineItemGroupID == id).ToList();
-                foreach(LineItem priorLine in priorLines)
-                {
-                    LineItem newLine = new LineItem(priorLine);
-                    newLine.Amount = priorLine.Amount * (-1);
-                    newLine.LineItemGroupID = advertisement.GroupID;
-                    newLine.LineItemType = ConstantStrings.Advertisement;
-                    _context.LineItems.Add(newLine);
+                    _context.LineItemGroups.Add(newAward);
                     _context.SaveChanges();
+                    newAwardID = newAward.GroupID;
+                    award = newAward;
                 }
+                catch (Exception e)
+                {
+                    _logger.LogError("LineItemGroupsController.Award Error:" + e.GetBaseException());
+                    Log.Error("LineItemGroupsController.Award Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                }
+            }
+            Contract contract = _context.Contracts.AsNoTracking()
+                .SingleOrDefault(c => c.ContractID == award.ContractID);
+            // Make a new Status record for the Award referencing the Advertisement ID
+            LineItemGroupStatus awStatus = new LineItemGroupStatus()
+            {
+                CurrentStatus = ConstantStrings.Draft,
+                LineItemGroupID = award.GroupID,
+                SubmittalDate = DateTime.Now,
+                Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + " for Advertisement #" + advertisement.GroupID + ".",
+                UserID = award.OriginatorUserID
+            };
+            _context.LineItemGroupStatuses.Add(awStatus);
 
+            // Make a new Ststus record for the Advertisement with the Award ID
+            LineItemGroupStatus adStatus = new LineItemGroupStatus()
+            {
+                CurrentStatus = ConstantStrings.CFMComplete,
+                LineItemGroupID = advertisement.GroupID,
+                SubmittalDate = DateTime.Now,
+                Comments = "New Award Encumbrance for Contract " + contract.ContractNumber + " Award #" + award.GroupID + ".",
+                UserID = award.OriginatorUserID
+            };
+            _context.LineItemGroupStatuses.Add(adStatus);
+
+            _context.SaveChanges();
+
+            // Make LineItems with negative values to cancel the value of the Advertisement
+            List<LineItem> priorLines = _context.LineItems.AsNoTracking().Where(l => l.LineItemGroupID == id).ToList();
+            foreach(LineItem priorLine in priorLines)
+            {
+                LineItem newLine = new LineItem(priorLine);
+                newLine.Amount = priorLine.Amount * (-1);
+                newLine.LineItemGroupID = advertisement.GroupID;
+                newLine.LineItemType = ConstantStrings.Advertisement;
+                _context.LineItems.Add(newLine);
+                _context.SaveChanges();
+            }
+            if (awardHasLineItems) 
+            { 
+                return RedirectToAction("List");
+            }else{
                 // Add prior lines to Award
-                foreach(LineItem priorLine in priorLines)
+                foreach (LineItem priorLine in priorLines)
                 {
                     LineItem newLine = new LineItem(priorLine);
-                    newLine.LineItemGroupID = newAwardID;
+                    newLine.LineItemGroupID = award.GroupID;
                     newLine.LineItemType = ConstantStrings.Award;
                     _context.LineItems.Add(newLine);
                     _context.SaveChanges();
@@ -780,13 +793,9 @@ namespace EPS3.Controllers
 
                 // Show the award banner on the Manage page
                 ViewBag.AwardBanner = true;
+
+                return RedirectToAction("Manage", new { id = award.GroupID });
             }
-            catch (Exception e)
-            {
-                _logger.LogError("LineItemGroupsController.Award Error:" + e.GetBaseException());
-                Log.Error("LineItemGroupsController.Award Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-            }
-            return RedirectToAction("Manage", new { id = newAwardID } );
         }
 
         [HttpGet]

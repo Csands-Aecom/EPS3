@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +17,7 @@ namespace EPS3.Models
         }
 
         // These fields are used in Work Program review
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? AmountReduced { get; set; }
         public String AmountString
         {
