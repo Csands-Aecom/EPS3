@@ -1,73 +1,203 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-<form asp-controller="LineItemGroups" asp-action="Search" method="POST">
-    <div class="row">
-        <h4>Search by Contract:</h4>
-        <div class="col-sm-3">
-            <dl>
-                <dt>Contract Number</dt>
-                <dd>
-                    <input type="text" name="SearchContractNumber" id="SearchContractNumber" style="text-transform:uppercase" />
-                </dd>
-            </dl>
-        </div>
-    </div>
-    <div class="row">
-        <h4>Search by Date:</h4>
-        <div class="col-sm-3">
-            <dl>
-                <dt>From Date:</dt>
-                <dd>
-                    <input type="text" name="SearchStartDate" id="SearchStartDate" class="datepicker" />
-                    <span class="input-group-addon">
-                        <label for="SearchStartDate">
-                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
-                        </label>
-                    </span>
-                    <span id="SearchDateCheckboxes">
-                        <input type="checkbox" name="searchDateCreated" id="searchDateCreated" value="CreatedDate" />Created Date<br />
-                        <input type="checkbox" name="searchDateCFM" id="searchDateCFM" value="CFMDate" />CFM Input Date<br />
-                        <input type="checkbox" name="searchBeginDate" id="searchBeginDate" value="BeginDate" />Begin Date<br />
-                        <input type="checkbox" name="searchEndDate" id="searchEndDate" value="EndDate" />End Date<br />
-                        <input type="checkbox" name="searchServiceEndDate" id="searchServiceEndDate" value="ServiceEndDate" />Service End Date<br />
-                    </span>
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-3">
-            <dl>
-                <dt>Search by Date:</dt>
-                <dd>
-                    <input type="text" name="SearchEndDate" id="SearchEndDate" class="datepicker" />
-                    <span class="input-group-addon">
-                        <label for="SearchEndDate">
-                            <span class="glyphicon glyphicon-calendar btn btn-default"></span>
-                        </label>
-                    </span>
-                </dd>
-            </dl>
-        </div>
-    </div>
-    <div class="row">
-        <h4>Search by Amount:</h4>
-        <div class="col-sm-3">
-            <dl>
-                <dt>More than $</dt>
-                <dd>
-                    <input type="number" name="SearchMinAmount" id="SearchMinAmount" />
-                </dd>
-            </dl>
-        </div>
-        <div class="col-sm-3">
-            <dl>
-                <dt>Less than $</dt>
-                <dd>
-                    <input type="number" name="SearchMaxAmount" id="SearchMaxAmount" />
-                </dd>
-            </dl>
-        </div>
-    </div>
-</form>
+﻿@model List<EPS3.Models.LineItemGroup>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>Search</h3>
+        <form asp-controller="LineItemGroups" asp-action="Search" method="GET">
+            <div class="row">
+                <h4>Search by Contract:</h4>
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>Contract Number</dt>
+                        <dd>
+                            <input type="text" name="SearchContractNumber" id="SearchContractNumber" style="text-transform:uppercase" />
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <h4>Search by Date entered into CFM:</h4>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>After Date:</dt>
+                        <dd>
+
+                            <div class="input-group date">
+                                <input type="text" name="SearchStartDate" id="SearchStartDate" class="datepicker" />
+                                <span class="input-group-addon">
+                                    <label for="SearchStartDate">
+                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                    </label>
+                                </span>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>Before Date:</dt>
+                        <dd>
+                            <div class="input-group date">
+                                <input type="text" name="SearchEndDate" id="SearchEndDate" class="datepicker" />
+                                <span class="input-group-addon">
+                                    <label for="SearchEndDate">
+                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                    </label>
+                                </span>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>
+                            Select Dates to Search
+                        </dt>
+                        <dd>
+                            <span id="SearchDateCheckboxes" style="display: none">
+                                <input type="checkbox" name="searchDateCreated" id="searchDateCreated" value="CreatedDate" />Created Date<br />
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="row">
+                <h4>Search by Amount of a single line item:</h4>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>More than $</dt>
+                        <dd>
+                            <span class="input-group-addon">
+                                <label for="SearchMinAmount">
+                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <input type="number" name="SearchMinAmount" id="SearchMinAmount" />
+                                </label>
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-2">
+                    <dl>
+                        <dt>Less than $</dt>
+                        <dd>
+                            <span class="input-group-addon">
+                                <label for="SearchMaxAmount">
+                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <input type="number" name="SearchMaxAmount" id="SearchMaxAmount" />
+                                </label>
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-sm-3">
+                    <dl>
+                        <dt>Select Amounts to Search</dt>
+                        <dd>
+                            <span id="SearchDollarCheckboxes" style="display:none">
+                                <input type="checkbox" name="searchLineItemAmount" id="searchLineItemAmount" value="LineAmount" />Single Line Item Amount<br />
+                                <input type="checkbox" name="searchEncumbranceAmount" id="searchEncumbranceAmount" value="EncumbranceAmount" />Encumbrance Total Amount<br />
+                            </span>
+                        </dd>
+                    </dl>
+                </div> <!-- close column -->
+            </div> <!-- close row -->
+            <div class="row">
+                <input type="submit" value="Search" />
+            </div>
+        </form>
+    </div> <!-- close panel-header -->
+    <div class="panel-body">
+    @if (Model != null && Model.Count > 0)
+    {
+        <table class="table table-striped table-bordered" id="indexTable-search">
+            <thead>
+                <tr>
+                    <th>
+                        Contract
+                    </th>
+                    <th>
+                        Encumbrance ID
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().LineItemType)
+                    </th>
+                    <th>
+                        Financial Project Number(s)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().OriginatedDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().LastEditedDate)
+                    </th>
+                    <th>
+                        Encumbrance Amount
+                    </th>
+                    <th>
+                        Originator
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (LineItemGroup item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a href="/Contracts/Details?id=@item.Contract.ContractID">@Html.DisplayFor(modelItem => item.Contract.ContractNumber)</a>
+                            @if (ViewBag.AdIDs != null && item.LineItemType.Equals(ConstantStrings.Advertisement))
+                            {
+                                @if (ViewBag.AdIDs.Contains(item.GroupID))
+                                {
+                                    <span class="float-right" title="Click Award link to Award contract @item.Contract.ContractNumber"><a href="javascript: awardAdvertisement(@item.GroupID, '@item.Contract.ContractNumber')"> Award </a></span>
+                                }
+                            }
+                        </td>
+                        <td>
+                            <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => @item.CurrentStatus)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LineItemType)
+                        </td>
+                        <td>
+                            @{
+                                List<string> finProjNums = new List<string>();
+
+                                @foreach (LineItem li in item.LineItems)
+                                {
+                                    if (!finProjNums.Contains(li.FinancialProjectNumber))
+                                    {
+                                        finProjNums.Add(li.FinancialProjectNumber);
+                                    }
+                                }
+                                @foreach (string fpNum in finProjNums)
+                                {
+                                    <div>@fpNum</div>
+                                }
+                        }
+                    </td>
+                    <td>
+                        @item.OriginatedDate.ToString("yyyy-MM-dd hh:ss tt")
+                    </td>
+                    <td>
+                        @item.LastEditedDate.ToString("yyyy-MM-dd hh:ss tt")
+                    </td>
+                    <td>
+                        @ViewBag.EncumbranceAmounts[item.GroupID]
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OriginatorUser.FullName)
+                    </td>
+                </tr>
+                                }
+            </tbody>
+        </table>
+    }
+    </div> <!-- close panel-body -->
+</div> <!-- close panel -->
+

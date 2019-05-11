@@ -1617,6 +1617,7 @@ function setDefaultUserAssignedID(){
     }
     if (encumbranceType === "Award") {
         displayMessage("Please update the contract to reflect the awarded amount and vendor.");
+        //$("#AwardBanner").show(); // award banner is only included in the page if it loads with LineItemType = Award
     }
 }
 

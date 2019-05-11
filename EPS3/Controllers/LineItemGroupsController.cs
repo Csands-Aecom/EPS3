@@ -403,23 +403,104 @@ namespace EPS3.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search()
+        public IActionResult Search(SearchForm search)
         {
-            return View();
+            if(search == null)
+            {
+                return View();
+            }
+            List<LineItemGroup> results = new List<LineItemGroup>();
+
+            // Contract Only Search
+            if(search.SearchContractNumber != null)
+            {
+                Contract contract = _context.Contracts.AsNoTracking().SingleOrDefault(c => c.ContractNumber == search.SearchContractNumber);
+                if (contract != null)
+                {
+                    results = _pu.GetDeepEncumbrances(contract.ContractID);
+                }
+            }
+
+            // Date Range Search
+            if(search.SearchStartDate != null || search.SearchEndDate != null)
+            {
+                if(search.SearchStartDate == null ) { search.SearchStartDate = new DateTime(2001, 1, 1);  }
+                if(search.SearchEndDate == null ) { search.SearchEndDate = DateTime.Now;  }
+                List<LineItemGroup> dateResults = _context.LineItemGroups
+                    .AsNoTracking()
+                    .Where(e => e.OriginatedDate >= search.SearchStartDate && e.OriginatedDate <= search.SearchEndDate)
+                    .ToList();
+                foreach(LineItemGroup item in dateResults)
+                {
+                    results.Add(_pu.GetDeepEncumbrance(item.GroupID));
+                }
+            }
+
+            // Dollar Amount Search
+            if(search.SearchMinAmount != null || search.SearchMaxAmount != null)
+            {
+                // For now, select on Encumbrance Total from VEncumbrances
+                List<int> encumbranceIDs = new List<int>();
+                List<LineItemGroup> dollarResults = new List<LineItemGroup>();
+                if(search.SearchMaxAmount == null)
+                {
+                    // Amount >= search.searchMinAmount
+                    encumbranceIDs = _context.VEncumbrances
+                        .AsNoTracking()
+                        .Where(e => e.TotalAmount >= search.SearchMinAmount)
+                        .Select(e => e.GroupID)
+                        .ToList();
+                }
+                if(search.SearchMinAmount == null)
+                {
+                    // Amount <= search.searchMaxAmount
+                    encumbranceIDs = _context.VEncumbrances
+                        .AsNoTracking()
+                        .Where(e => e.TotalAmount <= search.SearchMaxAmount)
+                        .Select(e => e.GroupID)
+                        .ToList();
+                }
+                 if(search.SearchMinAmount != null && search.SearchMaxAmount != null)
+                {
+                    // Amount >= search.SearchMinAmount && Amount <= search.SearchMaxAmount
+                    
+                    encumbranceIDs = _context.VEncumbrances
+                        .AsNoTracking()
+                        .Where(e => e.TotalAmount >= search.SearchMinAmount && e.TotalAmount <= search.SearchMaxAmount)
+                        .Select(e => e.GroupID)
+                        .ToList();
+                }
+                dollarResults = _context.LineItemGroups
+                    .AsNoTracking()
+                    .Where(e => encumbranceIDs.Contains(e.GroupID))
+                    .ToList();
+                foreach(LineItemGroup item in dollarResults)
+                {
+                    results.Add(_pu.GetDeepEncumbrance(item.GroupID));
+                }
+            }
+
+            // Get Total Amount for each encumbrance request
+            if (results != null && results.Count > 0)
+            {
+                Dictionary<int, string> encumbranceAmounts = getLineItemGroupAmounts(results);
+                ViewBag.EncumbranceAmounts = encumbranceAmounts;
+            }
+            return View(results);
         }
 
-        [HttpPost]
-        public IActionResult Search(string contractNumber)
-        {
-            List<int> contractIDs = _context.Contracts.Where(c => c.ContractNumber == contractNumber).Select(c => c.ContractID).ToList();
-            List<Contract> contracts = new List<Contract>();
-            foreach (int contractID in contractIDs)
-            {
-                Contract contract = _pu.GetDeepContract(contractID);
-                contracts.Add(contract);
-            }
-            return View(contracts);
-        }
+        //[HttpPost]
+        //public IActionResult Search(string contractNumber)
+        //{
+        //    List<int> contractIDs = _context.Contracts.Where(c => c.ContractNumber == contractNumber).Select(c => c.ContractID).ToList();
+        //    List<Contract> contracts = new List<Contract>();
+        //    foreach (int contractID in contractIDs)
+        //    {
+        //        Contract contract = _pu.GetDeepContract(contractID);
+        //        contracts.Add(contract);
+        //    }
+        //    return View(contracts);
+        //}
         private string GetLogin()
         {
             string userLogin = "";
@@ -518,13 +599,13 @@ namespace EPS3.Controllers
         public JsonResult AddNewEncumbrance(string lineItemGroup, string comments)
         {
             string statusChange = ConstantStrings.NoChange;
+            EncumbranceComment newComment = JsonConvert.DeserializeObject<EncumbranceComment>(comments);
             LineItemGroup newLineItemGroup = JsonConvert.DeserializeObject<LineItemGroup>(lineItemGroup);
-            if (newLineItemGroup.LineItemType.Equals(ConstantStrings.Award))
+            if (newLineItemGroup.LineItemType.Equals(ConstantStrings.Award) && !newComment.status.Equals(ConstantStrings.Draft))
             {
                 // TODO: Complete the overloaded Award method before re-enabling this method call
-                //ManuallyAwardContract(newLineItemGroup);
+                ManuallyAwardContract(newLineItemGroup);
             }
-            EncumbranceComment newComment = JsonConvert.DeserializeObject<EncumbranceComment>(comments);
             try
             {
                 int groupID = newLineItemGroup.GroupID;
@@ -698,7 +779,7 @@ namespace EPS3.Controllers
             *   5. Show the Award banner warning the user to update the Vendor and Amounts
             *   This Award will replicate the Advertisement, but counter all of it's amounts, leaving the net balance on the contract at $0.00
             */
-            bool awardHasLineItems = (award == null);
+            bool awardHasLineItems = (award != null);
 
             /* Verify there is an existing advertisement */
             LineItemGroup advertisement = _context.LineItemGroups.AsNoTracking().SingleOrDefault(g => g.GroupID == id);
@@ -718,7 +799,7 @@ namespace EPS3.Controllers
                 return RedirectToAction("Manage", new { id = priorAward.GroupID } );
             }
 
-            if (award == null) {
+            if (award == null || award.GroupID == 0) {
                 // If the award passed in to this method
                 int newAwardID = 0;
                 try
@@ -925,7 +1006,7 @@ namespace EPS3.Controllers
                 ViewBag.AdIDs = adIDs;
             }
 
-            Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmounts(lineItemGroupsMap);
+            Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmountsFromMap(lineItemGroupsMap);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
             return View(lineItemGroupsMap);
         }
@@ -1091,12 +1172,12 @@ namespace EPS3.Controllers
         }
 
 
-        private Dictionary<int, string> getLineItemGroupAmounts(Dictionary<string, List<LineItemGroup>> encumbrances)
+        private Dictionary<int, string> getLineItemGroupAmountsFromMap(Dictionary<string, List<LineItemGroup>> encumbrances)
         {
             Dictionary<int, string> EncumbranceAmounts = new Dictionary<int, string>();
             foreach(string key in encumbrances.Keys)
             {
-                List<LineItemGroup> encumbranceList = encumbrances[key];
+                List<LineItemGroup> encumbranceList = encumbrances[key];    
                 foreach(LineItemGroup encumbrance in encumbranceList)
                 {
                     if (!EncumbranceAmounts.Keys.Contains(encumbrance.GroupID))
@@ -1105,6 +1186,21 @@ namespace EPS3.Controllers
                         string amountString = String.Format("{0:C2}", amount); ;
                         EncumbranceAmounts.Add(encumbrance.GroupID, amountString);
                     }
+                }
+            }
+            return EncumbranceAmounts;
+        }
+
+        private Dictionary<int, string> getLineItemGroupAmounts(List<LineItemGroup> encumbranceList)
+        {
+            Dictionary<int, string> EncumbranceAmounts = new Dictionary<int, string>();
+            foreach(LineItemGroup encumbrance in encumbranceList)
+            {
+                if (!EncumbranceAmounts.Keys.Contains(encumbrance.GroupID))
+                {
+                    decimal amount = GetEncumbranceAmount(encumbrance);
+                    string amountString = String.Format("{0:C2}", amount); ;
+                    EncumbranceAmounts.Add(encumbrance.GroupID, amountString);
                 }
             }
             return EncumbranceAmounts;

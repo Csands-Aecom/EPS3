@@ -273,6 +273,7 @@ namespace EPS3.Helpers
                 LineItemGroup encumbrance = _context.LineItemGroups.AsNoTracking()
                     .Include(l => l.LastEditedUser)
                     .Include(l => l.OriginatorUser)
+                    .Include(l => l.Contract)
                     .Include(l => l.LineItems).ThenInclude(li => li.OCA)
                     .Include(l => l.LineItems).ThenInclude(li => li.Category)
                     .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
@@ -294,6 +295,7 @@ namespace EPS3.Helpers
             try
             {
                 List<LineItemGroup> encumbrances = _context.LineItemGroups.AsNoTracking()
+                    .Include(l => l.Contract)
                     .Include(l => l.LastEditedUser)
                     .Include(l => l.OriginatorUser)
                     .Include(l => l.LineItems).ThenInclude(li => li.OCA)
