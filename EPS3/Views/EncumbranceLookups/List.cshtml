@@ -1,0 +1,140 @@
+﻿@model Dictionary<string, List<EPS3.Models.EncumbranceLookup>>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index of Encumbrance Requests</h2>
+<input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
+
+<div id="tabs">
+    <ul>
+        @foreach (string key in Model.Keys)
+        {
+            if (key.Equals("MyRequests"))
+            {
+                <li><a href="#tabs-@key">My Requests</a></li>
+            }
+            else
+            {
+                <li><a href="#tabs-@key">@key</a></li>
+            }
+        }
+        <li><a href="#tabs-Reports">Reports</a></li>
+    </ul>
+    <div name="awardDialog" id="awardDialog"></div>
+    @foreach (string key in Model.Keys)
+    {
+        <div id="tabs-@key">
+            <table class="table table-striped table-bordered" id="indexTable-@key">
+                <thead>
+                    <tr>
+                        <th>
+                            Contract
+                        </th>
+                        <th>
+                            Encumbrance ID
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                        <th>
+                            Encumbrance Type
+                        </th>
+                        <th>
+                            Financial Project Number(s)
+                        </th>
+                        <th>
+                            Originated Date
+                        </th>
+                        <th>
+                            Last Edited Date
+                        </th>
+                        <th>
+                            Encumbrance Amount
+                        </th>
+                        <th>
+                            Originator
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (EncumbranceLookup item in Model[key])
+                    {
+                        <tr>
+                            <td>
+                                <a href="/Contracts/Details?id=@item.ContractID">@Html.DisplayFor(modelItem => item.ContractNumber)</a>
+                                @if (ViewBag.AdIDs != null && item.LineItemType.Equals(ConstantStrings.Advertisement))
+                                {
+                                    @if (ViewBag.AdIDs.Contains(item.GroupID))
+                                    {
+                                        <span class="float-right" title="Click Award link to Award contract @item.ContractNumber"><a href="javascript: awardAdvertisement(@item.GroupID, '@item.ContractNumber')"> Award </a></span>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => @item.EncumbranceStatus)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.LineItemType)
+                            </td>
+                            <td>
+                               @if (@item.FinancialProjectNumbers != null)
+                               {
+                                   foreach(string fpNum in item.FinProjList())
+                                   {
+                                       @fpNum<br/>
+                                   }
+                               }
+                            </td>
+                            <td>
+                                @item.OriginatedDate.ToString("yyyy-MM-dd hh:ss tt")
+                            </td>
+                        <td>
+                                @item.LastEditedDate.ToString("yyyy-MM-dd hh:ss tt")
+                        </td>
+                        <td>
+                            @item.EncumbranceAmountString()
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FirstName)
+                            @Html.DisplayFor(modelItem => item.LastName)
+                        </td>
+                    </tr>
+                }
+
+                </tbody>
+            </table>
+        </div> <!-- end tab for key -->
+    }
+    <div id="tabs-Reports">
+        @if (ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.AdminRole))
+        {
+            <div class="row">
+                <div class="col-sm-12">
+                    To view reports, visit <a href="http://dotstpgis1/eps" target="_blank">the Legacy EPS application.</a>
+                </div>
+                <div class="col-sm-12">
+                    <hr />
+                </div>
+            </div> <!-- end row -->
+        }
+        <div class="row">
+            <div class="col-sm-3">
+                Find an Encumbrance Request by ID:
+                <input type="text" name="findGroupID" id="findGroupID" onkeyup="validateFindGroupID()" placeholder="Enter an Encumbrance ID" />
+                <input type="button" class="disabled" disabled name="findEncumbranceButton" id="findEncumbranceButton" value="Find Encumbrance Request" onclick="findEncumbrance()" /></p>
+            </div>
+            <div class="col-sm-3">
+                Find a Contract by Contract Number:
+                <input type="hidden" id="ContractID" name="ContractID" onchange="validateFindContract()" />
+                <input type="hidden" id="SuppressNewScript" name="SuppressNewScript" value="true" />
+                <input type="hidden" id="ContractStatus" name="ContractStatus" />
+                <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Enter a Contract Number" />
+                <input type="button" class="disabled" disabled name="findContractButton" id="findContractButton" value="Find Contract" onclick="findContract()" />
+            </div>
+        </div> <!-- end row -->
+    </div>
+</div> <!-- end tabs div-->

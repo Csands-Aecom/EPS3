@@ -1131,7 +1131,6 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             } else if (submitTo === "CFM") {
                 defaultComment = "";
             } else if (submitTo === "Complete") {
-                notifyChecked = "checked";
                 defaultComment = "Input to CFM.";
             }
             if (submitTo === currentStatus) {

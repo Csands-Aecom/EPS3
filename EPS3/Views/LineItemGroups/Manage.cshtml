@@ -69,31 +69,47 @@
         {
         <div class="row">
             <div class="col-sm-3">
-                <dl>
-                    <dt>
-                        Contract Number
-                        <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract from the list of options."></span>
-                        <br /> <span id="OpenContractInformationSpan">Enter Existing Contract Number</span>
-                    </dt>
-                    <dd>
-                    @if (ViewBag.ContractID > 0)
-                    {
-                        <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
-                        <input type="hidden" id="ContractStatus" name="ContractStatus" value="@ViewBag.Contract.CurrentStatus" />
-                        <input type="text" style="text-transform:uppercase" id="ContractSelector" name="ContractSelector" value="@ViewBag.Contract.ContractNumber" />
-                    }
-                    else
-                    {
-                        <input type="hidden" id="ContractID" name="ContractID" />
-                        <input type="hidden" id="ContractStatus" name="ContractStatus" />
-                        <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Begin typing and select from list" />
-                    }
-                    </dd>
-                    <dt id="OpenContractInformationDiv">
-                        Or
-                        <input type="button" class=" btn btn-default" id="btnOpenContractInformation" value="New Contract" onclick="javascript:openContractDialog();" />
-                    </dt>
-                </dl>
+
+                @if (Model != null && !Model.CurrentStatus.Equals("Draft"))
+                {
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.Contract.ContractNumber)
+                        </dt>
+                        <dd>
+                            <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
+                            @ViewBag.Contract.ContractNumber
+                        </dd>
+                    </dl>
+                }
+                else
+                {
+                    <dl>
+                        <dt>
+                            Contract Number
+                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract from the list of options."></span>
+                            <br /> <span id="OpenContractInformationSpan">Enter Existing Contract Number</span>
+                        </dt>
+                        <dd>
+                            @if (ViewBag.ContractID > 0)
+                            {
+                                <input type="hidden" id="ContractID" name="ContractID" value="@ViewBag.Contract.ContractID" />
+                                <input type="hidden" id="ContractStatus" name="ContractStatus" value="@ViewBag.Contract.CurrentStatus" />
+                                <input type="text" style="text-transform:uppercase" id="ContractSelector" name="ContractSelector" value="@ViewBag.Contract.ContractNumber" />
+                            }
+                            else
+                            {
+                                <input type="hidden" id="ContractID" name="ContractID" />
+                                <input type="hidden" id="ContractStatus" name="ContractStatus" />
+                                <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Begin typing and select from list" />
+                            }
+                        </dd>
+                        <dt id="OpenContractInformationDiv">
+                            Or
+                            <input type="button" class=" btn btn-default" id="btnOpenContractInformation" value="New Contract" onclick="javascript:openContractDialog();" />
+                        </dt>
+                    </dl>
+                }
             </div> <!-- end col-->
             <div class="col-sm-3">
                 <dl>

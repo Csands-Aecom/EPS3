@@ -38,6 +38,7 @@ namespace EPS3.DataContexts
         public DbSet<FileAttachment> FileAttachments { get; internal set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<MessageRecipient> MessageRecipients  { get; set; }
+        public DbSet<EncumbranceLookup> EncumbranceLookups { get; set; }
 
         // Read only model from Views
         public DbSet<VEncumbrance> VEncumbrances { get; set; }
