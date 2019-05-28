@@ -13,6 +13,10 @@
         <div class="panel-heading" id="contractPanelHead" name="contractPanelHead">
             <h3>
                 Contract - @Html.DisplayFor(model => model.Contract.ContractNumber)
+                @if(Model.Contract.CurrentStatus.Contains(ConstantStrings.Closed))
+                {
+                <font color="red">&nbsp;&nbsp;&nbsp;Closed</font>
+                }
             </h3>
             <div class="row">
                 <div class="col-sm-2">
@@ -198,7 +202,7 @@
                 }
                 @if (ViewBag.Roles.Contains(ConstantStrings.Originator)  && encumbrance.CurrentStatus.Equals(ConstantStrings.CFMComplete))
                 {
-                    <a href="/LineItemGroups/Amend?id=@encumbrance.GroupID" title="Click here to open a new Encumbrance Request that duplicates this one.">New Amendment</a>
+                    <a href="/LineItemGroups/Amend?id=@encumbrance.GroupID" title="Click here to open a new Encumbrance Request that duplicates this one.">Duplicate this Request</a>
                 }
                 <div class="row">
                     <div class="col-sm-2">

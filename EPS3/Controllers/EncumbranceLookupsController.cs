@@ -233,5 +233,276 @@ namespace EPS3.Controllers
                 RedirectToAction("Home");
             }
         }
+
+        
+        [HttpGet]
+        public IActionResult Search(SearchForm search)
+        {
+            if(search == null)
+            {
+                return View();
+            }
+            int MAX_RESULT_LIMIT = 5000; // Maximum number of LineItems selectable before query crashes
+            int INCREMENT_SIZE = 10;
+            if (search != null && search.SearchContractNumber != null) { search.SearchContractNumber = search.SearchContractNumber.ToUpper(); }
+            // All searches are ANDed together (intersection of lists for each type of search)
+            // results are deduped just before being returned to the view (Distinct)
+            List<EncumbranceLookup> results = new List<EncumbranceLookup>();
+            //dollarResults = new List<EncumbranceLookup>();
+            List<EncumbranceLookup>[] resultsArray = new List<EncumbranceLookup>[4]; // size is 4 for four potential lists to be ANDed together
+            int arrayIndex = 0;
+            ViewBag.SearchCriteria = getSearchCriteria(search);
+            // Contract Only Search
+            if(search.SearchContractNumber != null)
+            {
+                List<EncumbranceLookup> contractResults = _context.EncumbranceLookups
+                    .AsNoTracking()
+                    .Where(c => c.ContractNumber == search.SearchContractNumber)
+                    .ToList();
+                resultsArray[arrayIndex] = contractResults;
+                arrayIndex++;
+            }
+            
+            // Status Only Search
+            if(search.SearchCurrentStatus != null && !search.SearchCurrentStatus.Equals("None"))
+            {
+                List<EncumbranceLookup> statusResults = _context.EncumbranceLookups
+                    .AsNoTracking()
+                    .Where(c => c.EncumbranceStatus.Equals(search.SearchCurrentStatus))
+                    .ToList();
+                resultsArray[arrayIndex] = statusResults;
+                arrayIndex++;
+
+            }
+
+            // Date Range Search
+            if(search.SearchStartDate != null || search.SearchEndDate != null)
+            {
+                if(search.SearchStartDate == null ) { search.SearchStartDate = new DateTime(2001, 1, 1);  }
+                if(search.SearchEndDate == null ) { search.SearchEndDate = DateTime.Now;  }
+                List<EncumbranceLookup> dateResults = _context.EncumbranceLookups
+                    .AsNoTracking()
+                    .Where(e => e.OriginatedDate >= search.SearchStartDate && e.OriginatedDate <= search.SearchEndDate)
+                    .ToList();
+                resultsArray[arrayIndex] = dateResults;
+                arrayIndex++;
+            }
+
+            // If a Dollar Amount is selected but no checkbox (IsContractAmount = IsEncumbranceAmount = IsLineItemAmount = false)
+            // default the search to LineItemAmount
+            if((search.SearchMinAmount != null || search.SearchMaxAmount != null) && 
+                (!search.IsContractAmount && !search.IsEncumbranceAmount && !search.IsLineItemAmount))
+            {
+                search.IsLineItemAmount = true;
+            }
+            // Dollar Amount Search : EncumbranceAmount
+            if((search.SearchMinAmount != null || search.SearchMaxAmount != null) && search.IsEncumbranceAmount)
+            {
+                // For now, select on Encumbrance Total from EncumbranceLookups
+                if(search.SearchMaxAmount == null)
+                {
+                    // Amount >= search.searchMinAmount
+                    List<EncumbranceLookup> dollarResults = _context.EncumbranceLookups
+                        .AsNoTracking()
+                        .Where(e => e.EncumbranceAmount >= search.SearchMinAmount)
+                        .ToList();
+                    resultsArray[arrayIndex] = dollarResults;
+                    arrayIndex++;
+                }
+                if(search.SearchMinAmount == null)
+                {
+                    // Amount <= search.searchMaxAmount
+                    List<EncumbranceLookup> dollarResults = _context.EncumbranceLookups
+                        .AsNoTracking()
+                        .Where(e => e.EncumbranceAmount <= search.SearchMaxAmount)
+                        .ToList();
+                    resultsArray[arrayIndex] = dollarResults;
+                    arrayIndex++;
+                }
+                if(search.SearchMinAmount != null && search.SearchMaxAmount != null)
+                {
+                    // Amount >= search.SearchMinAmount && Amount <= search.SearchMaxAmount
+                    List<EncumbranceLookup> dollarResults = _context.EncumbranceLookups
+                        .AsNoTracking()
+                        .Where(e => e.EncumbranceAmount >= search.SearchMinAmount && e.EncumbranceAmount <= search.SearchMaxAmount)
+                        .ToList();
+                    resultsArray[arrayIndex] = dollarResults;
+                    arrayIndex++;
+                }
+            }
+
+            // Dollar Amount Search : ContractAmount
+            if((search.SearchMinAmount != null || search.SearchMaxAmount != null) && search.IsContractAmount)
+            {
+                // For now, select on Encumbrance Total from EncumbranceLookup
+                if(search.SearchMaxAmount == null)
+                {
+                    // Amount >= search.searchMinAmount
+                    List<EncumbranceLookup> dollarResults = _context.EncumbranceLookups
+                        .AsNoTracking()
+                        .Where(e => e.ContractAmount >= search.SearchMinAmount)
+                        .ToList();
+                    resultsArray[arrayIndex] = dollarResults;
+                    arrayIndex++;
+                }
+                if(search.SearchMinAmount == null)
+                {
+                    // Amount <= search.searchMaxAmount
+                   List<EncumbranceLookup>  dollarResults = _context.EncumbranceLookups
+                        .AsNoTracking()
+                        .Where(e => e.ContractAmount <= search.SearchMaxAmount)
+                        .ToList();
+                    resultsArray[arrayIndex] = dollarResults;
+                    arrayIndex++;
+                }
+                if(search.SearchMinAmount != null && search.SearchMaxAmount != null)
+                {
+                    // Amount >= search.SearchMinAmount && Amount <= search.SearchMaxAmount
+                   List<EncumbranceLookup> dollarResults = _context.EncumbranceLookups
+                        .AsNoTracking()
+                        .Where(e => e.ContractAmount >= search.SearchMinAmount && e.ContractAmount <= search.SearchMaxAmount)
+                        .ToList();
+                    resultsArray[arrayIndex] = dollarResults;
+                    arrayIndex++;
+                }
+            }
+            // Dollar Amount Search : Line Item Amount
+            if ((search.SearchMinAmount != null || search.SearchMaxAmount != null) && search.IsLineItemAmount)
+            {
+                // For now, select on Encumbrance Total from EncumbranceLookup
+                List<int> dollarItems = new List<int>();
+                if (search.SearchMaxAmount == null)
+                {
+                    // Amount >= search.searchMinAmount
+                    dollarItems = _context.LineItems
+                        .AsNoTracking()
+                        .Where(l => l.Amount >= search.SearchMinAmount)
+                        .Select(l => l.LineItemGroupID)
+                        .ToList();
+                }
+                if (search.SearchMinAmount == null)
+                {
+                    // Amount <= search.searchMaxAmount
+                    dollarItems = _context.LineItems
+                        .AsNoTracking()
+                        .Where(l => l.Amount <= search.SearchMaxAmount)
+                        .Select(l => l.LineItemGroupID)
+                        .ToList();
+                }
+                if (search.SearchMinAmount != null && search.SearchMaxAmount != null)
+                {
+                    // Amount >= search.SearchMinAmount && Amount <= search.SearchMaxAmount
+                    dollarItems = _context.LineItems
+                        .AsNoTracking()
+                        .Where(l => l.Amount >= search.SearchMinAmount && l.Amount <= search.SearchMaxAmount)
+                        .Select(l => l.LineItemGroupID)
+                        .ToList();
+                    dollarItems = dollarItems.Distinct().ToList();
+                }
+                if (dollarItems.Count > MAX_RESULT_LIMIT) {
+                    ViewBag.SearchCriteria += "Too many Line Items to return complete results.";
+                } else {
+                    // For loop, use subset of dollarItems, 100 at a time
+                    int startIndex = 0; // range selection starting index
+                    int increment = INCREMENT_SIZE -1; // number of elements to select
+                    List<EncumbranceLookup> dollarResults = new List<EncumbranceLookup>();
+                    while (startIndex <= dollarItems.Count)
+                    {
+                        // tail cannot exceed dollarItems.Count
+                        increment = (dollarItems.Count - startIndex < increment) ? dollarItems.Count - startIndex : increment;
+                        List<int> theseItems = dollarItems.GetRange(startIndex, increment);
+                        List<EncumbranceLookup> theseResults = _context.EncumbranceLookups
+                            .AsNoTracking()
+                            .Where(Utils.BuildOrExpression<EncumbranceLookup, int>(l => l.GroupID, theseItems.ToArray<int>()))
+                            .ToList();
+                        dollarResults.AddRange(theseResults);
+                        startIndex += INCREMENT_SIZE;
+                    }
+                    resultsArray[arrayIndex] = dollarResults;
+                    arrayIndex++;
+                }
+            }
+
+            ViewBag.SearchParams = search;
+            // AND all result sets together
+            results = AndResultsTogether(resultsArray);
+            results = results.Distinct().ToList();
+            return View(results);
+        }
+
+        private List<EncumbranceLookup> AndResultsTogether(List<EncumbranceLookup>[] resultsArray)
+        {
+            List<EncumbranceLookup> results = new List<EncumbranceLookup>();
+            foreach(List<EncumbranceLookup> r in resultsArray)
+            {
+                if(r != null)
+                {
+                    if(results.Count == 0){
+                        results.AddRange(r);
+                    }
+                    else
+                    {
+                        var newResult = results.Intersect (r);
+                        results = (List<EncumbranceLookup>)newResult.ToList();
+                    }
+                }
+            }
+            return results;
+        }
+
+        private string getSearchCriteria(SearchForm search)
+        {
+            // return a string describing the search criteria provided in the search
+            string searchString = "";
+            if(search.SearchContractNumber != null)
+            {
+                searchString += "Contract: '" + search.SearchContractNumber + "'<br />";
+            }
+            if(search.SearchCurrentStatus != null)
+            {
+                searchString += "Status: '" + search.SearchCurrentStatus + "'<br />";
+            }
+            if(search.SearchStartDate != null)
+            {
+                searchString += "Submitted after: " + String.Format("{0:MM/dd/yyyy}",search.SearchStartDate) + "<br />"; 
+            }
+            if(search.SearchEndDate != null)
+            {
+                searchString += "Submitted before: " + String.Format("{0:MM/dd/yyyy}",search.SearchEndDate) + "<br />";
+            }
+
+            // Dollar amount info is only relevant if a dollar amount is specified
+            if (search.SearchMinAmount != null || search.SearchMinAmount != null)
+            {
+                if (search.IsContractAmount)
+                {
+                    searchString += "Contract Amount ";
+                }
+                if (search.IsEncumbranceAmount)
+                {
+                    if (search.IsContractAmount) { searchString += " or "; }
+                    searchString += "Encumbrance Amount ";
+                }
+                if (search.IsLineItemAmount)
+                {
+                    if (search.IsContractAmount || search.IsEncumbranceAmount) { searchString += " or "; }
+                    searchString += "Line Item Amount ";
+                }
+                if (search.SearchMinAmount != null)
+                {
+                    searchString += "Greater than " + String.Format("{0:C2}", search.SearchMinAmount) + "<br />";
+                }
+                if (search.SearchMaxAmount != null)
+                {
+                    searchString += "Less than " + String.Format("{0:C2}", search.SearchMaxAmount) + "<br />";
+                }
+            }
+            // if search criteria are specified, prefix with a heading
+            if(searchString.Length > 0)
+            {
+                searchString = "<strong>Search Criteria</strong><br />" + searchString;
+            }
+            return searchString;
+        }
     }
 }

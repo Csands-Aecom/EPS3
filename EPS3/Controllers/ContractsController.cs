@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,13 +11,8 @@ using EPS3.Models;
 using EPS3.Helpers;
 using EPS3.ViewModels;
 using Newtonsoft.Json;
-using System.Security.Principal;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System.Net.Mail;
-using System.Net;
 
 namespace EPS3.Controllers
 {
@@ -54,27 +48,7 @@ namespace EPS3.Controllers
             }
             return View(await contracts.ToListAsync());
         }
-        // GET: ALL Contracts
-        [HttpGet]
-        public IActionResult ListAll()
-        {
-            string userLogin = GetLogin();
-            PopulateViewBag(0);
-            var CurrentUser = (User)ViewBag.CurrentUser;
-            List<Contract> contracts = GetActiveContracts();
-            return View( contracts);
-        }
-
-        // GET: Contracts
-        [HttpGet]
-        public IActionResult List()
-        {
-            string userLogin = GetLogin();
-            PopulateViewBag(0);
-            var CurrentUser = (User)ViewBag.CurrentUser;
-            List<Contract> contracts  = GetContracts(CurrentUser);
-            return View(contracts);
-        }
+        
         // GET: Contracts/Details/5
         public  IActionResult Details(int id)
         {
@@ -97,7 +71,6 @@ namespace EPS3.Controllers
                     .Include(l => l.LineItems).ThenInclude(li => li.Category)
                     .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
                     .Include(l => l.LineItems).ThenInclude(li => li.Fund)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Statuses).ThenInclude(lst => lst.User)
                     .Include(l => l.Statuses).ThenInclude(gst => gst.User)
                     .AsNoTracking()
                     .ToList();
@@ -131,6 +104,8 @@ namespace EPS3.Controllers
             }
             return View(erViewModel);
         }
+
+
 
         // GET: Contracts/Create
         public IActionResult Create()
@@ -176,12 +151,6 @@ namespace EPS3.Controllers
                         .Include(u => u.Roles)
                         .SingleOrDefaultAsync(u => u.UserID == contract.UserID);
 
-                    //Add a ContractStatus record for a new Contract
-                    ContractStatus newStatus = new ContractStatus(currentUser, contract, ConstantStrings.ContractNew);
-                    newStatus.Comments = "Contract " + contract.ContractNumber + " originated on " + contract.CreatedDate + " by " + currentUser.FullName + ".";
-                    newStatus.ContractID = contract.ContractID;
-                    _context.ContractStatuses.Add(newStatus);
-                    _context.SaveChanges();
                     PopulateViewBag(contract.ContractID);
                     return RedirectToAction("Details", new { id = contract.ContractID });
                 }catch(Exception e)
@@ -293,44 +262,6 @@ namespace EPS3.Controllers
             return Json(JsonConvert.SerializeObject(GetExtendedContract(contractID)));
         }
 
-        [HttpGet]
-        // GET: Contracts/Review/5
-        public async Task<IActionResult> Review(int id)
-        {
-            if (id == 0)
-            {
-                return NotFound();
-            }
-            string userLogin = GetLogin();
-            PopulateViewBag(id);
-            var contractVM = new ContractViewModel()
-            {
-                Contract = await _context.Contracts.SingleOrDefaultAsync(m => m.ContractID == id)
-            };
-            if (contractVM.Contract != null)
-            {
-                var lineitems = _context.LineItems
-                    .Include(li => li.StateProgram)
-                    .Include(li => li.Category)
-                    .Include(li => li.OCA)
-                    .Include(li => li.Fund)
-                    .Where(li => li.ContractID == id);
-                contractVM.LineItems = await lineitems.ToListAsync();
-                var statuses = _context.ContractStatuses
-                    .Include(s => s.User)
-                    .Where(s => s.ContractID == id)
-                    .OrderByDescending(s => s.SubmittalDate);
-                contractVM.Statuses = await statuses.ToListAsync();
-            }
-            if (contractVM == null)
-            {
-                return NotFound();
-            }
-            ViewBag.myContractType = _context.ContractTypes.SingleOrDefault(c => c.ContractTypeID == contractVM.Contract.ContractTypeID);
-            ViewBag.myVendor = _context.Vendors.SingleOrDefault(v => v.VendorID == contractVM.Contract.VendorID);
-            return View(contractVM);
-        }
-
         [HttpPost]
         public JsonResult GetContractAmountTotal(string contractInfo)
         {
@@ -348,127 +279,6 @@ namespace EPS3.Controllers
             return Json(total);
         }
 
-        // POST: Contracts/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Review(int contractID, int userID, string currentStatus, string comments)
-        {
-            if (contractID <= 0)
-            {
-                return NotFound();
-            }
-            Contract contract = _context.Contracts.SingleOrDefault(c => c.ContractID == contractID);
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    //Create new status record for Contract
-                    User currentUser = await _context.Users
-                        .AsNoTracking()
-                        .SingleOrDefaultAsync(u => u.UserID == userID);
-                    ContractStatus newStatus = new ContractStatus(currentUser, contract, currentStatus);
-                    newStatus.Comments = comments;
-
-                    contract.CurrentStatus = currentStatus;
-                    contract.ModifiedDate = DateTime.Now;
-                    //contract.Statuses.Add(newStatus);
-                    _context.Update(newStatus);
-                    _context.Update(contract);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ContractExists(contract.ContractID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ContractTypes"] = new SelectList(_context.ContractTypes, "ContractTypeID", "ContractTypeID", contract.ContractType);
-            ViewData["Compensations"] = new SelectList(_context.Compensations, "CompensationID", "CompensationID", contract.CompensationID);
-            ViewData["Procurements"] = new SelectList(_context.Procurements, "ProcurementID", "ProcurementID", contract.ProcurementID);
-            ViewData["Recipients"] = new SelectList(_context.Recipients, "RecipientID", "RecipientID", contract.RecipientID);
-            ViewData["Vendors"] = new SelectList(_context.Vendors, "VendorID", "VendorID", contract.VendorID);
-            return View(contract);
-        }
-        [HttpGet]
-        public async Task<IActionResult> View(int id)
-        {
-            if (id <= 0)
-            {
-                return NotFound();
-            }
-            EncumbranceRequestViewModel erViewModel = new EncumbranceRequestViewModel();
-
-            string userLogin = GetLogin();
-            PopulateViewBag(id);
-            try
-            {
-                Contract contract = _context.Contracts
-                    .Include(c => c.ContractType)
-                    .Include(c => c.MethodOfProcurement)
-                    .Include(c => c.ContractFunding)
-                    .Include(c => c.User)
-                    .Include(c => c.Vendor)
-                    .Include(c => c.Recipient)
-                    .SingleOrDefault(c => c.ContractID == id);
-                erViewModel.Contract = contract;
-                List<LineItemGroup> lineItemGroups = await _context.LineItemGroups
-                    .Where(l => l.ContractID == id)
-                    .Include(l => l.LastEditedUser)
-                    .Include(l => l.OriginatorUser)
-                    .Include(l => l.LineItems).ThenInclude(li => li.OCA)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Category)
-                    .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Fund)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Statuses).ThenInclude(lst => lst.User)
-                    .Include(l => l.Statuses).ThenInclude(gst => gst.User)
-                    .AsNoTracking()
-                    .ToListAsync();
-                erViewModel.LineItemGroups = lineItemGroups;
-
-                // get amount totals for contract and line item group
-                decimal contractSum = 0M;
-                Dictionary<int, decimal> groupSums = new Dictionary<int, decimal>();
-                foreach(LineItemGroup lig in lineItemGroups)
-                {
-                    decimal groupSum = 0M;
-                    foreach(LineItem li in lig.LineItems)
-                    {
-                        contractSum += li.Amount;
-                        groupSum += li.Amount;
-                    }
-                    groupSums.Add(lig.GroupID, groupSum);
-                }
-                ViewBag.ContractTotalAmount = contractSum;
-                ViewBag.GroupTotalAmounts = groupSums;
-                ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
-                ViewBag.ContractStatusSelectionList = GetContractStatusList(contract, ViewBag.Roles);
-                ViewBag.SelectStatusDropdown = _pu.GetStatusDropdown(contract, (User) ViewBag.CurrentUser);
-                ViewBag.WPReviewers = GetWpReviewersList();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("ContractsController.Edit Error:" + e.GetBaseException());
-                Log.Error("ContractsController.Edit Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-            }
-            return View(erViewModel);
-        }
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> View()
-        //{
-
-        //}
         public async Task<IActionResult> Edit(int id)
         {
             if (id <= 0)
@@ -490,11 +300,6 @@ namespace EPS3.Controllers
                     .Include(li => li.Fund)
                     .Where(li => li.ContractID == id);
                 contractVM.LineItems = await lineitems.ToListAsync();
-                var statuses = _context.ContractStatuses
-                    .Include(s => s.User)
-                    .Where(s => s.ContractID == id)
-                    .OrderByDescending(s => s.SubmittalDate);
-                contractVM.Statuses = await statuses.ToListAsync();
             }
             
             if (contractVM == null)
@@ -513,7 +318,6 @@ namespace EPS3.Controllers
             ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
             ViewBag.myContractType = _context.ContractTypes.SingleOrDefault(c => c.ContractTypeID == contractVM.Contract.ContractTypeID);
             ViewBag.myVendor = _context.Vendors.SingleOrDefault(v => v.VendorID == contractVM.Contract.VendorID);
-            ViewBag.ContractStatusSelectionList = GetContractStatusList(contractVM.Contract, ViewBag.Roles);
             return View(contractVM);
         }
 
@@ -522,7 +326,7 @@ namespace EPS3.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ContractID,ContractNumber,ContractTypeID,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,RecipientID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,UserID,CurrentStatus")] Contract contract, string Comments, int CurrentUserID)
+        public IActionResult Edit(int id, [Bind("ContractID,ContractNumber,ContractTypeID,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,RecipientID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,UserID,CurrentStatus")] Contract contract, string Comments, int CurrentUserID)
         {
             if (id != contract.ContractID)
             {
@@ -565,7 +369,7 @@ namespace EPS3.Controllers
                     Log.Error("ContractsController.Edit Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 }
                 ViewBag.SuccessMessage = "Contract update saved.";
-                return await View(contract.ContractID);
+                return  View(contract.ContractID);
             }
             
             ViewData["ContractTypes"] = new SelectList(_context.ContractTypes, "ContractTypeID", "ContractTypeID", contract.ContractType);
@@ -574,64 +378,6 @@ namespace EPS3.Controllers
             ViewData["Recipients"] = new SelectList(_context.Recipients, "RecipientID", "RecipientID", contract.RecipientID);
             ViewData["Vendors"] = new SelectList(_context.Vendors, "VendorID", "VendorID", contract.VendorID);
             return View(contract);
-        }
-
-        [HttpPost]
-        public string UpdateStatus(string contractStatus)
-        {
-            string response = "";
-            try
-            {
-                ContractStatus newStatus = JsonConvert.DeserializeObject<ContractStatus>(contractStatus);
-                newStatus.SubmittalDate = DateTime.Now;
-                newStatus.CurrentStatus = ConstantStrings.LookupConstant(newStatus.CurrentStatus);
-                _context.ContractStatuses.Add(newStatus);
-
-                Contract contract = _context.Contracts.Where(c => c.ContractID == newStatus.ContractID).SingleOrDefault();
-                contract.CurrentStatus = newStatus.CurrentStatus;
-                _context.Contracts.Update(contract);
-                _context.SaveChanges();
-                //response = "{\"success\" : \"The Contract Status has been successfully updated.\"}";
-                response = contract.CurrentStatus;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e.StackTrace);
-            }
-
-            return response;
-        }
-
-        // GET: Contracts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var contract = await _context.Contracts
-                .Include(c => c.ContractFunding)
-                .Include(c => c.MethodOfProcurement)
-                .Include(c => c.Vendor)
-                .SingleOrDefaultAsync(m => m.ContractID == id);
-            if (contract == null)
-            {
-                return NotFound();
-            }
-
-            return View(contract);
-        }
-
-        // POST: Contracts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var contract = await _context.Contracts.SingleOrDefaultAsync(m => m.ContractID == id);
-            _context.Contracts.Remove(contract);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool ContractExists(int id)
@@ -796,82 +542,7 @@ namespace EPS3.Controllers
             return _pu.GetUsersByRole(ConstantStrings.WPReviewer);
         }
 
-        [HttpPost]
-        public JsonResult GetHistory(string contractInfo)
-        {
-            Dictionary<string, int> info = JsonConvert.DeserializeObject<Dictionary<string, int>>(contractInfo);
-            int contractID = info["ID"];
-            List<ContractStatus> statuses = _context.ContractStatuses
-                .Where(c => c.ContractID == contractID)
-                .Include(c => c.User)
-                .AsNoTracking()
-                .OrderByDescending(c => c.SubmittalDate)
-                .ToList();
-            return Json(statuses);
-        }
-
-        public List<SelectListItem> GetContractStatusList(Contract contract, string roles)
-        {
-            List<SelectListItem> typeList = new List<SelectListItem>();
-            if (roles.Contains(ConstantStrings.Originator)) {
-                switch (contract.CurrentStatus) {
-                    case ConstantStrings.ContractNew:
-                    case ConstantStrings.ContractDrafted:
-                        typeList.Add(new SelectListItem { Value = "ContractDrafted", Text = "Save Contract as Draft" });
-                        typeList.Add(new SelectListItem { Value = "ContractInFinance", Text = "Submit Contract to Finance" });
-                        break;
-                    case ConstantStrings.ContractInCFM:
-                        typeList.Add(new SelectListItem { Value = "ContractRequest50", Text = "Request contract complete, status 50" });
-                        typeList.Add(new SelectListItem { Value = "ContractRequest52", Text = "Request contract complete, status 52" });
-                        typeList.Add(new SelectListItem { Value = "ContractRequest98", Text = "Request contract complete, status 98" });
-                        break;
-                } // end switch
-            } // end if Originator
-            if (roles.Contains(ConstantStrings.FinanceReviewer))
-            {
-                switch (contract.CurrentStatus)
-                {
-                    case ConstantStrings.ContractInFinance:
-                        typeList.Add(new SelectListItem { Value = "ContractDrafted", Text = "Return to Draft" });
-                        typeList.Add(new SelectListItem { Value = "ContractInFinance", Text = "Keep in Work Finance" });
-                        typeList.Add(new SelectListItem { Value = "ContractInWP", Text = "Submit to Work Program" });
-                        typeList.Add(new SelectListItem { Value = "ContractInCFM", Text = "Ready for CFM" });
-                        break;
-                    case ConstantStrings.ContractInCFM:
-                        typeList.Add(new SelectListItem { Value = "ContractComplete50", Text = "Contract is complete with status 50" });
-                        typeList.Add(new SelectListItem { Value = "ContractComplete52", Text = "Contract is complete with status 52" });
-                        typeList.Add(new SelectListItem { Value = "ContractComplete98", Text = "Contract is complete with status 98" });
-                        typeList.Add(new SelectListItem { Value = "ContractArchived", Text = "Contract has been archived" });
-                        break;
-                } // end switch
-            } // end if FinanceReviewer
-            if (roles.Contains(ConstantStrings.WPReviewer))
-            {
-                switch (contract.CurrentStatus)
-                {
-                    case ConstantStrings.ContractInWP:
-                        typeList.Add(new SelectListItem { Value = "ContractInFinance", Text = "Return to Finance" });
-                        typeList.Add(new SelectListItem { Value = "ContractInWP", Text = "Keep in Work Program" });
-                        typeList.Add(new SelectListItem { Value = "ContractInCFM", Text = "Ready for CFM" });
-                        break;
-                } // end switch
-            } // end if WPReviewer
-            if (roles.Contains(ConstantStrings.CFMSubmitter))
-            {
-                switch (contract.CurrentStatus)
-                {
-                    case ConstantStrings.ContractInCFM:
-                        typeList.Add(new SelectListItem { Value = "ContractDrafted", Text = "Return to Draft" });
-                        typeList.Add(new SelectListItem { Value = "ContractInWP", Text = "Return to Work Program" });
-                        typeList.Add(new SelectListItem { Value = "ContractComplete50", Text = "Contract is complete with status 50" });
-                        typeList.Add(new SelectListItem { Value = "ContractComplete52", Text = "Contract is complete with status 52" });
-                        typeList.Add(new SelectListItem { Value = "ContractComplete98", Text = "Contract is complete with status 98" });
-                        typeList.Add(new SelectListItem { Value = "ContractArchived", Text = "Contract has been archived" }); break;
-                } // end switch
-            } // end if CFMSubmitter
-            return typeList;
-        }
-
+ 
         public ExtendedContract GetExtendedContract(int contractID)
         {
             Contract returnContract = _pu.GetDeepContract(contractID);

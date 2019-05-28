@@ -226,18 +226,18 @@ namespace EPS3.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int id)
+        public IActionResult Delete(int id)
         {
             // Delete an encumbrance and all of its statuses, its line items and their statuses
             try
             {
-                LineItemGroup encumbrance = await _context.LineItemGroups
+                LineItemGroup encumbrance =  _context.LineItemGroups
                      .Include(g => g.Statuses)
-                     .Include(g => g.LineItems).ThenInclude(li => li.Statuses)
-                     .SingleOrDefaultAsync(g => g.GroupID == id);
+                     .Include(g => g.LineItems)
+                     .SingleOrDefault(g => g.GroupID == id);
                 if (encumbrance == null)
                 {
-                    return NotFound();
+                    return RedirectToAction("List");
                 }
                 //_context.Entry(encumbrance).State = EntityState.Deleted;
                 _context.LineItemGroups.Remove(encumbrance);
@@ -754,7 +754,7 @@ namespace EPS3.Controllers
             }
         }
 
-        private IActionResult Award(int id)
+        public IActionResult Award(int id)
         {
             // Overload of the Award method that gets called from the List page.
             // This is an enhancement to handle a new Award encumbrance from the AddNewEncumbrance method called by the Request page
@@ -779,7 +779,7 @@ namespace EPS3.Controllers
             *   5. Show the Award banner warning the user to update the Vendor and Amounts
             *   This Award will replicate the Advertisement, but counter all of it's amounts, leaving the net balance on the contract at $0.00
             */
-            bool awardHasLineItems = (award != null);
+            bool awardHasLineItems = (award != null && award.GroupID > 0);
 
             /* Verify there is an existing advertisement */
             LineItemGroup advertisement = _context.LineItemGroups.AsNoTracking().SingleOrDefault(g => g.GroupID == id);
@@ -1290,12 +1290,8 @@ namespace EPS3.Controllers
                         enc.CurrentStatus = closedStatus;
                         AddEncumbranceStatus(enc, closedStatus);
                     }
-                    ContractStatus contractStatus = new ContractStatus(ViewBag.CurrentUser, contract, closedStatus);
-                    contractStatus.Comments = closure.Comments;
                     contract.CurrentStatus = closedStatus;
                     //save changes to the database
-
-                    _context.ContractStatuses.Add(contractStatus);
                     _context.Contracts.Update(contract);
                     _context.SaveChanges();
                 
@@ -1303,7 +1299,7 @@ namespace EPS3.Controllers
                 // Send Close Contract/Encumbrance Request to Closers
                 initializeMessageService();
                 _messageService.SendClosingRequest(closure, user);
-
+                response = "Closure request sent to closers.";
             }
             catch(Exception e)
             {

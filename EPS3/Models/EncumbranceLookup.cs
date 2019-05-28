@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EPS3.Models
 {
-    public class EncumbranceLookup
+    public class EncumbranceLookup : IEquatable<EncumbranceLookup>, IEqualityComparer<EncumbranceLookup>
     {
         public int ContractID { get; set; }
         public string ContractNumber { get; set; }
@@ -50,6 +50,34 @@ namespace EPS3.Models
         public string ContractAmountString()
         {
             return String.Format("{0:C2}", ContractAmount); 
+        }
+        
+        public bool Equals(EncumbranceLookup el)
+        {
+            if (el == null && this == null)
+               return true;
+            else if (this == null || el == null)
+               return false;
+            else if(this.GroupID == el.GroupID)
+                return true;
+            else
+                return false;
+        }
+
+        public bool Equals(EncumbranceLookup e1, EncumbranceLookup e2)
+        {
+            return e1.Equals(e2);
+        }
+
+        public override int GetHashCode()
+        {
+            int hCode = GroupID ^ ContractID;
+            return hCode.GetHashCode();
+        }
+
+        public int GetHashCode(EncumbranceLookup el)
+        {
+            return el.GetHashCode();
         }
     }
 }

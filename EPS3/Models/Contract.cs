@@ -83,7 +83,6 @@ namespace EPS3.Models
         public virtual Vendor Vendor { get; set; }
         [Display(Name = "Line Items")]
         public virtual ICollection<LineItem> LineItems { get; set; }
-        [Display(Name = "History")]
-        public virtual ICollection<ContractStatus> Statuses { get; set; }
+     
     }
 }

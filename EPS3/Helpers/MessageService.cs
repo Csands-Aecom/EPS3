@@ -35,7 +35,7 @@ namespace EPS3.Helpers
         }
         public int AddMessage(string updateType, LineItemGroup encumbrance, string comments, List<int> otherRecipients)
         {
-            encumbrance = GetFullEncumbrance(encumbrance);
+            encumbrance = _pu.GetDeepEncumbrance(encumbrance.GroupID);
             int msgID = 0;
             List<int> recipientIDs = null;
             decimal encumbranceTotal = 0.0M;
@@ -61,7 +61,6 @@ namespace EPS3.Helpers
 
                         if (comments != null && comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
-                        msg.Body += GetStatusComments(encumbrance);
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
                         // Send only to TPK Encumbrance mailbox
@@ -82,7 +81,6 @@ namespace EPS3.Helpers
                         }
                         if (comments != null && comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
-                        msg.Body += GetStatusComments(encumbrance);
                         msg.Body += "<p>View this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
                         // Send only to TPK Encumbrance mailbox
@@ -138,8 +136,8 @@ namespace EPS3.Helpers
                         break;
                     case ConstantStrings.CloseContract:
                         msg.Subject = "Request to Close Contract #" + contract.ContractNumber;
-                        msg.Body = "<p>" + submitter.FullName + " requests closure of the contract " + contract.ContractNumber + " (" + contract.ContractID + "), closure type " + encumbrance.LineItemType + " </p>";
-                        msg.Body += "<p>Review this closure request in the <a href='" + contractViewURL + "'>" + "EPS Application</a>.</p>";
+                        msg.Body = "<p>" + submitter.FullName + " requests closure of the contract " + contract.ContractNumber + ", closure type " + encumbrance.LineItemType + " </p>";
+                        //msg.Body += "<p>Review this closure request in the <a href='" + contractViewURL + "'>" + "EPS Application</a>.</p>";
                         recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.Closer)).Select(u => u.UserID).ToList();
                         break;
                     default:
@@ -249,7 +247,7 @@ namespace EPS3.Helpers
                 else
                 {
                     contractInfo += "<strong>Contract: </strong>" + contract.ContractNumber + "<br/>";
-                    contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br/>";
+                    contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br/>";
                     //TODO: What other contract information should be included in the email receipt?
                 }
                 List<LineItem> lineItems = _pu.GetDeepLineItems(encumbrance.GroupID);
@@ -296,7 +294,7 @@ namespace EPS3.Helpers
 
         public void SendClosingRequest(ContractClosure closure, User submitter)
         {
-            int groupID = closure.LineItemGroupID != null ? int.Parse(closure.LineItemGroupID) : 0;
+            int groupID = (closure.LineItemGroupID != null && !closure.LineItemGroupID.Equals("undefined"))? int.Parse(closure.LineItemGroupID) : 0;
             int contractID = closure.ContractID != null ? int.Parse(closure.ContractID) : 0;
             int closeStatus = closure.ClosureType.Contains("50") ? 50 : 98;
             if (groupID > 0) {
@@ -318,15 +316,23 @@ namespace EPS3.Helpers
                 msg.Body = "Please place in status " + closeStatus.ToString() + ".<br/>";
                 msg.Body += "Amendment: " + closure.FlairID + "  Contract Number: " + contract.ContractNumber + "  Vendor: " + contract.Vendor.VendorName;
             }
-            //add Closer(s) as recipient(s)
-            List<int> recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.Closer)).Select(u => u.UserID).ToList();
-            msg.AddRecipients(recipientIDs);
 
-            //save the message
-            _context.Messages.Add(msg);
-            _context.SaveChanges();
-            //send the message
-            SendEmailMessage(msg.MessageID);
+            // Save the message to the database
+            try
+            {
+                _context.Messages.Add(msg);
+                _context.SaveChanges();
+                
+                //add Closer(s) as recipient(s)
+                List<int> recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.Closer)).Select(u => u.UserID).ToList();
+                AddRecipients(msg.MessageID, recipientIDs);
+                SendEmailMessage(msg.MessageID);
+            }
+
+            catch (Exception e)
+            {
+                Log.Error("MessageService.SendReceipt Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+            }
         }
 
         public void SendEmailMessage(int msgID)
@@ -429,33 +435,7 @@ namespace EPS3.Helpers
                 //throw ex;
             }
         }
-        public LineItemGroup GetFullEncumbrance(LineItemGroup encumbrance)
-        {
-            // ensure the encumbrance includes all of its LineItems and their comments.
-            LineItemGroup lineItemGroup = _context.LineItemGroups.AsNoTracking()
-                .Include(e => e.LineItems).ThenInclude(li => li.Statuses)
-                .SingleOrDefault(e => e.GroupID == encumbrance.GroupID);
-            return lineItemGroup;
-        }
 
-        public string GetStatusComments(LineItemGroup encumbrance)
-        {
-            string result = "";
-            foreach (LineItem item in encumbrance.LineItems)
-            {
-                result += "<p>Line Number:" + item.LineNumber + "</p>";
-                int commentCounter = 0;
-                foreach (LineItemStatus status in item.Statuses)
-                {
-                    if (status.Comments != null && status.Comments.Length > 0)
-                    {
-                        commentCounter++;
-                        result += "<p>Comment " + commentCounter.ToString() + ": " + status.Comments + "</p>";
-                    }
-                }
-            }
-            return result;
-        }
 
         public string GetContractInfo(Contract contract)
         {
@@ -466,9 +446,9 @@ namespace EPS3.Helpers
             contractInfo += "<strong>Contract Type:</strong> " + contract.ContractType.ContractTypeSelector + "<br />";
             string canRenew = contract.IsRenewable > 0 ? "Yes" : "No";
             contractInfo += "<strong>Is Contract Renewable?:</strong> " + canRenew + "<br />";
-            contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br />";
-            contractInfo += "<strong>Maximum LOA Amount:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.MaxLoaAmount.ToString())) + "<br />";
-            contractInfo += "<strong>Budget Ceiling:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(contract.BudgetCeiling.ToString()))  + "<br />";
+            contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br />";
+            contractInfo += "<strong>Maximum LOA Amount:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(contract.MaxLoaAmount.ToString())) + "<br />";
+            contractInfo += "<strong>Budget Ceiling:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(contract.BudgetCeiling.ToString()))  + "<br />";
             contractInfo += "<strong>Contract Begin Date:</strong> " + contract.BeginningDate.ToString("MM/dd/yyyy") + "<br />";
             contractInfo += "<strong>Contract End Date:</strong> " + contract.EndingDate.ToString("MM/dd/yyyy") + "<br />";
             if (contract.ServiceEndingDate != null && contract.ServiceEndingDate > new DateTime(2000, 01, 01))
@@ -489,7 +469,7 @@ namespace EPS3.Helpers
             string encumbranceInfo = "";
             encumbranceInfo += "<strong>Encumbrance Type:</strong> " + encumbrance.LineItemType + "<br />";
             encumbranceInfo += "<strong>Status:</strong> " + encumbrance.CurrentStatus + "<br />";
-            encumbranceInfo += "<strong>Encumbrance Total:</strong> $" + string.Format("{0:#.00}", Convert.ToDecimal(encumbranceTotal.ToString())) + "<br />";
+            encumbranceInfo += "<strong>Encumbrance Total:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(encumbranceTotal.ToString())) + "<br />";
             encumbranceInfo += "<strong>Description: </strong> " + encumbrance.Description + "<br />";
             if (encumbrance.LineID6S != null && encumbrance.LineID6S != "")
             {
@@ -547,9 +527,9 @@ namespace EPS3.Helpers
                 linesInfo += "<td>" + item.OCA.OCACode + "</td>";
                 linesInfo += "<td>" + item.StateProgram.ProgramCode + "</td>";
                 linesInfo += "<td>" + item.ExpansionObject + "</td>";
-                linesInfo += "<td>$" + string.Format("{0:#.00}", Convert.ToDecimal(item.Amount.ToString())) + "</td>";
+                linesInfo += "<td>$" + string.Format("{0:#,##0}", Convert.ToDecimal(item.Amount.ToString())) + "</td>";
                 linesInfo += "</tr>";
-                if(item.Comments != null)
+                if(item.Comments != null && item.Comments.Trim().Length > 0)
                 {
                     linesInfo += "<tr><td colspan=13><strong>Comments:</strong>" + item.Comments + "</td></tr>";
                 }
@@ -561,10 +541,13 @@ namespace EPS3.Helpers
         public decimal GetEncumbranceTotal(LineItemGroup encumbrance)
         {
             //encumbrance is a deep copy
-            decimal total = 0;
-            foreach (LineItem item in encumbrance.LineItems)
+            decimal total = 0M;
+            if (encumbrance.LineItems != null)
             {
-                total += item.Amount;
+                foreach (LineItem item in encumbrance.LineItems)
+                {
+                    total += item.Amount;
+                }
             }
             return total;
         }

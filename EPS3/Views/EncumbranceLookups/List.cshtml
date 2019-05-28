@@ -20,7 +20,7 @@
                 <li><a href="#tabs-@key">@key</a></li>
             }
         }
-        <li><a href="#tabs-Reports">Reports</a></li>
+        <li><a href="#tabs-Search">Search</a></li>
     </ul>
     <div name="awardDialog" id="awardDialog"></div>
     @foreach (string key in Model.Keys)
@@ -82,34 +82,34 @@
                                 @Html.DisplayFor(modelItem => item.LineItemType)
                             </td>
                             <td>
-                               @if (@item.FinancialProjectNumbers != null)
-                               {
-                                   foreach(string fpNum in item.FinProjList())
-                                   {
-                                       @fpNum<br/>
-                                   }
-                               }
+                                @if (@item.FinancialProjectNumbers != null)
+                                {
+                                    foreach (string fpNum in item.FinProjList())
+                                    {
+                                        @fpNum<br />
+                                    }
+                                }
                             </td>
                             <td>
                                 @item.OriginatedDate.ToString("yyyy-MM-dd hh:ss tt")
                             </td>
-                        <td>
+                            <td>
                                 @item.LastEditedDate.ToString("yyyy-MM-dd hh:ss tt")
-                        </td>
-                        <td>
-                            @item.EncumbranceAmountString()
-                        <td>
-                            @Html.DisplayFor(modelItem => item.FirstName)
-                            @Html.DisplayFor(modelItem => item.LastName)
-                        </td>
-                    </tr>
-                }
+                            </td>
+                            <td>
+                                @item.EncumbranceAmountString()
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FirstName)
+                                @Html.DisplayFor(modelItem => item.LastName)
+                            </td>
+                        </tr>
+                    }
 
                 </tbody>
             </table>
         </div> <!-- end tab for key -->
     }
-    <div id="tabs-Reports">
+    <div id="tabs-Search">
         @if (ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.AdminRole))
         {
             <div class="row">
@@ -129,12 +129,17 @@
             </div>
             <div class="col-sm-3">
                 Find a Contract by Contract Number:
-                <input type="hidden" id="ContractID" name="ContractID" onchange="validateFindContract()" />
                 <input type="hidden" id="SuppressNewScript" name="SuppressNewScript" value="true" />
+                <input type="hidden" id="ContractID" name="ContractID" onchange="validateFindContract()" />
                 <input type="hidden" id="ContractStatus" name="ContractStatus" />
                 <input type="text" id="ContractSelector" name="ContractSelector" placeholder="Enter a Contract Number" />
                 <input type="button" class="disabled" disabled name="findContractButton" id="findContractButton" value="Find Contract" onclick="findContract()" />
             </div>
         </div> <!-- end row -->
-    </div>
+        <div class="row">
+             <div class="col-sm-4">
+                 <a href="~/EncumbranceLookups/Search/">Advanced Search</a>
+             </div>
+        </div> <!-- end row -->
+    </div> <!-- end Search tab -->
 </div> <!-- end tabs div-->

@@ -8,7 +8,7 @@ namespace EPS3.Models
     public class ContractClosure
     {
         public string ContractID { get; set; }
-        public string LineItemType { get; set; }
+        public string ActionItemType { get; set; }
         public string FlairID { get; set; }
         public string LineItemGroupID { get; set; }
         public string ClosureType { get; set; }

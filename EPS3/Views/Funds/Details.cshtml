@@ -1,0 +1,30 @@
+﻿@model EPS3.Models.Fund
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Fund</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.FundCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FundCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FundDescription)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FundDescription)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.FundID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

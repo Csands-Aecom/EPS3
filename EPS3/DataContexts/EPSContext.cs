@@ -20,11 +20,9 @@ namespace EPS3.DataContexts
         public DbSet<Category> Categories { get; set; }
         public DbSet<Compensation> Compensations { get; set; }
         public DbSet<Contract> Contracts { get; set; }
-        public DbSet<ContractStatus> ContractStatuses { get; set; }
         public DbSet<ContractType> ContractTypes { get; set; }
         public DbSet<Fund> Funds { get; set; }
         public DbSet<LineItem> LineItems { get; set; }
-        public DbSet<LineItemStatus> LineItemStatuses { get; set; }
         public DbSet<LineItemGroup> LineItemGroups { get; set; }
         public DbSet<LineItemGroupStatus> LineItemGroupStatuses { get; set; }
         public DbSet<OCA> OCAs { get; set; }

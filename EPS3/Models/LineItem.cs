@@ -110,8 +110,7 @@ namespace EPS3.Models
         [Display(Name = "User Assigned Amendment ID")]
         [StringLength(10)]
         public string UserAssignedID { get; set; }
-        [Display(Name = "History")]
-        public virtual ICollection<LineItemStatus> Statuses { get; set; }
+
         [Display(Name = "Encumbrance ID")]
         public int LineItemGroupID { get; set; }
         public virtual LineItemGroup LineItemGroup { get; set; }

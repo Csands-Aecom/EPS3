@@ -67,7 +67,7 @@ namespace EPS3.Models
         public const string Settlement = "Settlement";
         public const string Correction = "Correction";
         public const string Emergency = "Emergency";
-        public const string FastResponse = "Response";
+        public const string FastResponse = "Fast Response";
         public const string Close50 = "Close Status 50";
         public const string Close98 = "Close Status 98";
         public static string LookupConstant(string Constant)
@@ -127,13 +127,26 @@ namespace EPS3.Models
             typeList.Add(new SelectListItem { Text = "Overrun", Value = Overrun });
             typeList.Add(new SelectListItem { Text = "Settlement", Value = Settlement });
             typeList.Add(new SelectListItem { Text = "Correction", Value = Correction });
+            typeList.Add(new SelectListItem { Text = "Fast Response", Value = FastResponse });
             typeList.Add(new SelectListItem { Text = "Close 50", Value = Close50 });
             typeList.Add(new SelectListItem { Text = "Close 98", Value = Close98 });
             // typeList.Add(new SelectListItem { Text = "Emergency", Value = Emergency });
-            // typeList.Add(new SelectListItem { Text = "Fast Response", Value = FastResponse });
             return typeList;
         }
 
+
+        public static List<SelectListItem> GetEncumbranceStatusList()
+        {
+            List<SelectListItem> typeList = new List<SelectListItem>();
+            typeList.Add(new SelectListItem { Text = "Select A Status", Value = "None" });
+            typeList.Add(new SelectListItem { Text = Draft, Value = Draft });
+            typeList.Add(new SelectListItem { Text = SubmittedFinance, Value = SubmittedFinance });
+            typeList.Add(new SelectListItem { Text = SubmittedWP, Value = SubmittedWP });
+            typeList.Add(new SelectListItem { Text = CFMReady, Value = CFMReady });
+            typeList.Add(new SelectListItem { Text = CFMComplete, Value = CFMComplete });
+            typeList.Add(new SelectListItem { Text = "Closed", Value = Closed });
+            return typeList;
+        }
 
         public static List<SelectListItem> GetRequestCloseList()
         {

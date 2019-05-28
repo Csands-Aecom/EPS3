@@ -10,7 +10,6 @@ namespace EPS3.ViewModels
     {
         public Contract Contract{ get; set; }
         public List<LineItem> LineItems { get; set; }
-        public List<ContractStatus> Statuses { get; set; }
 
     }
 }

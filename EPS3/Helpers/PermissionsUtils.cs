@@ -278,7 +278,6 @@ namespace EPS3.Helpers
                     .Include(l => l.LineItems).ThenInclude(li => li.Category)
                     .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
                     .Include(l => l.LineItems).ThenInclude(li => li.Fund)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Statuses).ThenInclude(lst => lst.User)
                     .Include(l => l.Statuses).ThenInclude(gst => gst.User)
                     .SingleOrDefault(l => l.GroupID == groupID);
                 return encumbrance;
@@ -302,7 +301,6 @@ namespace EPS3.Helpers
                     .Include(l => l.LineItems).ThenInclude(li => li.Category)
                     .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
                     .Include(l => l.LineItems).ThenInclude(li => li.Fund)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Statuses).ThenInclude(lst => lst.User)
                     .Include(l => l.Statuses).ThenInclude(gst => gst.User)
                     .Where(l => l.ContractID == contractID)
                     .ToList();

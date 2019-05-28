@@ -1,0 +1,129 @@
+﻿@model EPS3.Models.LineItemGroup
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>LineItemGroup</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Contract)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Contract.ContractID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LineItemType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LineItemType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AmendedLineItemID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AmendedLineItemID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LineID6S)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LineID6S)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.FlairAmendmentID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.FlairAmendmentID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AmendedFlairLOAID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AmendedFlairLOAID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserAssignedID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserAssignedID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LastEditedDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LastEditedDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.OriginatedDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OriginatedDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LastEditedUser)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LastEditedUser.UserID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.OriginatorUser)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OriginatorUser.UserID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsEditable)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsEditable)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IncludesContract)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IncludesContract)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CurrentStatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CurrentStatus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AdvertisedDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AdvertisedDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LettingDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LettingDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RenewalDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RenewalDate)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="GroupID" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
