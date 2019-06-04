@@ -9,12 +9,14 @@ namespace EPS3.Models
 {
     public class FileAttachment
     {
+        public static string UserFilesPath = "UserFiles";
         [Key]
         public int AttachmentID { get; set; }
         //public FileStream Attachment { get; set; }
         public DateTime FileDate { get; set; }
         public string FileName { get; set; }
-        public int LineItemID { get; set; }
-        public virtual LineItem LineItem { get; set; }
+        public string DisplayName { get; set; }
+        public int GroupID { get; set; }
+        public virtual LineItemGroup LineItemGroup { get; set; }
     }
 }

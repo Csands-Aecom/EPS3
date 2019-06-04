@@ -88,6 +88,7 @@ namespace EPS3.Helpers
                         break;
                     case ConstantStrings.FinanceToDraft:
                     case ConstantStrings.CFMToDraft:
+                    case ConstantStrings.CompleteToDraft:
                         msg.Subject = "Encumbrance Request#" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned to the Originator";
                         msg.Body = "<p>Encumbrance ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned for the following reason:</p>\n";
                         if (comments.Length > 0)
@@ -105,8 +106,23 @@ namespace EPS3.Helpers
                             "EPS Application</a>.</p>";
                         recipientIDs = otherRecipients; //(List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.WPReviewer)).Select(u => u.UserID).ToList();
                         break;
+                    case ConstantStrings.FinanceToCFM:
+                    case ConstantStrings.FinanceToComplete:
+                        // No notification required.
+                        break;
+                    case ConstantStrings.WPToFinance:
+                        msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned by Work Program";
+                        msg.Body = "<p>" + submitter.FullName + " has completed a Work Program review for encumbrance request #" + encumbrance.GroupID + " under contract " + contract.ContractNumber + ".</p>\n";
+                        msg.Body += "<p>This encumbrance request is returned to Finance with the following comment:</p>";
+                        if (comments.Length > 0)
+                        { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
+                        msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
+                            "EPS Application</a>.</p>";
+                        // Send only to TPK Encumbrance mailbox
+                        recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
+                        break;
                     case ConstantStrings.WPToCFM:
-                        msg.Subject = "Please review encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " is ready for CFM Input";
+                        msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " is ready for CFM Input";
                         msg.Body = "<p>" + submitter.FullName + " has completed a Work Program review for encumbrance request #" + encumbrance.GroupID + " in Work Program review under contract " + contract.ContractNumber + ".</p>\n";
                         if (comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
@@ -115,7 +131,17 @@ namespace EPS3.Helpers
                         // Send only to TPK Encumbrance mailbox
                         recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
                         break;
-                case ConstantStrings.CFMToWP:
+                    case ConstantStrings.CFMToFinance:
+                        msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned to Finance";
+                        msg.Body = "<p>" + submitter.FullName + " has returned to Encumbranc request #" + encumbrance.GroupID + " to Finance with the following comment:</p>";
+                        if (comments.Length > 0)
+                        { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
+                        msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
+                            "EPS Application</a>.</p>";
+                        // Send only to TPK Encumbrance mailbox
+                        recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
+                        break;
+                    case ConstantStrings.CFMToWP:
                         msg.Subject = "Please review encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " requires additional Work Program Review";
                         msg.Body = "<p>" + submitter.FullName + " has returned encumbrance request #" + encumbrance.GroupID + " from CFM for additional Work Program review for contract " + contract.ContractNumber + ".</p>\n";
                         if (comments.Length > 0)
@@ -124,7 +150,7 @@ namespace EPS3.Helpers
                             "EPS Application</a>.</p>";
                         recipientIDs = otherRecipients;;
                         break;
-                    case ConstantStrings.CFMComplete:
+                    case ConstantStrings.CFMToComplete:
                         msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been input into CFM";
                         msg.Body = "<p>" + submitter.FullName + " has input encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " into CFM.</p>\n";
                         if (comments.Length > 0)
@@ -416,7 +442,6 @@ namespace EPS3.Helpers
                 {
                     mail.To.Add(new MailAddress(user.Email, user.FullName));
                 }
-                //mail.To.Add(new MailAddress("chris.sands@aecom.com", "Chris Sands"));
                 SmtpClient client = new SmtpClient
                 {
                     Port = _smtpConfig.Port,   // Turnpike: 25, Aecom: 23

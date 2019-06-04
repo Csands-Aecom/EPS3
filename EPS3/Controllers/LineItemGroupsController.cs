@@ -185,6 +185,10 @@ namespace EPS3.Controllers
                     {
                         ViewBag.AmendBanner = true;
                     }
+                    // Add to ViewBag a list of all files associated with this encumbrance request
+                    List<FileAttachment> files = _context.FileAttachments.Where(f => f.GroupID == groupID).ToList();
+                    ViewBag.Files = files;
+
                     ViewBag.Contract = Contract;
                     ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contractID);
                     return View(Encumbrance);
@@ -383,6 +387,21 @@ namespace EPS3.Controllers
                 {
                     changeType = ConstantStrings.FinanceToWP;
                 }
+                //3.1 From Finance to CFM Ready
+                if (oldStatus.Equals(ConstantStrings.SubmittedFinance) && newStatus.Equals(ConstantStrings.CFMReady))
+                {
+                    changeType = ConstantStrings.FinanceToCFM;
+                }
+                //3.2 From Finance to CFM Complete
+                if (oldStatus.Equals(ConstantStrings.SubmittedFinance) && newStatus.Equals(ConstantStrings.CFMComplete))
+                {
+                    changeType = ConstantStrings.FinanceToComplete;
+                }
+                //3.3 Rejected from WP to Finance
+                if (oldStatus.Equals(ConstantStrings.SubmittedWP) && newStatus.Equals(ConstantStrings.SubmittedFinance))
+                {
+                    changeType = ConstantStrings.WPToFinance;
+                }
                 //4. WP Review to CFM Ready
                 if (oldStatus.Equals(ConstantStrings.SubmittedWP) && newStatus.Equals(ConstantStrings.CFMReady))
                 {
@@ -393,10 +412,25 @@ namespace EPS3.Controllers
                 {
                     changeType = ConstantStrings.CFMToWP;
                 }
+                //5.1 CFM Ready back returned to Draft
+                if (oldStatus.Equals(ConstantStrings.CFMReady) && newStatus.Equals(ConstantStrings.Draft))
+                {
+                    changeType = ConstantStrings.CFMToDraft;
+                }
+                //5.2 CFM Ready back returned to Finance
+                if (oldStatus.Equals(ConstantStrings.CFMReady) && newStatus.Equals(ConstantStrings.SubmittedFinance))
+                {
+                    changeType = ConstantStrings.CFMToFinance;
+                }
                 //6. CFM Complete
                 if ((oldStatus.Equals(ConstantStrings.CFMReady)) && newStatus.Equals(ConstantStrings.CFMComplete))
                 {
-                    changeType = ConstantStrings.CFMComplete;
+                    changeType = ConstantStrings.CFMToComplete;
+                }
+                //7. CFM Complete back to Draft
+                if ((oldStatus.Equals(ConstantStrings.CFMComplete)) && newStatus.Equals(ConstantStrings.Draft))
+                {
+                    changeType = ConstantStrings.CompleteToDraft;
                 }
             }
             return changeType;

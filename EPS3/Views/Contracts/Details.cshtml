@@ -195,7 +195,13 @@
     {
         <div class="panel panel-default" data-toggle="collapse" aria-expanded="true" id="encumbrancePanel_@encumbrance.GroupID" name="encumbrancePanel_@encumbrance.GroupID">
             <div class="panel-heading" id="encumbrancePanelHead_@encumbrance.GroupID" name="encumbrancePanelHead_@encumbrance.GroupID">
-                <h4>Encumbrance Request <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@encumbrance.GroupID">@encumbrance.GroupID</a></h4>
+                <h4>
+                    Encumbrance Request <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@encumbrance.GroupID">@encumbrance.GroupID</a>
+                    @if (encumbrance.FileAttachments != null && encumbrance.FileAttachments.Count > 0)
+                    {
+                        <span class='glyphicon glyphicon-paperclip'></span>
+                    }
+                </h4>
                 @if ((ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID) && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
                 {
                     <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@encumbrance.GroupID">Update Encumbrance Request</a>
@@ -307,6 +313,20 @@
                     </div>
                 </div>
             </div>
+            @if (encumbrance.FileAttachments != null && encumbrance.FileAttachments.Count > 0)
+            {
+                 <div class="panel-body" id="fileAttachmentsPanel_@encumbrance.GroupID" name="fileAttachmentsPanel_@encumbrance.GroupID">
+                     <h4>Attached Files</h4>
+                    <input type="hidden" name="AttachmentCount" id="AttachmentCount" value="@encumbrance.FileAttachments.Count"/>
+                    <ul>
+                   @foreach (FileAttachment file in @encumbrance.FileAttachments)
+                    {
+                        var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
+                        <li><a href="@url" target="_blank">@file.DisplayName</a></li>
+                    }
+                    </ul>
+                </div>
+            }
             <div class="panel-body" id="lineItemsPanel_@encumbrance.GroupID" name="lineItemsPanel_@encumbrance.GroupID">
                 <div class="row">
                     <div class="col-sm-12">

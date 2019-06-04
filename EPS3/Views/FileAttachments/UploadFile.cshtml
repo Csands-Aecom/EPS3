@@ -2,11 +2,34 @@
     ViewData["Title"] = "UploadFile";
 }
 
-<title>Upload Attachment</title>
+<h3>Upload Attachment</h3>
 
 <form asp-controller="FileAttachments" asp-action="UploadFile" method="post" enctype="multipart/form-data">
+   <p> 
+       This upload is for Encumbrance #96
+        <input type="hidden" name="GroupID" id="GroupID" value="96" />
+   </p>
     <input type="file" name="FileToUpload" id="FileToUpload" />
     <button type="submit">Upload File</button>
 </form>
 <br />
-<label>Uploaded File: @ViewData["FilePath"]</label>
+<p><label>Uploaded File: @ViewData["FilePath"]</label></p>
+
+@if(ViewBag.Files != null)
+{
+    <table width="25%">
+    @foreach (FileAttachment file in ViewBag.Files)
+    {
+        var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
+        <tr name="file_@file.AttachmentID" id="file_@file.AttachmentID">
+            <td width="50px">
+                <a href="@url" target="_blank">@file.DisplayName</a>
+            </td>
+            <td width="25px">
+                <a href="javascript:deleteAttachment(@file.AttachmentID)">Delete</a>
+            </td>
+        </tr>
+    }
+    </table><br />
+    <span id="fileMessage" name="fileMessage"></span>
+}

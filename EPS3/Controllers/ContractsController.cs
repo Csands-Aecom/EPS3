@@ -67,6 +67,7 @@ namespace EPS3.Controllers
                     .Where(l => l.ContractID == id)
                     .Include(l => l.LastEditedUser)
                     .Include(l => l.OriginatorUser)
+                    .Include(l => l.FileAttachments)
                     .Include(l => l.LineItems).ThenInclude(li => li.OCA)
                     .Include(l => l.LineItems).ThenInclude(li => li.Category)
                     .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)

@@ -27,7 +27,7 @@ namespace EPS3.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-
+            ViewBag.Roles = _pu.GetUserRoles(GetLogin());
             ViewBag.UserIsAdmin = UserIsAdmin();
             return View(await _context.Users.Include(u => u.Roles).ToListAsync());
         }
@@ -73,7 +73,7 @@ namespace EPS3.Controllers
         {
             User user = GetCurrentUser();
 
-            if (GetRolesList(user).Contains(ConstantStrings.AdminRole))
+            if (UserIsAdmin())
             {
                 ViewBag.Roles = _pu.GetUserRoles(user.UserLogin);
                 return View();

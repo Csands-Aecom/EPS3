@@ -199,20 +199,20 @@
                 </dl>
             </div> <!-- end col-->
             <div class="col-sm-3">
-                @if (Model != null && Model.OriginatorUser != null && Model.OriginatorUser.FirstName != null)
+            @if (Model != null && Model.OriginatorUser != null && Model.OriginatorUser.FirstName != null)
             {
                 <span>
                     <strong>Originator:</strong> <a href="mailto:@Model.OriginatorUser.Email">@Model.OriginatorUser.FirstName @Model.OriginatorUser.LastName</a> (@Model.OriginatorUser.UserLogin) @Model.OriginatorUser.Phone<br />
                     @Model.OriginatedDate.ToShortDateString()
                 </span>
-        }
-        else
-        {
-            <span>
-                <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
-                @DateTime.Now.Date.ToShortDateString()
-            </span>
-        }
+            }
+            else
+            {
+                <span>
+                    <strong>Originator:</strong> <a href="mailto:@ViewBag.CurrentUser.Email">@ViewBag.CurrentUser.FirstName @ViewBag.CurrentUser.LastName</a> (@ViewBag.CurrentUser.UserLogin) @ViewBag.CurrentUser.Phone<br />
+                    @DateTime.Now.Date.ToShortDateString()
+                </span>
+            }
             </div> <!-- end col -->
         </div> <!-- end row-->
         <div class="row">
@@ -224,6 +224,23 @@
                     <dd>
                         @Html.TextAreaFor(model => model.Description, new { style = "width:100%", placeholder="Input a description of the encumbrance request." })
                     </dd>
+
+                    @if (ViewBag.Files != null && ViewBag.Files.Count > 0)
+                    {
+                        <dt>
+                            Attached Files
+                            <input type="hidden" name="AttachmentCount" id="AttachmentCount" value="@ViewBag.Files.Count"/>
+                        </dt>
+                        <dd>
+                            <ul>
+                            @foreach (FileAttachment file in ViewBag.Files)
+                            {
+                                var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
+                                <li><a href="@url" target="_blank">@file.DisplayName</a></li>
+                            }
+                            </ul>
+                        </dd>
+                    }
                 </dl>
             </div> <!-- end col-->
        
@@ -246,7 +263,6 @@
                 </dl>
             </div>
          <!-- end col-->
-
         </div> <!-- end row-->
         @if (ViewBag.AwardBanner != null && ViewBag.AwardBanner == true)
         {
@@ -291,7 +307,7 @@
                 </dl>
             </div> <!-- end col-->
             <div class="col-sm-2">
-                @if (Model.UserAssignedID != null)
+            @if (Model.UserAssignedID != null)
             {
                 <dl>
                     <dt>
@@ -302,8 +318,8 @@
                         @Html.DisplayFor(model => model.UserAssignedID)
                     </dd>
                 </dl>
-        }
-                @if (Model.AdvertisedDate != null)
+            }
+            @if (Model.AdvertisedDate != null)
             {
                 <dl>
                     <dt>
@@ -314,8 +330,8 @@
                         @Model.AdvertisedDate.Value.ToString("MM/dd/yyyy")
                     </dd>
                 </dl>
-        }
-                @if (Model.LettingDate != null)
+            }
+            @if (Model.LettingDate != null)
             {
                 <dl>
                     <dt>
@@ -326,8 +342,8 @@
                         @Model.LettingDate.Value.ToString("MM/dd/yyyy")
                     </dd>
                 </dl>
-        }
-                @if (Model.RenewalDate != null)
+            }
+            @if (Model.RenewalDate != null)
             {
                 <dl>
                     <dt>
@@ -338,10 +354,10 @@
                         @Model.RenewalDate.Value.ToString("MM/dd/yyyy")
                     </dd>
                 </dl>
-        }
+            }
             </div> <!-- end col-->
             <div class="col-sm-3">
-                @if (Model.FlairAmendmentID != null && Model.FlairAmendmentID.Length > 0)
+            @if (Model.FlairAmendmentID != null && Model.FlairAmendmentID.Length > 0)
             {
                 <dl>
                     <dt>
@@ -352,7 +368,7 @@
                         @Html.DisplayFor(model => model.FlairAmendmentID)
                     </dd>
                 </dl>
-        }
+            }
             </div> <!-- end col-->
         </div> <!-- end row-->
         <div class="row">
@@ -419,7 +435,13 @@
 
 <div id="ContractPanel" class="panel panel-default" style="display: none">
     <div class="panel-heading">
-        <h3 id="ContractTitle">Contract</h3>
+        <h3>
+            <span id="ContractTitle">Contract</span>
+            @if(ViewBag.Contract != null && ViewBag.Contract.CurrentStatus != null && ViewBag.Contract.CurrentStatus.Contains(ConstantStrings.Closed))
+            {
+            <font color="red">&nbsp;&nbsp;&nbsp;Closed</font>
+            }
+        </h3>
         <div class="float-right align-top paddingright" id="EditContractLink" name="EditContractLink">
             @if (Model == null
             || (@ViewBag.ContractID > 0 && ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
@@ -434,14 +456,13 @@
         @if (ViewBag.ActionItemTypes != null && Model != null && ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals("Complete"))
         {
             <div>
-                <a href="javascript:OpenCloseContractDialog(@ViewBag.Contract.ContractID, @ViewBag.Contract.ContractNumber, @ViewBag.Contract.CurrentStatus)">Close this contract</a>
+                <a href="javascript:OpenCloseContractDialog(@ViewBag.Contract.ContractID, '@ViewBag.Contract.ContractNumber', '@ViewBag.Contract.CurrentStatus')">Close this contract</a>
             </div>
         }
     </div>
     <div class="panel-body" id="ContractPanelBody">
     </div>
 </div>
-<form asp-action="Manage">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     @if (ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserID != null && ViewBag.CurrentUser.UserLogin != null)
     {
@@ -604,6 +625,43 @@
             @:<div class="panel panel-default"><h4>Purpose of funds:</h4> @Model.Description </div>
 
         }
+        @if (ViewBag.Roles.Contains(ConstantStrings.Originator) && (Model == null || Model.CurrentStatus.Equals(ConstantStrings.Draft)))
+        { 
+            <div class="panel panel-body" name="FileAttachments" id="FileAttachments">
+                <div class="row">
+                    <span id="AttachmentRequiredWarning" name="AttachmentRequiredWarning"></span>
+                    <input type="hidden" name="AttachmentIsRequired" id="AttachmentIsRequired" value="false" />
+                    <div class="col-sm-4" name="FlieAttachmentColumn" id="FlieAttachmentColumn">
+                        <h3>Upload Attachment</h3>
+                        <form asp-controller="FileAttachments" asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                            @if (Model != null)
+                            {<input type="hidden" name="fileGroupID" id="fileGroupID" value="@Model.GroupID" />}
+                            <input type="file" name="FileToUpload" id="FileToUpload" />
+                            <button type="button" name="uploadFileButton" id="uploadFileButton" onclick="javascript: uploadFile();">Upload File</button>
+                        </form>
+                        <br />
+                        @if (ViewBag.Files != null && ViewBag.Files.Count > 0)
+                        {
+                            <table width="25%" name="AttachedFilesTable" id="AttachedFilesTable">
+                                @foreach (FileAttachment file in ViewBag.Files)
+                                {
+                                    var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
+                                    <tr name="file_@file.AttachmentID" id="file_@file.AttachmentID">
+                                        <td width="50px">
+                                            <a href="@url" target="_blank">@file.DisplayName</a>
+                                        </td>
+                                        <td width="25px">
+                                            <a href="javascript:deleteAttachment(@file.AttachmentID)">Delete</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </table><br />
+                        }
+                        <span id="fileMessage" name="fileMessage"></span>
+                    </div>
+                </div>
+            </div>
+        }
         <div class="panel panel-body">
             <div class="col-sm-12">
                 <br />
@@ -689,4 +747,4 @@
         </div> <!-- end panel -->
     }
 
-</form>
+

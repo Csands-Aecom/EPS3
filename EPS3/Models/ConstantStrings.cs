@@ -46,10 +46,16 @@ namespace EPS3.Models
         public const string DraftToFinance = "DraftToFinance";
         public const string DraftToCFM = "DraftToCFM";
         public const string FinanceToDraft = "FinanceToDraft";
-        public const string CFMToDraft = "CFMToDraft";
         public const string FinanceToWP = "FinanceToWP";
+        public const string FinanceToCFM = "FinanceToCFM";
+        public const string FinanceToComplete = "FinanceToComplete";
+        public const string WPToFinance = "WPToFinance";
         public const string WPToCFM = "WPToCFM";
+        public const string CFMToDraft = "CFMToDraft";
+        public const string CFMToFinance = "CFMToFinance";
         public const string CFMToWP = "CFMToWP";
+        public const string CFMToComplete = "CFMToComplete";
+        public const string CompleteToDraft = "CompleteToDraft";
         public const string RequestClose = "RequestCloseContract";
         public const string CloseContract = "CloseContract";
 

@@ -103,6 +103,7 @@ namespace EPS3.Models
 
         [Display(Name = "Renewal Ending Date")]
         public DateTime? RenewalDate { get; set; }
+        public virtual List<FileAttachment> FileAttachments { get; set; }
 
     }
 }

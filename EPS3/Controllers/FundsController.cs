@@ -7,21 +7,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EPS3.DataContexts;
 using EPS3.Models;
+using EPS3.Helpers;
 
 namespace EPS3.Controllers
 {
     public class FundsController : Controller
     {
         private readonly EPSContext _context;
+        private PermissionsUtils _pu;
 
         public FundsController(EPSContext context)
         {
             _context = context;
+            _pu = new PermissionsUtils(context);
         }
 
         // GET: Funds
         public async Task<IActionResult> Index()
         {
+            ViewBag.Roles = _pu.GetUserRoles(GetLogin());
             return View(await _context.Funds.ToListAsync());
         }
 
@@ -46,6 +50,7 @@ namespace EPS3.Controllers
         // GET: Funds/Create
         public IActionResult Create()
         {
+            if (!UserIsAdmin()) { return RedirectToAction("Index", "Funds"); }
             return View();
         }
 
@@ -72,7 +77,7 @@ namespace EPS3.Controllers
             {
                 return NotFound();
             }
-
+            if (!UserIsAdmin()) { return RedirectToAction("Index", "Funds"); }
             var fund = await _context.Funds.FindAsync(id);
             if (fund == null)
             {
@@ -123,7 +128,7 @@ namespace EPS3.Controllers
             {
                 return NotFound();
             }
-
+            if (!UserIsAdmin()) { return RedirectToAction("Index", "Funds"); }
             var fund = await _context.Funds
                 .FirstOrDefaultAsync(m => m.FundID == id);
             if (fund == null)
@@ -148,6 +153,25 @@ namespace EPS3.Controllers
         private bool FundExists(int id)
         {
             return _context.Funds.Any(e => e.FundID == id);
+        }
+
+        private string GetLogin()
+        {
+            string userLogin = "";
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            {
+                userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
+            }
+            else
+            {
+                userLogin = HttpContext.User.Identity.Name;
+            }
+            return _pu.GetLogin(userLogin);
+        }
+
+        private bool UserIsAdmin() 
+        {
+            return _pu.GetUserRoles(GetLogin()).Contains(ConstantStrings.AdminRole);
         }
     }
 }

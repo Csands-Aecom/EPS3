@@ -621,9 +621,14 @@ function addDialogs() {
 
 function showHideButtons() {
     //if user has Admin role show Users link on hamburger menu
-    if ($("#UserRoles").length >0 && $("#UserRoles").val().indexOf("Admin") >= 0 && $("#UsersMenu").length === 0) {
+    if ($("#UserRoles").length > 0 && $("#UserRoles").val().indexOf("Admin") >= 0 && $("#UsersMenu").length === 0) {
         var usersMenu = "<li id='UsersMenu' name='UsersMenu'><a href='\\Users\\Index'>Users</a></li >";
-        $("#HamburgerMenu").append(usersMenu);      
+        $("#HamburgerMenu").append(usersMenu);
+        var fundsMenu = "<li id='FundsMenu' name='FundsMenu'><a href='\\Funds\\Index'>Funds</a></li >";
+        $("#HamburgerMenu").append(fundsMenu);
+        // No categories for now
+        //var categoriesMenu = "<li id='CategoriesMenu' name='CategoriesMenu'><a href='\\Catgories\\Index'>Catgories</a></li >";
+        //$("#HamburgerMenu").append(categoriesMenu);      
     }
 
     //collapse panels if not Originator
@@ -838,7 +843,8 @@ function closeContract(jsonString) {
         data: { closeContract: jsonString },
         success: function (data) {
             var results = JSON.parse(data);
-            
+            //redirect to List page
+            window.location.href = "/LineItemGroups/List";
         }
     });
 }
@@ -857,7 +863,11 @@ function displayLineItemsPanelOrMessage() {
     var groupID = $("#LineItemGroupID").val();
     if (groupID === "") { groupID = 0; }
     if (groupID > 0) {
-        $("#EncHeaderEncID").html("Encumbrance: <h4>" + groupID + "</h4>");
+        var icon = "";
+        if ($("#AttachmentCount").length > 0 && $("#AttachmentCount").val() !== undefined && $("#AttachmentCount").val() >0) {
+            icon = "<span class='glyphicon glyphicon-paperclip'></span>";
+        }
+        $("#EncHeaderEncID").html("Encumbrance: <h4>" + groupID + "&nbsp; &nbsp; &nbsp;" + icon + "</h4>");
     }
     var contractID = $("#ContractID").val();
 
@@ -1185,8 +1195,14 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             var notifyChecked = ""; // "checked";
             if (submitTo === "Draft") {
                 defaultComment = "Saved as Draft.";
+                if ($("#NoAttachmentComment").val() !== undefined && $("#NoAttachmentComment").val().length > 0) {
+                    defaultComment = "Missing Required File Attachment: " + $("#NoAttachmentComment").val();
+                }
             } else if (submitTo === "Finance") {
                 defaultComment = "Submitted to Finance.";
+                if ($("#NoAttachmentComment").val() !== undefined && $("#NoAttachmentComment").val().length > 0) {
+                    defaultComment = "Missing Required File Attachment: " + $("#NoAttachmentComment").val();
+                }
             } else if (submitTo === "Work Program") {
                 defaultComment = "Please review and approve for Work Program.";
             } else if (submitTo === "CFM") {
@@ -1248,7 +1264,9 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                     $("#ContractSelector").show();
                     $(this).dialog("close");
                     var commentJson = getSubmissionDetails();
+                    $.blockUI({message : "<h4>Submitting...</h4>", timeout : 5000});
                     SaveEncumbrance(commentJson);
+                    $.unblockUI();
                 }
             }
         },
@@ -2237,6 +2255,17 @@ function ValidateEncumbrance() {
         msg += "Please select or create a Contract. <br/>";
         isErrorFree = false;
     }
+    if ($("#AttachmentIsRequired").val() === "true") {
+        // If file attachment is required, verify at least one file is attached 
+        // Or a NoAttachmentComment is provided
+        // Capture the NoAttachmentComment and append it to the comment in the Submission dialog
+        if ($("#AttachmentCount").val() === undefined || parseInt($("#AttachmentCount").val()) === 0) {
+            if ($("#NoAttachmentComment").val() === undefined || $("#NoAttachmentComment").val().length < 1) {
+                msg += "A file attachment or explanation for a missing file attachment is required for an encumbrance request with a negative amount.";
+                isErrorFree = false;
+            }
+        }
+    }
 
     // use displayMessage() to show validation message.
     displaySubmitMessage(msg);
@@ -2503,9 +2532,10 @@ function setEncumbranceTotal() {
     var encumbranceTotal = formatCurrency(total);
     $("#EncumbranceTotal").html("<strong>Encumbrance Total: </strong>" + encumbranceTotal);
     $("#EncumbranceTotalAmount").html("<strong>Encumbrance Total: </strong>" + encumbranceTotal);
-    //if (total > 0) {
-        $("#EncHeaderEncAmount").html("Amount: <h4>" + encumbranceTotal + "</h4>");
-    //}
+    $("#EncHeaderEncAmount").html("Amount: <h4>" + encumbranceTotal + "</h4>");
+
+    updateRequireAttachment(total);
+
     var budgetCeiling = $("#BudgetCeiling").val();
     var compensation = $("#Compensation").val();
     var toggle = "hide";
@@ -2533,6 +2563,21 @@ function setContractAmountTotal() {
             $("#ContractAmountTotal").html("<strong>Contract Total: </strong>" + totalAmount);
         }
     });
+}
+
+function updateRequireAttachment(encumbranceTotal) {
+    // If encumbranceTotal is negative and request is in draft and current user has originator role
+    // then require a file attachment or an explanation why there is no file attachment
+    if (parseInt(encumbranceTotal) < 0 && $("#UserRoles").val().indexOf("Originator") >= 0 && $("#CurrentStatus").val() === "Draft") {
+        var warning = "<p><font color='red'>A file attachment is required for an encumbrance request for a negative amount.<br /> ";
+        warning += "Please attach a file or provide an explanation why no file is attached:</font></p> ";
+        warning += "<input type='text' id='NoAttachmentComment' name='NoAttachmentComment' />";
+        $("#AttachmentRequiredWarning").html(warning);
+        $("#AttachmentIsRequired").val("true");
+    } else {
+        $("#AttachmentRequiredWarning").html("");
+        $("#AttachmentIsRequired").val("false");
+    }
 }
 function toggleBudgetCeilingWarning(action) {
     // TODO: if contract requires a budget ceiling (Contract Funding in {3, 4, 5, 7}) 
@@ -2741,3 +2786,70 @@ function updateSearchAmountCheckboxes() {
         $("#IsContractAmount").val($("#ckContractAmount").is(":checked"));
     }
 }
+
+/***** File Attachment methods *****/
+function uploadFile() {
+    var uploadfile = $("#FileToUpload").get(0);
+    var files = uploadfile.files;
+    var formData = new FormData();
+    formData.append("FileToUpload", files[0]);
+    formData.append("fileGroupID", $("#LineItemGroupID").val());
+    //var request = new XMLHttpRequest();
+    //request.open("POST", "FileAttachments\\UploadNewFile");
+    $.ajax({
+        type: "POST",
+        url: '/FileAttachments/UploadFile',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: "json",
+        success: function (data, textStatus, jqXHR) {
+            var results = JSON.parse(data);
+            // add new row to FileAttachmentsTable
+            var fileID = results.fileID;
+            var fileURL = results.fileURL;
+            var fileName = results.fileName;
+            // if file attachments table is not present, add it
+            if ($("#AttachedFilesTable").length === undefined || $("#AttachedFilesTable").length === 0) {
+                var table = "<table width='25%' name='AttachedFilesTable' id='AttachedFilesTable'><tbody></tbody></table><br />";
+                $("#FlieAttachmentColumn").append(table);
+            }
+            var newRow = "<tr name='file_" + fileID + "' id='file_" + fileID + "'>";
+            newRow += "<td width='50px'><a href='" + fileURL + "' target='_blank'>" + fileName + "</a>";
+            newRow += "</td ><td width='25px'><a href='javascript:deleteAttachment(" + fileID + ")'>Delete</a></td></tr>";
+            $("#AttachedFilesTable").append(newRow);
+            $("#fileMessage").text("");
+            if($("#AttachmentCount").val() === undefined)
+            {
+                var attachmentCount = "<input type='hidden' name='AttachmentCount' id='AttachmentCount' value='0'/>";
+                $("#FlieAttachmentColumn").append(attachmentCount);
+            }
+            $("#AttachmentCount").val(parseInt($("#AttachmentCount").val()) + 1);
+        },
+        error: function (data, textStatus, jqXHR) {
+            //process error msg
+        },
+    });
+}
+
+function deleteAttachment(id) {
+    $.ajax({
+            autoFocus: true,
+            url: "/FileAttachments/Delete",
+            type: "POST",
+            dataType: "json",
+            data: { id: id },
+        success: function (data) {
+            //remove row from table of files
+            var results = JSON.parse(data);
+            var fileName = results.fileName;
+            $("#file_" + id).remove();
+            $("#fileMessage").html("File <em>" + fileName + "</em> deleted.");
+            $("#AttachmentCount").val(parseInt($("#AttachmentCount").val()) - 1);
+        },
+        error: function () {
+            $("#fileMessage").text("Unable to delete file.");
+        }
+    });
+}
+/***** End File Attachment methods *****/

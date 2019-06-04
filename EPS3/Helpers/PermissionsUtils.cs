@@ -274,6 +274,7 @@ namespace EPS3.Helpers
                     .Include(l => l.LastEditedUser)
                     .Include(l => l.OriginatorUser)
                     .Include(l => l.Contract)
+                    .Include(l => l.FileAttachments)
                     .Include(l => l.LineItems).ThenInclude(li => li.OCA)
                     .Include(l => l.LineItems).ThenInclude(li => li.Category)
                     .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)

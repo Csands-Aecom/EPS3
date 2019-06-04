@@ -11,6 +11,13 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <AspNetCoreModuleName>AspNetCoreModule</AspNetCoreModuleName>
+    <Copyright>Florida's Turnpike Enterprise 2019</Copyright>
+    <RepositoryUrl>https://github.com/Csands-Aecom/EPS3</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+    <Description>EPS is a web application for the Finance Department of Florida's Turnpike used to process encumbrance requests, that is designating money to be spent on approved contracts. The Finance Department processes records within Turnpike, then inputs them into the DOT Central Financial Management application (CFM).</Description>
+    <PackageReleaseNotes>This Application was written by Chris Sands for AECOM on a contract for Florida's Turnpike in 2018-2019.
+Full documentation is available through AECOM.
+Unanswerable questions related to this application can be directed to ctsands@gmail.com.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +27,7 @@
     <PackageReference Include="DotNetLogger" Version="1.0.0" />
     <PackageReference Include="EntityFramework" Version="6.2.0" />
     <PackageReference Include="EntityFramework.CodeFirst" Version="1.0.7" />
+    <PackageReference Include="jQuery.BlockUI" Version="2.70.0" />
     <PackageReference Include="jquery.datatables" Version="1.10.15" />
     <PackageReference Include="jquery.validate.bootstrap" Version="1.0.0.2" />
     <PackageReference Include="jQuery.Validation" Version="1.17.0" />
@@ -40,7 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DAO\" />
     <Folder Include="wwwroot\video\" />
   </ItemGroup>
 
