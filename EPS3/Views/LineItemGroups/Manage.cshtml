@@ -486,13 +486,13 @@
     @{
         var hideStyle = "display:none";
         var lineStyle = (@ViewBag.LineItemCount > 0) ? "" : hideStyle;
-        <div class="panel panel-default" id="LineItemsPanel" name="LineItemsPanel" style=@lineStyle>
+        <div class="panel panel-default" id="LineItemsPanel" name="LineItemsPanel" style=@lineStyle >
             <div class="panel-heading">
                 <h3>Financial Information</h3>
                 <div id="LineItemsToggleDiv"><a href="javascript:toggleLineItemsPanel()">Collapse</a></div>
-            </div> <!-- end panel-heading -->
+            </div> <!-- end panel-heading -->   
             <div class="panel-body" id="LineItemsPanelBody" name="LineItemsPanelBody">
-                @if (Model == null
+            @if (Model == null
               || ((@ViewBag.Roles.Contains(ConstantStrings.Originator) && Model.CurrentStatus.Equals(ConstantStrings.Draft))
               || (@ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
               || (@ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter) && Model.CurrentStatus.Equals(ConstantStrings.CFMReady))
@@ -626,8 +626,8 @@
 
         }
         @if (ViewBag.Roles.Contains(ConstantStrings.Originator) && (Model == null || Model.CurrentStatus.Equals(ConstantStrings.Draft)))
-        { 
-            <div class="panel panel-body" name="FileAttachments" id="FileAttachments">
+        {
+            <div class="panel panel-body" name="FileAttachmentsPanel" id="FileAttachmentsPanel" @if (Model == null || Model.GroupID == 0) { @hideStyle }>
                 <div class="row">
                     <span id="AttachmentRequiredWarning" name="AttachmentRequiredWarning"></span>
                     <input type="hidden" name="AttachmentIsRequired" id="AttachmentIsRequired" value="false" />
@@ -746,5 +746,3 @@
             </div>
         </div> <!-- end panel -->
     }
-
-

@@ -706,9 +706,13 @@ function showHideButtons() {
     $("#noButtonDiv").show();
 
     // show LineItemsPanel if the contract is selected
-
     if (($("#ContractID").val() && $("#ContractID").val() > 0) && ($("#LineItemGroupID").val() && $("#LineItemGroupID").val() > 0)) {
         $("#LineItemsPanel").show();
+
+        // show FileAttachmentsPanel if it exists
+        if ($("#FileAttachmentsPanel").length !== undefined && $("#FileAttachmentsPanel").length > 0) {
+            $("#FileAttachmentsPanel").show()
+        }
     }
     // ContractSelector is showing when modal is open, so I explicitly show and hide it when LineItemDialog is opened/closed
     $("#LineItemDialog").on('dialogclose', function (event) {
@@ -878,6 +882,9 @@ function displayLineItemsPanelOrMessage() {
         && encumbranceType.length > 0 && encumbranceType !== "None"
         && groupID > 0) {
         $("#LineItemsPanel").show();
+        if ($("#FileAttachmentsPanel").length !== undefined && $("#FileAttachmentsPanel").length > 0) {
+            $("#FileAttachmentsPanel").show()
+        }
         showHideButtons();
     } else {
         $("#messageSpan").text("Click \"Input Financial Information\" to open Financial Information panel.");
@@ -1878,6 +1885,10 @@ function SaveContractModal() {
             $("#ContractID").val(result.ContractID);
             if ($("#ContractID").val() && $("#ContractID").val() > 0 && $("#LineItemGroupID").val() && $("#LineItemGroupID").val() > 0) {
                 $("#LineItemsPanel").show();
+                // show FileAttachmentsPanel if it exists
+                if ($("#FileAttachmentsPanel").length !== undefined && $("#FileAttachmentsPanel").length > 0) {
+                    $("#FileAttachmentsPanel").show()
+                }
             }
         }
     });
@@ -2794,8 +2805,7 @@ function uploadFile() {
     var formData = new FormData();
     formData.append("FileToUpload", files[0]);
     formData.append("fileGroupID", $("#LineItemGroupID").val());
-    //var request = new XMLHttpRequest();
-    //request.open("POST", "FileAttachments\\UploadNewFile");
+
     $.ajax({
         type: "POST",
         url: '/FileAttachments/UploadFile',
