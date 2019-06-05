@@ -511,17 +511,7 @@ function addDialogs() {
             }
         }
     });
-
-    // add FileAttachment dialog link
-    $('#fileAttachmentDialog').dialog({
-        autoOpen: false,
-        height: 400,
-        width: 800
-    });
-    $('#addFileAttachmentLink').click(function () {
-        $('#fileAttachmentDialog').dialog("open");
-    });
-
+    
     // add Vendor dialog link
     $('#addVendorDialog').dialog({
         autoOpen: false,
@@ -883,7 +873,7 @@ function displayLineItemsPanelOrMessage() {
         && groupID > 0) {
         $("#LineItemsPanel").show();
         if ($("#FileAttachmentsPanel").length !== undefined && $("#FileAttachmentsPanel").length > 0) {
-            $("#FileAttachmentsPanel").show()
+            $("#FileAttachmentsPanel").show();
         }
         showHideButtons();
     } else {
@@ -1357,15 +1347,6 @@ function getSubmissionValidation() {
     return valid;
 }
 
-function openFileAttachmentDialog() {
-    $("#fileAttachmentDialog").dialog("open");
-}
-function addFileAttachment() {
-    // make sure all values are populated
-    // submit to /ContractStatus/Create controller
-    $("FileAttachmentForm").submit();
-    // close dialog and return focus to /Contracts/Edit
-}
 
 function toggleDiv(divID, linkID) {
     $("#" + divID).toggle();
@@ -1417,10 +1398,6 @@ function toggleLineItemsPanel() {
     }
 }
 
-function openAttachment(filename) {
-    // TODO: retrieve the file
-    // let the browser open or download the attachment
-}
 function submitEncumbrance(groupID, newStatus) {
     var userID = $("#Contract_UserID").val();
     var userName = $("#UserName_" + groupID).val();
@@ -2579,7 +2556,9 @@ function setContractAmountTotal() {
 function updateRequireAttachment(encumbranceTotal) {
     // If encumbranceTotal is negative and request is in draft and current user has originator role
     // then require a file attachment or an explanation why there is no file attachment
-    if (parseInt(encumbranceTotal) < 0 && $("#UserRoles").val().indexOf("Originator") >= 0 && $("#CurrentStatus").val() === "Draft") {
+    if (parseInt(encumbranceTotal) < 0 && $("#UserRoles").val().indexOf("Originator") >= 0
+        && ($("#CurrentStatus").val() === "Draft" || $("#CurrentStatus").val() === "New"))
+    {
         var warning = "<p><font color='red'>A file attachment is required for an encumbrance request for a negative amount.<br /> ";
         warning += "Please attach a file or provide an explanation why no file is attached:</font></p> ";
         warning += "<input type='text' id='NoAttachmentComment' name='NoAttachmentComment' />";

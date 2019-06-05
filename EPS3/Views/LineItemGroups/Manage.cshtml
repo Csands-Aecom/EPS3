@@ -625,42 +625,42 @@
             @:<div class="panel panel-default"><h4>Purpose of funds:</h4> @Model.Description </div>
 
         }
-        @if (ViewBag.Roles.Contains(ConstantStrings.Originator) && (Model == null || Model.CurrentStatus.Equals(ConstantStrings.Draft)))
+       @if (ViewBag.Roles.Contains(ConstantStrings.Originator) && (Model == null || Model.CurrentStatus.Equals(ConstantStrings.Draft)))
         {
-            <div class="panel panel-body" name="FileAttachmentsPanel" id="FileAttachmentsPanel" @if (Model == null || Model.GroupID == 0) { @hideStyle }>
-                <div class="row">
-                    <span id="AttachmentRequiredWarning" name="AttachmentRequiredWarning"></span>
-                    <input type="hidden" name="AttachmentIsRequired" id="AttachmentIsRequired" value="false" />
-                    <div class="col-sm-4" name="FlieAttachmentColumn" id="FlieAttachmentColumn">
-                        <h3>Upload Attachment</h3>
-                        <form asp-controller="FileAttachments" asp-action="UploadFile" method="post" enctype="multipart/form-data">
-                            @if (Model != null)
-                            {<input type="hidden" name="fileGroupID" id="fileGroupID" value="@Model.GroupID" />}
-                            <input type="file" name="FileToUpload" id="FileToUpload" />
-                            <button type="button" name="uploadFileButton" id="uploadFileButton" onclick="javascript: uploadFile();">Upload File</button>
-                        </form>
-                        <br />
-                        @if (ViewBag.Files != null && ViewBag.Files.Count > 0)
-                        {
-                            <table width="25%" name="AttachedFilesTable" id="AttachedFilesTable">
-                                @foreach (FileAttachment file in ViewBag.Files)
-                                {
-                                    var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
-                                    <tr name="file_@file.AttachmentID" id="file_@file.AttachmentID">
-                                        <td width="50px">
-                                            <a href="@url" target="_blank">@file.DisplayName</a>
-                                        </td>
-                                        <td width="25px">
-                                            <a href="javascript:deleteAttachment(@file.AttachmentID)">Delete</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </table><br />
-                        }
-                        <span id="fileMessage" name="fileMessage"></span>
-                    </div>
+        <div class='panel panel-body' name='FileAttachmentsPanel' id='FileAttachmentsPanel'  @if (Model == null || Model.GroupID == 0) {@Html.Raw("style='display : none'");}>
+            <div class="row">
+                <span id="AttachmentRequiredWarning" name="AttachmentRequiredWarning"></span>
+                <input type="hidden" name="AttachmentIsRequired" id="AttachmentIsRequired" value="false" />
+                <div class="col-sm-4" name="FlieAttachmentColumn" id="FlieAttachmentColumn">
+                    <h3>Upload Attachment</h3>
+                    <form asp-controller="FileAttachments" asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                        @if (Model != null)
+                        {<input type="hidden" name="fileGroupID" id="fileGroupID" value="@Model.GroupID" />}
+                        <input type="file" name="FileToUpload" id="FileToUpload" />
+                        <button type="button" name="uploadFileButton" id="uploadFileButton" onclick="javascript: uploadFile();">Upload File</button>
+                    </form>
+                    <br />
+                    @if (ViewBag.Files != null && ViewBag.Files.Count > 0)
+                    {
+                        <table width="25%" name="AttachedFilesTable" id="AttachedFilesTable">
+                            @foreach (FileAttachment file in ViewBag.Files)
+                            {
+                                var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
+                                <tr name="file_@file.AttachmentID" id="file_@file.AttachmentID">
+                                    <td width="50px">
+                                        <a href="@url" target="_blank">@file.DisplayName</a>
+                                    </td>
+                                    <td width="25px">
+                                        <a href="javascript:deleteAttachment(@file.AttachmentID)">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </table><br />
+                    }
+                    <span id="fileMessage" name="fileMessage"></span>
                 </div>
             </div>
+        </div>
         }
         <div class="panel panel-body">
             <div class="col-sm-12">
