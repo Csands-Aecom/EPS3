@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EPS3.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,12 +68,12 @@ namespace EPS3.Models
                 this.FormattedServiceEndingDate = "none";
             }
 
-                this.FormattedContractInitialAmount = contract.ContractTotal.ToString("C", System.Globalization.CultureInfo.CurrentCulture);
+            this.FormattedContractInitialAmount = Utils.FormatCurrency(contract.ContractTotal);
 
-                this.FormattedMaxLoaAmount = contract.MaxLoaAmount.ToString("C", System.Globalization.CultureInfo.CurrentCulture);
-                this.BudgetCeiling = contract.BudgetCeiling;
+            this.FormattedMaxLoaAmount = Utils.FormatCurrency(contract.MaxLoaAmount);
+            this.BudgetCeiling = contract.BudgetCeiling;
 
-                this.FormattedBudgetCeiling = contract.BudgetCeiling.ToString("C", System.Globalization.CultureInfo.CurrentCulture);
+            this.FormattedBudgetCeiling = Utils.FormatCurrency(contract.BudgetCeiling);
 
             if (contract.IsRenewable >0)
             {

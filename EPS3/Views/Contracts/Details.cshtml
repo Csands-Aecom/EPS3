@@ -3,15 +3,11 @@
 @{
     ViewData["Title"] = "Details";
 }
-<script>
-    @{      
-        decimal SumTotalAmount = @Model.Contract.ContractTotal + @ViewBag.ContractAmount;
-    }
-</script>
+
 <div class="container-fluid">
     <div class="panel panel-default" data-toggle="collapse" aria-expanded="true" id="contractPanel" name="contractPanel">
         <div class="panel-heading" id="contractPanelHead" name="contractPanelHead">
-            <h3>
+            <h3 id="ContractTitle" name="ContractTitle">
                 Contract - @Html.DisplayFor(model => model.Contract.ContractNumber)
                 @if(Model.Contract.CurrentStatus.Contains(ConstantStrings.Closed))
                 {
@@ -31,7 +27,7 @@
                 <div class="col-sm-2">
                     @if (@ViewBag.CanClose != null && @ViewBag.CanClose == true)
                     {
-                        <a href="javascript:OpenCloseContractDialog(@Model.Contract.ContractID, '@Model.Contract.ContractNumber', '@Model.Contract.CurrentStatus')">Close this contract</a>
+                        <span id="CloseContractLink" name="CloseContractLink"><a href="javascript:OpenCloseContractDialog(@Model.Contract.ContractID, '@Model.Contract.ContractNumber', '@Model.Contract.CurrentStatus')">Close this contract</a></span>
                         <div id="CloseContractDialog" name="CloseContractDialog"></div>
                     }
                 </div>
@@ -77,7 +73,7 @@
                             @Html.DisplayNameFor(model => model.Contract.ContractTotal)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.Contract.ContractTotal)
+                            @Html.DisplayFor(model => model.Contract.ContractTotalString)
                         </dd>
                     </dl>
                     <dl>
@@ -85,7 +81,7 @@
                             @Html.DisplayNameFor(model => model.Contract.MaxLoaAmount)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.Contract.MaxLoaAmount)
+                            @Html.DisplayFor(model => model.Contract.MaxLoaAmountString)
                         </dd>
                     </dl>
                     <dl>
@@ -93,7 +89,7 @@
                             @Html.DisplayNameFor(model => model.Contract.BudgetCeiling)
                         </dt>
                         <dd>
-                            @Html.DisplayFor(model => model.Contract.BudgetCeiling)
+                            @Html.DisplayFor(model => model.Contract.BudgetCeilingString)
                         </dd>
                     </dl>
                     <dl>
@@ -101,7 +97,7 @@
                             Total of Encumbrance Requests
                         </dt>
                         <dd>
-                            <b style="font-size: 1.2em;"> @string.Format("{0:C}" ,@ViewBag.ContractAmount)</b>
+                            <b style="font-size: 1.2em;"> @ViewBag.ContractAmount</b>
                         </dd>
                     </dl>
                 </div>
@@ -240,7 +236,7 @@
                     </div>
                     <div class="col-sm-2">
                         <label for="encumbranceAmount_@encumbrance.GroupID">Amount:</label>
-                        $@ViewBag.GroupAmounts[encumbrance.GroupID].ToString("#,##0.00")
+                        @ViewBag.GroupAmounts[encumbrance.GroupID]
                     </div>
                     @if (encumbrance.UserAssignedID != null && encumbrance.UserAssignedID.Length > 0)
                     {
@@ -289,6 +285,12 @@
                                         <th>
                                             Comment
                                         </th>
+                                        <th>
+                                            Item Reduced
+                                        </th>
+                                        <th>
+                                            Amount Reduced
+                                        </th>
                                     </tr>
                                     @foreach (LineItemGroupStatus status in encumbrance.Statuses)
                                     {
@@ -304,6 +306,12 @@
                                             </td>
                                             <td>
                                                 @status.Comments
+                                            </td>
+                                            <td>
+                                                @status.ItemReduced
+                                            </td>
+                                            <td>
+                                                @status.AmountReduced
                                             </td>
                                         </tr>
                                     }
@@ -408,12 +416,12 @@
                                             <span id="ExpansionObject" name="ExpansionObject">@item.ExpansionObject</span>
                                         </td>
                                         <td>
-                                            <span id="Amount" name="Amount">@item.Amount.ToString("C")</span>
+                                            <span id="Amount" name="Amount">@item.AmountString</span>
                                         </td>
                                         <td>
                                             @if ((ViewBag.Roles.Contains(ConstantStrings.Originator)
-                            && @ViewBag.CurrentUser.UserID == Model.Contract.UserID)
-                            && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
+                                                && @ViewBag.CurrentUser.UserID == Model.Contract.UserID)
+                                                && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
                                             {
                                                 <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a> <br />
                                             }

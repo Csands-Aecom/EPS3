@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using EPS3.DataContexts;
 using EPS3.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols;
 using Serilog;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace EPS3.Helpers
 {
@@ -19,13 +19,15 @@ namespace EPS3.Helpers
         private SmtpConfig _smtpConfig { get; }
         private string _serverpath;
         private PermissionsUtils _pu;
+        private readonly ILogger _logger;
 
-        public MessageService(EPSContext context, SmtpConfig smtpConfig, string url)
+        public MessageService(EPSContext context, SmtpConfig smtpConfig, ILogger callingLogger, string url)
         {
             _context = context;
             _smtpConfig = smtpConfig;
             _serverpath = url;
-            _pu = new PermissionsUtils(context);
+            _logger = callingLogger;
+            _pu = new PermissionsUtils(_context, _logger);
             //_logger = logger;
         }
 
@@ -37,7 +39,8 @@ namespace EPS3.Helpers
         {
             encumbrance = _pu.GetDeepEncumbrance(encumbrance.GroupID);
             int msgID = 0;
-            List<int> recipientIDs = null;
+            List<int> recipientIDs = null;  // list of IDs of email recipients
+            List<int> ccIDs = null; // list of IDs used for carbon copy of a sent email
             decimal encumbranceTotal = 0.0M;
             //string contractViewURL = _serverpath + "/Contracts/View/" + encumbrance.ContractID + "/enc_" + encumbrance.GroupID;
             string contractViewURL = _serverpath + "/LineItemGroups/Manage/" + encumbrance.GroupID;
@@ -57,10 +60,19 @@ namespace EPS3.Helpers
                 {
                     case ConstantStrings.DraftToFinance:
                         msg.Subject = "Encumbrance Request# " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been submitted for Finance Review";
-                        msg.Body = "<p>Please process the following encumbrance request: ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " in the amount of $" + encumbranceTotal.ToString("N2") + ".</p>\n";
-
+                        msg.Body = "<p>Please process the following encumbrance request: ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " in the amount of " + Utils.FormatCurrency(encumbranceTotal) + ".</p>\n";
                         if (comments != null && comments.Length > 0)
                         { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
+                        if(encumbrance.FileAttachments != null && encumbrance.FileAttachments.Count > 0)
+                        {
+                            msg.Body += "File Attachments:<br/><ul>";
+                            foreach(FileAttachment fileAtt in encumbrance.FileAttachments)
+                            {
+                                var fileUrl = _serverpath + "\\" + FileAttachment.UserFilesPath + "\\" + fileAtt.FileName;
+                                msg.Body += "<li><a href='" + fileUrl + "'>" + fileAtt.DisplayName + "</a></li>";
+                            }
+                            msg.Body += "</ul>";
+                        }
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
                         // Send only to TPK Encumbrance mailbox
@@ -69,12 +81,12 @@ namespace EPS3.Helpers
                     case ConstantStrings.DraftToCFM:
                         msg.Subject = "Encumbrance Request# " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " for " + encumbrance.LineItemType;
                         msg.Body = "<p>Please input the following encumbrance into CFM: request ID " + encumbrance.GroupID + " for contract " + contract.ContractNumber + ".</p>\n";
-                        //msg.Body += "in the amount of $" + encumbranceTotal + " applied to Amendment " + encumbrance.FlairAmendmentID + " Line " + encumbrance.LineID6S + ".";
+                        //msg.Body += "in the amount of " + Utils.FormatCurrency(encumbranceTotal)  + " applied to Amendment " + encumbrance.FlairAmendmentID + " Line " + encumbrance.LineID6S + ".";
                         if (encumbrance.LineItems != null && encumbrance.LineItems.Count > 0) {
                             string tblText = "<table><tr><th>Contract</th><th>Amendment</th><th>Line (6s)</th><th>Amount</th></tr>";
                             foreach (LineItem item in encumbrance.LineItems)
                             {
-                                tblText += "<tr><td>" + contract.ContractNumber + "</td><td>" + item.FlairAmendmentID + "</td><td>" + item.LineID6S + "</td><td>$" + item.Amount.ToString("N2") + "</td></tr>";
+                                tblText += "<tr><td>" + contract.ContractNumber + "</td><td>" + item.FlairAmendmentID + "</td><td>" + item.LineID6S + "</td><td>" + Utils.FormatCurrency(item.Amount) + "</td></tr>";
                             }
                             tblText += "</table> <br/>";
                             msg.Body += tblText;
@@ -108,8 +120,8 @@ namespace EPS3.Helpers
                         break;
                     case ConstantStrings.FinanceToCFM:
                     case ConstantStrings.FinanceToComplete:
-                        // No notification required.
-                        break;
+                        // No notification required. Exit without sendind message
+                        return 0;
                     case ConstantStrings.WPToFinance:
                         msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned by Work Program";
                         msg.Body = "<p>" + submitter.FullName + " has completed a Work Program review for encumbrance request #" + encumbrance.GroupID + " under contract " + contract.ContractNumber + ".</p>\n";
@@ -165,11 +177,14 @@ namespace EPS3.Helpers
                         msg.Body = "<p>" + submitter.FullName + " requests closure of the contract " + contract.ContractNumber + ", closure type " + encumbrance.LineItemType + " </p>";
                         //msg.Body += "<p>Review this closure request in the <a href='" + contractViewURL + "'>" + "EPS Application</a>.</p>";
                         recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.Closer)).Select(u => u.UserID).ToList();
+                        ccIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.CloserCC)).Select(u => u.UserID).ToList();
                         break;
                     default:
-                        break;
+                        // if no message then exit
+                        return 0;
                 }
                 // Save the message to the database
+
                 try
                 {
                     _context.Messages.Add(msg);
@@ -182,6 +197,10 @@ namespace EPS3.Helpers
                     else
                     {
                         AddRecipients(msgID, recipientIDs);
+                    }
+                    if(ccIDs != null && ccIDs.Count > 0)
+                    {
+                        AddCCs(msgID, ccIDs);
                     }
                 }catch(Exception e)
                 {
@@ -273,7 +292,7 @@ namespace EPS3.Helpers
                 else
                 {
                     contractInfo += "<strong>Contract: </strong>" + contract.ContractNumber + "<br/>";
-                    contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br/>";
+                    contractInfo += "<strong>Contract Initial Amount:</strong> " + Utils.FormatCurrency(contract.ContractTotal) + "<br/>";
                     //TODO: What other contract information should be included in the email receipt?
                 }
                 List<LineItem> lineItems = _pu.GetDeepLineItems(encumbrance.GroupID);
@@ -285,6 +304,16 @@ namespace EPS3.Helpers
                 {
                     linesInfo += GetLineItemsInfo(lineItems);
                 }
+            }
+            if (encumbrance.FileAttachments != null && encumbrance.FileAttachments.Count > 0)
+            {
+                body += "File Attachments:<br/><ul>";
+                foreach (FileAttachment fileAtt in encumbrance.FileAttachments)
+                {
+                    var fileUrl = _serverpath + "\\" + FileAttachment.UserFilesPath + "\\" + fileAtt.FileName;
+                    body += "<li><a href='" + fileUrl + "'>" + fileAtt.DisplayName + "</a></li>";
+                }
+                body += "</ul>";
             }
             body += contractInfo + "<br/>" + encumbranceInfo + "<br/>" + linesInfo + "<br/><br/>";
             body += "You can review your encumbrance request at <a href='" + url +"'> Encumbrance " + encumbrance.GroupID + "</a>";
@@ -305,7 +334,8 @@ namespace EPS3.Helpers
                 MessageRecipient msgRecipient = new MessageRecipient
                 {
                     MessageID = msgID,
-                    UserID = user.UserID
+                    UserID = user.UserID,
+                    IsCC = 0
                 };
                 _context.MessageRecipients.Add(msgRecipient);
                 _context.SaveChanges();
@@ -317,7 +347,37 @@ namespace EPS3.Helpers
             List<User> users = _context.Users.Where(Utils.BuildOrExpression<User, int>(u => u.UserID, recipientIDs.ToArray<int>())).ToList();
             AddRecipients(msgID, users);
         }
+        public void AddCCs(int msgID, IEnumerable<int> ccIDs)
+        {
+            foreach (int userID in ccIDs)
+            {
+                AddCC(msgID, userID);
+            }
+        }
+        public void AddCCs(int msgID, IEnumerable<User> ccList)
+        {
+            foreach (User u in ccList) {
+                AddCC(msgID, u.UserID);
+            }
+        }
 
+        public void AddCC(int msgID, int userID)
+        {
+            try
+            {
+                MessageRecipient ccrecip = new MessageRecipient
+                {
+                    MessageID = msgID,
+                    UserID = userID,
+                    IsCC = 1
+                };
+                _context.MessageRecipients.Add(ccrecip);
+                _context.SaveChanges();
+            }catch(Exception e)
+            {
+                Log.Error("MessageService.AddCC Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+            }
+        }
         public void SendClosingRequest(ContractClosure closure, User submitter)
         {
             int groupID = (closure.LineItemGroupID != null && !closure.LineItemGroupID.Equals("undefined"))? int.Parse(closure.LineItemGroupID) : 0;
@@ -348,10 +408,13 @@ namespace EPS3.Helpers
             {
                 _context.Messages.Add(msg);
                 _context.SaveChanges();
-                
+
                 //add Closer(s) as recipient(s)
                 List<int> recipientIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.Closer)).Select(u => u.UserID).ToList();
                 AddRecipients(msg.MessageID, recipientIDs);
+                //add CloserCC(s) as cc(s)
+                List<int> ccIDs = (List<int>)_context.UserRoles.Where(u => u.Role.Equals(ConstantStrings.CloserCC)).Select(u => u.UserID).ToList();
+                AddCCs(msg.MessageID, ccIDs);
                 SendEmailMessage(msg.MessageID);
             }
 
@@ -368,19 +431,36 @@ namespace EPS3.Helpers
                 if (msgID == 0) { return; }
                 Message msg = _context.Messages.AsNoTracking()
                     .Include(m => m.FromUser)
-                    .Include(m => m.Recipients)
                     .SingleOrDefault(m => m.MessageID == msgID);
+
                 List<User> recipients = new List<User>();
-                foreach (MessageRecipient recip in msg.Recipients)
+                List<User> ccs = new List<User>();
+                List<MessageRecipient> msgRecipients = _context.MessageRecipients
+                    .AsNoTracking()
+                    .Include(m => m.User)
+                    .Where(m => m.MessageID == msg.MessageID && m.IsCC == 0)
+                    .ToList();
+                List<MessageRecipient> msgCCs = _context.MessageRecipients
+                    .AsNoTracking()
+                    .Include(m => m.User)
+                    .Where(m => m.MessageID == msg.MessageID && m.IsCC == 1)
+                    .ToList();
+                foreach (MessageRecipient recip in msgRecipients)
                 {
-                    User user = _context.Users.AsNoTracking()
-                        .SingleOrDefault(u => u.UserID == recip.UserID);
-                    if (user.Email != null && user.Email.Length > 0 && user.ReceiveEmails > 0)
+                    if (recip.User.Email != null && recip.User.Email.Length > 0 && recip.User.IsDisabled==0)
                     {
-                        recipients.Add(user);
+                        recipients.Add(recip.User);
                     }
                 }
-                SendMail(msg, recipients);
+
+                foreach (MessageRecipient cc in msgCCs)
+                {
+                    if (cc.User.Email != null && cc.User.Email.Length > 0 && cc.User.IsDisabled == 0)
+                    {
+                        ccs.Add(cc.User);
+                    }
+                }
+                SendMail(msg, recipients, ccs);
             }catch(Exception e)
             {
                 Log.Error("MessageService.SendEmailMessage Error:" + e.GetBaseException() + "\n" + e.StackTrace);
@@ -389,17 +469,10 @@ namespace EPS3.Helpers
 
         public void SendErrorNotification(string errorInfo)
         {
-            List<MessageRecipient> adminRecipients = new List<MessageRecipient>();
             List<User> AdminUsers = _context.Users
                 .Include(u => u.Roles.Where(r => r.Role == ConstantStrings.AdminRole))
                 .ToList();
-            //foreach (User admin in AdminUsers)
-            //{
-            //    MessageRecipient recip = new MessageRecipient(admin);
-            //    adminRecipients.Add(recip);
-            //}
-            User adminUser = _context.Users.AsNoTracking().SingleOrDefault(u => u.UserLogin.Equals("KNAECCS"));
-            adminRecipients.Add(new MessageRecipient(adminUser));
+
             Message msg = new Message()
             {
                 FromUser = new User()
@@ -415,10 +488,14 @@ namespace EPS3.Helpers
                 Body = "An error was recorded in the application: " + errorInfo,
                 MessageDate = DateTime.Now
             };
+            _context.Messages.Add(msg);
+            _context.SaveChanges();
+            msg.AddRecipients(AdminUsers);
+            SendEmailMessage(msg.MessageID);
         }
         
 
-        public void SendMail(Message msg, List<User> recipients)
+        public void SendMail(Message msg, List<User> recipients, List<User> ccs)
         {
             string mailPrefix = "";
             try
@@ -430,7 +507,7 @@ namespace EPS3.Helpers
             {
                 mailPrefix = "EPS Test";
             }
-            try { 
+            try {
                 MailAddress sender = new MailAddress(msg.FromUser.Email, msg.FromUser.FullName);
                 MailMessage mail = new MailMessage(){
                     From = sender,
@@ -442,6 +519,14 @@ namespace EPS3.Helpers
                 {
                     mail.To.Add(new MailAddress(user.Email, user.FullName));
                 }
+                if (ccs != null)
+                {
+                    foreach (User user in ccs)
+                    {
+                        mail.CC.Add(new MailAddress(user.Email, user.FullName));
+                    }
+                }
+
                 SmtpClient client = new SmtpClient
                 {
                     Port = _smtpConfig.Port,   // Turnpike: 25, Aecom: 23
@@ -471,9 +556,9 @@ namespace EPS3.Helpers
             contractInfo += "<strong>Contract Type:</strong> " + contract.ContractType.ContractTypeSelector + "<br />";
             string canRenew = contract.IsRenewable > 0 ? "Yes" : "No";
             contractInfo += "<strong>Is Contract Renewable?:</strong> " + canRenew + "<br />";
-            contractInfo += "<strong>Contract Initial Amount:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(contract.ContractTotal.ToString())) + "<br />";
-            contractInfo += "<strong>Maximum LOA Amount:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(contract.MaxLoaAmount.ToString())) + "<br />";
-            contractInfo += "<strong>Budget Ceiling:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(contract.BudgetCeiling.ToString()))  + "<br />";
+            contractInfo += "<strong>Contract Initial Amount:</strong> " + Utils.FormatCurrency(contract.ContractTotal) + "<br />";
+            contractInfo += "<strong>Maximum LOA Amount:</strong> " + Utils.FormatCurrency(contract.MaxLoaAmount) + "<br />";
+            contractInfo += "<strong>Budget Ceiling:</strong> " + Utils.FormatCurrency(contract.BudgetCeiling)  + "<br />";
             contractInfo += "<strong>Contract Begin Date:</strong> " + contract.BeginningDate.ToString("MM/dd/yyyy") + "<br />";
             contractInfo += "<strong>Contract End Date:</strong> " + contract.EndingDate.ToString("MM/dd/yyyy") + "<br />";
             if (contract.ServiceEndingDate != null && contract.ServiceEndingDate > new DateTime(2000, 01, 01))
@@ -494,7 +579,7 @@ namespace EPS3.Helpers
             string encumbranceInfo = "";
             encumbranceInfo += "<strong>Encumbrance Type:</strong> " + encumbrance.LineItemType + "<br />";
             encumbranceInfo += "<strong>Status:</strong> " + encumbrance.CurrentStatus + "<br />";
-            encumbranceInfo += "<strong>Encumbrance Total:</strong> $" + string.Format("{0:#,##0}", Convert.ToDecimal(encumbranceTotal.ToString())) + "<br />";
+            encumbranceInfo += "<strong>Encumbrance Total:</strong> " + Utils.FormatCurrency(encumbranceTotal) + "<br />";
             encumbranceInfo += "<strong>Description: </strong> " + encumbrance.Description + "<br />";
             if (encumbrance.LineID6S != null && encumbrance.LineID6S != "")
             {
@@ -552,7 +637,7 @@ namespace EPS3.Helpers
                 linesInfo += "<td>" + item.OCA.OCACode + "</td>";
                 linesInfo += "<td>" + item.StateProgram.ProgramCode + "</td>";
                 linesInfo += "<td>" + item.ExpansionObject + "</td>";
-                linesInfo += "<td>$" + string.Format("{0:#,##0}", Convert.ToDecimal(item.Amount.ToString())) + "</td>";
+                linesInfo += "<td>" + Utils.FormatCurrency(item.Amount) + "</td>";
                 linesInfo += "</tr>";
                 if(item.Comments != null && item.Comments.Trim().Length > 0)
                 {

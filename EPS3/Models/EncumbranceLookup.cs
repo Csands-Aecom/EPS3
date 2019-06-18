@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using EPS3.Helpers;
 
 namespace EPS3.Models
 {
@@ -45,11 +46,11 @@ namespace EPS3.Models
         }
         public string EncumbranceAmountString()
         {
-           return String.Format("{0:C2}", EncumbranceAmount); 
+           return Utils.FormatCurrency(EncumbranceAmount); 
         }
         public string ContractAmountString()
         {
-            return String.Format("{0:C2}", ContractAmount); 
+            return Utils.FormatCurrency(ContractAmount); 
         }
         
         public bool Equals(EncumbranceLookup el)

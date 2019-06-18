@@ -40,6 +40,7 @@ namespace EPS3.Models
         public const string WPReviewer = "WP Reviewer";
         public const string CFMSubmitter = "CFM Submitter";
         public const string Closer = "Closer";
+        public const string CloserCC = "CloserCC";
 
         // status changes
         public const string NoChange = "NoChange";

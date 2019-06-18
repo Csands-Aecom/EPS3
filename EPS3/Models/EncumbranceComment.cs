@@ -16,7 +16,7 @@ namespace EPS3.Models
         public List<int> wpIDs { get; set; }
         public string comments { get; set; }
         public string itemReduced { get; set; }
-        public decimal? amountReduced { get; set; }
+        public string amountReduced { get; set; }
         public int userID { get; set; }
 
     }

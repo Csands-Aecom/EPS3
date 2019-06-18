@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using EPS3.Helpers;
 namespace EPS3.Models
 {
     public class ExtendedLineItem
@@ -12,7 +12,7 @@ namespace EPS3.Models
             this.LineItemID = lineItem.LineItemID;
 
             this.LineItemNumber = lineItem.LineNumber.ToString();
-            this.Amount = lineItem.Amount.ToString("C", System.Globalization.CultureInfo.CurrentCulture);
+            this.Amount = Utils.FormatCurrency(lineItem.Amount);
             this.FiscalYear = lineItem.FormattedFiscalYear();
             this.OrgCode = "55-" + lineItem.OrgCode;
             this.CategoryName = lineItem.Category.CategorySelector;

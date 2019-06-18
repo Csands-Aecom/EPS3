@@ -24,7 +24,7 @@ namespace EPS3.Controllers
         {
             _context = context;
             _logger = loggerFactory.CreateLogger<LineItemsController>();
-            _pu = new PermissionsUtils(_context);
+            _pu = new PermissionsUtils(_context, _logger);
         }
 
         // GET: LineItems

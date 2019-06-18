@@ -24,8 +24,8 @@ namespace EPS3.Controllers
         public HomeController(EPSContext context, ILoggerFactory loggerFactory, IOptions<SmtpConfig> smtpConfig)
         {
             _context = context;
-            _pu = new PermissionsUtils(context);
             _logger = loggerFactory.CreateLogger<LineItemGroupsController>();
+            _pu = new PermissionsUtils(context, _logger);
             SmtpConfig = smtpConfig.Value;
         }
         public IActionResult Index()
@@ -71,7 +71,7 @@ namespace EPS3.Controllers
         public IActionResult Error()
         {
             string url = this.Request.Scheme + "://" + this.Request.Host;
-            _messenger = new MessageService(_context, SmtpConfig, url);
+            _messenger = new MessageService(_context, SmtpConfig, _logger, url);
             _messenger.SendErrorNotification(HttpContext.Response.ToString());
             ViewBag.Environment=Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
@@ -84,7 +84,7 @@ namespace EPS3.Controllers
         private string GetLogin()
         {
             string userLogin = "";
-            PermissionsUtils pu = new PermissionsUtils(_context);
+            PermissionsUtils pu = new PermissionsUtils(_context, _logger);
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")=="Development")
             {
                 userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();

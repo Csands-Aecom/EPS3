@@ -10,6 +10,7 @@ using EPS3.Models;
 using EPS3.Helpers;
 using EPS3.ViewModels;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace EPS3.Controllers
@@ -17,11 +18,13 @@ namespace EPS3.Controllers
     public class UsersController : Controller
     {
         private readonly EPSContext _context;
+        private readonly ILogger<UsersController> _logger;
         private PermissionsUtils _pu;
-        public UsersController(EPSContext context)
+        public UsersController(EPSContext context, ILoggerFactory loggerFactory)
         {
             _context = context;
-            _pu = new PermissionsUtils(context);
+            _logger = loggerFactory.CreateLogger<UsersController>();
+            _pu = new PermissionsUtils(context, _logger);
         }
 
         // GET: Users
@@ -243,7 +246,7 @@ namespace EPS3.Controllers
         private string GetLogin()
         {
             string userLogin = "";
-            PermissionsUtils pu = new PermissionsUtils(_context);
+            PermissionsUtils pu = new PermissionsUtils(_context, _logger);
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
             {
                 userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EPS3.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -43,7 +44,7 @@ namespace EPS3.Models
         public decimal Amount { get; set; }
         public String AmountString
         {
-            get { return Amount.ToString("#,##0.00"); }
+            get { return Utils.FormatCurrency(Amount); }
         }
         [ForeignKey("CategoryID")]
         [Display(Name = "Category")]
@@ -124,7 +125,7 @@ namespace EPS3.Models
             int millenium = 2000;
             string formattedFY = priorYear.ToString() + " - " + (FiscalYear - millenium).ToString();
             return formattedFY;
-        }
+        }        
 
         public LineItem ShallowCopy()
         {

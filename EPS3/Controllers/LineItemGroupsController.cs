@@ -29,7 +29,7 @@ namespace EPS3.Controllers
             _context = context;
             _logger = loggerFactory.CreateLogger<LineItemGroupsController>();
             SmtpConfig = smtpConfig.Value;
-            _pu = new PermissionsUtils(_context);
+            _pu = new PermissionsUtils(_context, _logger);
         }
 
         public IActionResult Index()
@@ -154,44 +154,51 @@ namespace EPS3.Controllers
                 if (Encumbrance != null)
                 {
                     Contract Contract = _pu.GetDeepContract(Encumbrance.ContractID);
+                    try
+                    {
+                        // select the LineItemTypes list to display:
 
-                    // select the LineItemTypes list to display:
+                        if (AllEncumbrancesAreComplete(ViewBag.Contract)
+                            && (ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserID == Encumbrance.OriginatorUser.UserID))
+                        {
+                            // finance reviewer can close the Contract
+                            ViewBag.LineItemTypes = null;
+                            ViewBag.ActionItemTypes = ConstantStrings.GetRequestCloseList();
+                        }
+                        else
+                        {
+                            ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
+                        }
+                        // ViewBag.LineItemsMap = Map of LineItemID, JSONString of serialized object
+                        Dictionary<int, string> lineItemsMap = new Dictionary<int, string>();
+                        foreach (LineItem lineItem in LineList)
+                        {
+                            lineItemsMap.Add(lineItem.LineItemID, JsonConvert.SerializeObject(lineItem));
+                        }
+                        ViewBag.LineItemsMap = lineItemsMap;
 
-                    if (AllEncumbrancesAreComplete(ViewBag.Contract)
-                        && (ViewBag.CurrentUser != null && ViewBag.CurrentUser.UserID == Encumbrance.OriginatorUser.UserID))
-                    {
-                        // finance reviewer can close the Contract
-                        ViewBag.LineItemTypes = null;
-                        ViewBag.ActionItemTypes = ConstantStrings.GetRequestCloseList();
-                    }
-                    else
-                    {
-                        ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
-                    }
-                    // ViewBag.LineItemsMap = Map of LineItemID, JSONString of serialized object
-                    Dictionary<int, string> lineItemsMap = new Dictionary<int, string>();
-                    foreach (LineItem lineItem in LineList)
-                    {
-                        lineItemsMap.Add(lineItem.LineItemID, JsonConvert.SerializeObject(lineItem));
-                    }
-                    ViewBag.LineItemsMap = lineItemsMap;
+                        if (Encumbrance.CurrentStatus.Equals(ConstantStrings.Draft) && Encumbrance.LineItemType.Equals(ConstantStrings.Award))
+                        {
+                            ViewBag.AwardBanner = true;
+                        }
+                        if (Encumbrance.CurrentStatus.Equals(ConstantStrings.Draft) && Encumbrance.LineItemType.Equals(ConstantStrings.Amendment)
+                            && Encumbrance.Description != null && Encumbrance.Description.Contains("Duplicate of Encumbrance"))
+                        {
+                            ViewBag.AmendBanner = true;
+                        }
+                        // Add to ViewBag a list of all files associated with this encumbrance request
+                        List<FileAttachment> files = _context.FileAttachments.Where(f => f.GroupID == groupID).ToList();
+                        ViewBag.Files = files;
 
-                    if (Encumbrance.CurrentStatus.Equals(ConstantStrings.Draft) && Encumbrance.LineItemType.Equals(ConstantStrings.Award))
-                    {
-                        ViewBag.AwardBanner = true;
+                        ViewBag.Contract = Contract;
+                        ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contractID);
+                        return View(Encumbrance);
                     }
-                    if (Encumbrance.CurrentStatus.Equals(ConstantStrings.Draft) && Encumbrance.LineItemType.Equals(ConstantStrings.Amendment)
-                        && Encumbrance.Description != null && Encumbrance.Description.Contains("Duplicate of Encumbrance"))
-                    {
-                        ViewBag.AmendBanner = true;
+                    catch (Exception e) {
+                        _logger.LogError("LineItemGroupsController.Manage Error:" + e.GetBaseException());
+                        Log.Error("LineItemGroupsController.Manage  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                        return NotFound();
                     }
-                    // Add to ViewBag a list of all files associated with this encumbrance request
-                    List<FileAttachment> files = _context.FileAttachments.Where(f => f.GroupID == groupID).ToList();
-                    ViewBag.Files = files;
-
-                    ViewBag.Contract = Contract;
-                    ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contractID);
-                    return View(Encumbrance);
                 }
             }
             else
@@ -238,6 +245,7 @@ namespace EPS3.Controllers
                 LineItemGroup encumbrance =  _context.LineItemGroups
                      .Include(g => g.Statuses)
                      .Include(g => g.LineItems)
+                     .Include(g => g.FileAttachments)
                      .SingleOrDefault(g => g.GroupID == id);
                 if (encumbrance == null)
                 {
@@ -1217,12 +1225,16 @@ namespace EPS3.Controllers
                     if (!EncumbranceAmounts.Keys.Contains(encumbrance.GroupID))
                     {
                         decimal amount = GetEncumbranceAmount(encumbrance);
-                        string amountString = String.Format("{0:C2}", amount); ;
+                        string amountString = Utils.FormatCurrency((decimal)amount); ;
                         EncumbranceAmounts.Add(encumbrance.GroupID, amountString);
                     }
                 }
             }
             return EncumbranceAmounts;
+        }
+        public string FormatCurrency(decimal amount)
+        {
+            return Utils.FormatCurrency(amount);
         }
 
         private Dictionary<int, string> getLineItemGroupAmounts(List<LineItemGroup> encumbranceList)
@@ -1233,7 +1245,7 @@ namespace EPS3.Controllers
                 if (!EncumbranceAmounts.Keys.Contains(encumbrance.GroupID))
                 {
                     decimal amount = GetEncumbranceAmount(encumbrance);
-                    string amountString = String.Format("{0:C2}", amount); ;
+                    string amountString = Utils.FormatCurrency((decimal)amount); ;
                     EncumbranceAmounts.Add(encumbrance.GroupID, amountString);
                 }
             }
@@ -1333,7 +1345,7 @@ namespace EPS3.Controllers
                 // Send Close Contract/Encumbrance Request to Closers
                 initializeMessageService();
                 _messageService.SendClosingRequest(closure, user);
-                response = "Closure request sent to closers.";
+                response = "{\"Request Sent\" : \"Closure request sent to closers.\"}";
             }
             catch(Exception e)
             {
@@ -1360,7 +1372,7 @@ namespace EPS3.Controllers
             if (_messageService == null)
             {
                 string url = this.Request.Scheme + "://" + this.Request.Host;
-                _messageService = new MessageService(_context, SmtpConfig, url);
+                _messageService = new MessageService(_context, SmtpConfig, _logger, url);
             }
         }
     }

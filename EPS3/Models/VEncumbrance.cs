@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using EPS3.Helpers;
 
 namespace EPS3.Models
 {
@@ -42,7 +43,8 @@ namespace EPS3.Models
         {
             if (TotalAmount != null)
             {
-                return String.Format("{0:C2}", TotalAmount);
+                decimal Amount = (decimal)TotalAmount;
+                return Utils.FormatCurrency(Amount);
             }
             else
             {

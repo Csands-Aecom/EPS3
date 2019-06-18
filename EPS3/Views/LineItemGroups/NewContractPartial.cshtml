@@ -81,7 +81,7 @@
                             <span class="input-group-addon">
                                 <label for="ContractTotal">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.DisplayFor(model => model.ContractTotal, new { @type = "number", Value = "0.00", title="Contract Inital Amount is set by Amendment, Award, or New Contract encumbrance request."})
+                                    @Html.DisplayFor(model => model.ContractTotal, new { @class = "currency", Value = "0.00", title="Contract Inital Amount is set by Amendment, Award, or New Contract encumbrance request."})
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.ContractTotal, "The default Contract Initial Amount is $0.00.")
@@ -93,7 +93,7 @@
                             <span class="input-group-addon">
                                 <label for="MaxLoaAmount">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.MaxLoaAmount, new { @type = "number", Value = "0.00" })
+                                    @Html.TextBoxFor(model => model.MaxLoaAmount, new { @class = "currency", Value = "0.00" })
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.MaxLoaAmount, "The default Maximum amount per LOA is $0.00.")
@@ -105,7 +105,7 @@
                             <span class="input-group-addon">
                                 <label for="BudgetCeiling">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.BudgetCeiling, new { @type = "number", Value = "0.00" })
+                                    @Html.TextBoxFor(model => model.BudgetCeiling, new { @class = "currency", Value = "0.00" })
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.BudgetCeiling, "The default Budget Ceiling is $0.00.")

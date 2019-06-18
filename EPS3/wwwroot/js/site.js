@@ -830,6 +830,7 @@ function getClosingDetails() {
 }
 
 function closeContract(jsonString) {
+    $.blockUI({ message: "<h4>Closing Contract...</h4>", timeout: 3000 });
     $.ajax({
         url: "/LineItemGroups/CloseContract",
         type: "POST",
@@ -837,7 +838,12 @@ function closeContract(jsonString) {
         data: { closeContract: jsonString },
         success: function (data) {
             var results = JSON.parse(data);
-            //redirect to List page
+            // remove Close Contract link
+            $("#CloseContractLink").remove();
+            // show red Closed message
+            var newTitle = $("#ContractTitle").html() + "<font color = 'red'>&nbsp;&nbsp;&nbsp; Closed</font>";
+            $("#ContractTitle").html(newTitle);
+            // redirect to List page
             window.location.href = "/LineItemGroups/List";
         }
     });
@@ -1215,7 +1221,7 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
             // for Work Program, show ItemReduced and AmountReduced
             if (currentStatus === "Work Program") {
                 var itemReduced = "<strong>Item Reduced:</strong><br/><input type='text' name='itemReduced' id='itemReduced' /><br/>";
-                var amountReduced = "<strong>Amount Reduced:</strong><br/>$<input type='text' name='amountReduced' id='amountReduced' /><br/>";
+                var amountReduced = "<strong>Amount Reduced:</strong><br/><input type='text' name='amountReduced' id='amountReduced' /><br/>";
                 $(this).append(itemReduced);
                 $(this).append(amountReduced);
             }
@@ -1261,9 +1267,9 @@ function openEncumbranceSubmissionDialog(submitTo, wpUsers) {
                     $("#ContractSelector").show();
                     $(this).dialog("close");
                     var commentJson = getSubmissionDetails();
-                    $.blockUI({message : "<h4>Submitting...</h4>", timeout : 5000});
+                    // Watch for BlockUI throwing an error in IE.
+                    $.blockUI({message : "<h4>Submitting...</h4>", timeout : 3000});
                     SaveEncumbrance(commentJson);
-                    $.unblockUI();
                 }
             }
         },
@@ -1313,14 +1319,7 @@ function getSubmissionDetails() {
         jsonString += "\"itemReduced\" : \"" + $("#itemReduced").val() + "\", ";
     }
     if ($("#amountReduced") && $("#amountReduced").val()) {
-        
-        var cleanAmount = parseFloat($("#amountReduced").val().replace(/,/g, "").replace("$", "").replace("(", "-").replace(")", ""));
-        if (isNaN(cleanAmount))
-        {
-            jsonString += "\"amountReduced\" : \"\", ";
-        } else {
-            jsonString += "\"amountReduced\" : \"" + cleanAmount + "\", ";
-        }
+        jsonString += "\"amountReduced\" : \"" + $("#amountReduced").val() + "\", ";
     }
     var commentText = $("#commentText").val();
     //if (commentText.length > 0) { commentText = commentText.replace(/'/g, "&#39;"); }
@@ -1596,9 +1595,21 @@ function toggleLineHistory(lineID) {
     }
 }
 
-function validateContractDollars() {
-    if ($("#ContractTotal").val() === null || $("#ContractTotal").val() === undefined || $("#ContractTotal").length < 1) { $("#ContractTotal").val("0"); }
-    if ($("#MaxLoaAmount").val() === null || $("#MaxLoaAmount").val() === undefined || $("#MaxLoaAmount").length < 1) { $("#MaxLoaAmount").val("0"); }
+function validateContract() {
+    var canSubmit = true;
+    if ($("#VendorID").val() === null || $("#VendorID").val() === undefined || $("#VendorID").val().length < 1) { $("#VendorID").val("1"); } // set Vendor to AD if not set
+    // validate ContractType
+    if ($("#ContractTypeID").val() === null || $("#ContractTypeID").val() === undefined || $("#ContractTypeID").val().length < 1) {
+        var failString = "Please select a Contract Type before submittting.";
+        $("#ContractTypeValidation").html("<font color='red'>" + failString + "</font>");
+        canSubmit = false;
+    } else {
+        $("#ContractTypeValidation").html();
+    }
+    // validate dollar amounts
+    // ContractTotal is not set, it gets calculated later
+    if ($("#ContractTotal").val() === null || $("#ContractTotal").val() === undefined || $("#ContractTotal").val().length < 1) { $("#ContractTotal").val("0.00"); } // set ContractTotal to 0 if not set
+    if ($("#MaxLoaAmount").val() === null || $("#MaxLoaAmount").val() === undefined || $("#MaxLoaAmount").val().length < 1) { $("#MaxLoaAmount").val("0.00"); } // set MaxLOA to 0 if not set
     if ($("#CompensationID").val() === "4") {
         if ($("#BudgetCeiling").val() === "0" || $("#BudgetCeiling").val() === "0.00") {
             $("#BudgetCeiling").val("");
@@ -1611,6 +1622,10 @@ function validateContractDollars() {
         // warn that budget ceiling must be greater than contract total
         var warnString = "Budget Ceiling must be more than Contract Initial Amount.";
         $("#budgetCeilingMessage").text(warnString);
+        canSubmit = false;
+    }
+    if (canSubmit) {
+        $("#createContractForm").submit();
     }
     displayLineItemsPanelOrMessage();
     return false;
@@ -1739,6 +1754,7 @@ function openLineItemDialog(callback) {
     $("#CategorySelector").autocomplete("option", "appendTo", "#LineItemDialog");
     $("#OCASelector").autocomplete("option", "appendTo", "#LineItemDialog");
     $("#FundSelector").autocomplete("option", "appendTo", "#LineItemDialog");
+    bindCurrencyField();
     //callback();
 }
 
@@ -1827,19 +1843,19 @@ function SaveContractModal() {
     // javascript model of the Contract object  populated it from the dialog
     var Contract = {};
     Contract.BeginningDate = $("#BeginningDate").val();
-    Contract.BudgetCeiling = $("#BudgetCeiling").val();
+    Contract.BudgetCeiling = formatDecimal($("#BudgetCeiling").val());
     Contract.CompensationID = $("#CompensationID").val();
     Contract.ContractID = $("#ContractID").val();
     if (Contract.ContractID === null || Contract.ContractID === "") { Contract.ContractID = 0; }
     Contract.ContractNumber = $("#ContractNumber").val();
-    Contract.ContractTotal = $("#ContractTotal").val();
+    //Contract.ContractTotal = formatDecimal($("#ContractTotal").val());  // Contract Total is calculated, not set.
     Contract.ContractTypeID = $("#ContractTypeID").val(); // blank
     Contract.CurrentStatus = $("#CurrentStatus").val();
     Contract.DescriptionOfWork = $("#DescriptionOfWork").val();
     Contract.EndingDate = $("#EndingDate").val();
     Contract.IsRenewable = 0;
     if ($("#IsRenewable1").is(":checked")){ Contract.IsRenewable = 1; }; 
-    Contract.MaxLoaAmount = $("#MaxLoaAmount").val();
+    Contract.MaxLoaAmount = formatDecimal($("#MaxLoaAmount").val());
     Contract.ModifiedDate = $("#ModifiedDate").val(); // set in save method
     Contract.ProcurementID = $("#ProcurementID").val();
     Contract.RecipientID = $("#RecipientID").val();
@@ -1922,7 +1938,7 @@ function SaveLineItemModal() {
     } else {
         lineItem.LineNumber = $("#LineNumber").val();
     }
-    lineItem.Amount = $("#Amount").val();
+    lineItem.Amount = formatDecimal($("#Amount").val());
     lineItem.FiscalYear = $("#FiscalYearList").val();
     lineItem.OrgCode = $("#OrgCode").val();
     lineItem.CategoryName = $("#CategorySelector").val();
@@ -2021,7 +2037,7 @@ function getNewLineItemRow(lineItem) {
     var sp_array = lineItem.StateProgramName.split("-");
     tableText += "<td title='" + sp_array[1].trim() + "'>" + sp_array[0].trim() + "<input type='hidden' id='" + itemKey + "_StateProgramID' value='" + lineItem.StateProgramID + "'/> </td>";
     tableText += "<td>" + lineItem.EO + "</td>";
-    var cleanAmount = parseFloat(lineItem.Amount.replace(/,/g, "").replace("$", "").replace("(", "-").replace(")", ""));
+    var cleanAmount = formatDecimal(lineItem.Amount);
     tableText += "<td>" + lineItem.Amount + "<input type='hidden' id='" + itemKey + "_Amount' value='" + cleanAmount + "'/>";
 
     //fixes to lineItem before stringifying
@@ -2070,22 +2086,27 @@ function formatDateTime(datetimeString) {
     return datetimeString.mm + "/" + datetimeString.dd + "/" + datetimeString.yyyy + " " + datetimeString.getHours() + ":" + datetimeString.getMinutes()
 }
 
+
 function formatDecimal(amount) {
-    //const formatter = new Intl.NumberFormat('en-US', {
-    //    style: 'decimal',
-    //    minimumFractionDigits: 2,
-    //});
-    //return formatter.format(amount);
-    if (amount === null) { return 0.00; }
+    // takes a string or decimal argument
+    // returns a decimal formatted to two decimal places
+    if (amount === null || amount === undefined) { return 0.00; }
+    var nAmount = Number(0);
     if (typeof (amount) === "string") {
-        nAmount = parseFloat(amount)
+        var sAmount = amount.replace(/,/g, "").replace("$", "").replace("(", "-").replace(")", "");
+        nAmount = parseFloat(sAmount);
     } else {
-        nAmount = amount
+        nAmount = amount;
     }
     return nAmount.toFixed(2);
 }
 
+function setDecimal(sourceControl, targetControlname) {
+    $("#" + targetControlname).val(formatDecimal(sourceControl.value));
+}
+
 function formatCurrency(amount) {
+    // takes a decimal and formats it to US Dollars with thousands separators
     const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -2093,6 +2114,18 @@ function formatCurrency(amount) {
     });
     return formatter.format(amount);
 }
+
+function bindCurrencyField() {
+    // amount input fields allow only numeric, $, comma, decimal point, and minus
+    $(".currency").keypress(function (event) {
+        if (event.which !== 0) {
+            var keyChar = String.fromCharCode(event.keyCode);
+            var isAllowedCharacter = keyChar.match(/[\$,\-,\,,\.,\d]/);
+            if (isAllowedCharacter === null) { event.preventDefault(); }
+        }
+    });
+}
+
 function showContractPanel(contractID) {
     // use the contractID to fetch the corresponding ExtendedContract and display it in the ContractPanel
     $.ajax({
@@ -2557,7 +2590,9 @@ function updateRequireAttachment(encumbranceTotal) {
     // If encumbranceTotal is negative and request is in draft and current user has originator role
     // then require a file attachment or an explanation why there is no file attachment
     if (parseInt(encumbranceTotal) < 0 && $("#UserRoles").val().indexOf("Originator") >= 0
-        && ($("#CurrentStatus").val() === "Draft" || $("#CurrentStatus").val() === "New"))
+        && ($("#CurrentStatus").val() === "Draft" || $("#CurrentStatus").val() === "New")
+        && ($("#NoAttachmentComment").val() === undefined || $("#NoAttachmentComment").val().length < 1)
+        && ($("#AttachmentCount").val() === undefined || parseInt($("#AttachmentCount").val()) === 0))
     {
         var warning = "<p><font color='red'>A file attachment is required for an encumbrance request for a negative amount.<br /> ";
         warning += "Please attach a file or provide an explanation why no file is attached:</font></p> ";
@@ -2624,7 +2659,7 @@ function showComment(text, title) {
 }
 function showHideNegativeAmountOptions() {
     //var hasNeg = $("#FinancialInformationFormPanel #Amount").val().indexOf("-");
-    var amount = parseFloat($("#FinancialInformationFormPanel #Amount").val().replace(/,/g, "").replace("$", "").replace("(", "-").replace(")", ""));
+    var amount = formatDecimal($("#FinancialInformationFormPanel #Amount").val());
 
     if (!amount || amount >= 0) {
         // hide FlairAmendmentID and LineID6S in the LineItems form

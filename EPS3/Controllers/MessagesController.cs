@@ -23,7 +23,7 @@ namespace EPS3.Controllers
         {
             _context = context;
             _logger = loggerFactory.CreateLogger<MessagesController>();
-            _pu = new PermissionsUtils(_context);
+            _pu = new PermissionsUtils(_context, _logger);
         }
 
         // GET: Messages
@@ -58,14 +58,10 @@ namespace EPS3.Controllers
             return View(messages);
 
         }
-
-
-       
-
+ 
         private User GetUser()
         {
             string userLogin = "";
-            PermissionsUtils pu = new PermissionsUtils(_context);
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
             {
                 userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
@@ -74,7 +70,7 @@ namespace EPS3.Controllers
             {
                 userLogin = HttpContext.User.Identity.Name;
             }
-            return pu.GetUser(pu.GetLogin(userLogin));
+            return _pu.GetUser(_pu.GetLogin(userLogin));
         } // end GetUser
     } // end MessagesController
 } // end Controllers namespace

@@ -41,6 +41,7 @@
                         <dd>
                             <input type="hidden" id="ContractTypeID" name="ContractTypeID" />
                             <input type="text" id="ContractTypeSelector" name="ContractTypeSelector" style="text-transform:uppercase" />
+                            <span id="ContractTypeValidation" name="ContractTypeValidation"></span>
                         </dd>
                     </dl>
                 </div>
@@ -82,7 +83,8 @@
                             <span class="input-group-addon">
                                 <label for="MaxLoaAmount">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.MaxLoaAmount, new { Value = "0.00" })
+                                    @Html.HiddenFor(model => model.MaxLoaAmount)
+                                    <input type="text" name="MaxLoaAmountString" id="MaxLoaAmountString" class="currency" onchange="setDecimal(this, 'MaxLoaAmount')" value="0.00" />
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.MaxLoaAmount, "The default Maximum amount per LOA is $0.00.")
@@ -94,7 +96,8 @@
                             <span class="input-group-addon">
                                 <label for="BudgetCeiling">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.BudgetCeiling, new { Value = "0.00" })
+                                    @Html.HiddenFor(model => model.BudgetCeiling)
+                                    <input type="text" name="BudgetCeilingString" id="BudgetCeilingString" class="currency" onchange="setDecimal(this, 'BudgetCeiling')" value="0.00"/>
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.BudgetCeiling, "The default Budget Ceiling is $0.00.")
@@ -189,7 +192,6 @@
                         <dd>
                             @Html.DropDownList("RecipientID", new SelectList((IEnumerable<Recipient>)ViewData["Recipients"], "RecipientID", "RecipientSelector"), " ")
                             @Html.ValidationMessageFor(model => model.RecipientID, "Please select a Recipient.")
-
                         </dd>
                     </dl>
                 </div>
@@ -210,7 +212,7 @@
             <div class="row">
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <input type="submit" value="Create" class="btn btn-default" onclick="validateContractDollars()" />
+                        <input type="button" value="Create" class="btn btn-default" onclick="validateContract()" />
                     </div> <!-- end form-group -->
                 </div> <!-- end col -->
             </div> <!-- end row -->

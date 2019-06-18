@@ -23,7 +23,7 @@ namespace EPS3.Controllers
         {
             _context = context;
             _logger = loggerFactory.CreateLogger<EncumbranceLookupsController>();
-            _pu = new PermissionsUtils(_context);
+            _pu = new PermissionsUtils(_context, _logger);
         }
 
 
@@ -490,11 +490,11 @@ namespace EPS3.Controllers
                 }
                 if (search.SearchMinAmount != null)
                 {
-                    searchString += "Greater than " + String.Format("{0:C2}", search.SearchMinAmount) + "<br />";
+                    searchString += "Greater than " + Utils.FormatCurrency((decimal)search.SearchMinAmount) + "<br />";
                 }
                 if (search.SearchMaxAmount != null)
                 {
-                    searchString += "Less than " + String.Format("{0:C2}", search.SearchMaxAmount) + "<br />";
+                    searchString += "Less than " + Utils.FormatCurrency((decimal)search.SearchMaxAmount) + "<br />";
                 }
             }
             // if search criteria are specified, prefix with a heading

@@ -26,7 +26,7 @@ namespace EPS3.Controllers
         {
             _context = context;
             _logger = loggerFactory.CreateLogger<ContractsController>();
-            _pu = new PermissionsUtils(_context);
+            _pu = new PermissionsUtils(_context, _logger);
         }
 
         // GET: Contracts
@@ -78,8 +78,8 @@ namespace EPS3.Controllers
                 erViewModel.Contract = contract;
                 erViewModel.LineItemGroups = lineItemGroups;
 
-                Dictionary<int, decimal> groupAmounts = new Dictionary<int, decimal>();
-                Boolean canBeClosed = !contract.CurrentStatus.Contains("Closed");
+                Dictionary<int, string> groupAmounts = new Dictionary<int, string>();
+                Boolean canBeClosed = !(contract.CurrentStatus.Contains("Closed"));
                 foreach (LineItemGroup encumbrance in lineItemGroups)
                 {
                     decimal groupAmount = 0.0m;
@@ -87,7 +87,7 @@ namespace EPS3.Controllers
                     {
                         groupAmount += lineItem.Amount;
                     }
-                    groupAmounts.Add(encumbrance.GroupID, groupAmount);
+                    groupAmounts.Add(encumbrance.GroupID, Utils.FormatCurrency(groupAmount));
                     // check if all line item groups can be closed
                     if (!encumbrance.CurrentStatus.Contains(ConstantStrings.CFMComplete) && !encumbrance.CurrentStatus.Contains("Closed"))
                     {
@@ -96,7 +96,7 @@ namespace EPS3.Controllers
                 }
                 ViewBag.CanClose = canBeClosed;
                 ViewBag.GroupAmounts = groupAmounts;
-                ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contract.ContractID);
+                ViewBag.ContractAmount = Utils.FormatCurrency(_pu.GetTotalAmountOfAllEncumbrances(contract.ContractID));
             }
             catch (Exception e)
             {
@@ -128,9 +128,10 @@ namespace EPS3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UserID,ContractID,ContractNumber,ContractTypeID,RecipientID,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,CurrentStatus")] Contract contract)
         {
+            int AD_VENDOR = 1; //If no Vendor is specified, default to AD with id value = 1
             if (contract.VendorID == 0)
             {
-                contract.VendorID = 1; // placeholder value Advertising
+                contract.VendorID = AD_VENDOR; // placeholder value Advertising
             }
             if (ModelState.IsValid)
             {
@@ -142,7 +143,7 @@ namespace EPS3.Controllers
                     
                     if (contract.ContractNumber.IsNullOrEmpty())
                     {
-                        contract.ContractNumber = "New"; // placeholder text for pending generation of ContractNumber
+                        contract.ContractNumber = "NEW"; // placeholder text for pending generation of ContractNumber
                     }
                     contract.ContractNumber = contract.ContractNumber.ToUpper();
                     _context.Contracts.Add(contract);
@@ -417,7 +418,7 @@ namespace EPS3.Controllers
 
         private string GetLogin() {
             string userLogin = "";
-            PermissionsUtils pu = new PermissionsUtils(_context);
+            PermissionsUtils pu = new PermissionsUtils(_context, _logger);
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
             {
                 userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();

@@ -1,0 +1,82 @@
+2019-06-17 15:13:53.420 -04:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 538
+2019-06-17 15:14:47.629 -04:00 [ERR] MessageService.SendEmail Error:System.InvalidOperationException: A recipient must be specified.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 538
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 538
+2019-06-17 15:15:53.125 -04:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 538
+2019-06-17 15:16:41.792 -04:00 [ERR] MessageService.SendEmail Error:System.InvalidOperationException: A recipient must be specified.
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 538
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 538
+2019-06-17 15:17:41.165 -04:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 538
+2019-06-17 15:18:25.827 -04:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 538
+2019-06-18 08:51:58.160 -04:00 [INF] Model state not valid: 
+2019-06-18 08:51:58.167 -04:00 [INF] The value '' is invalid. | The value '' is invalid. | The value '' is invalid.
+2019-06-18 09:36:00.394 -04:00 [INF] Model state not valid: 
+2019-06-18 09:36:00.394 -04:00 [INF] The value '' is invalid. | The value '' is invalid. | The value '' is invalid.
+2019-06-18 09:36:56.326 -04:00 [INF] Model state not valid: 
+2019-06-18 09:36:56.326 -04:00 [INF] The value '' is invalid. | The value '' is invalid.
+2019-06-18 09:37:21.525 -04:00 [INF] Model state not valid: 
+2019-06-18 09:37:21.525 -04:00 [INF] The value '' is invalid. | The value '' is invalid. | The value '' is invalid.
+2019-06-18 09:38:15.605 -04:00 [INF] Model state not valid: 
+2019-06-18 09:38:15.605 -04:00 [INF] The value '' is invalid. | The value '' is invalid. | The value '' is invalid.
+2019-06-18 11:27:29.186 -04:00 [INF] Model state not valid: 
+2019-06-18 11:27:29.193 -04:00 [INF] The value '' is invalid. | The value '' is invalid. | The value '' is invalid.
+2019-06-18 11:31:19.524 -04:00 [INF] Model state not valid: 
+2019-06-18 11:31:19.524 -04:00 [INF] The value '' is invalid. | The value '' is invalid.
+2019-06-18 12:56:21.840 -04:00 [INF] Model state not valid: 
+2019-06-18 12:56:21.849 -04:00 [INF] The value '' is invalid. | The value '' is invalid. | The value '' is invalid.
+2019-06-18 12:58:48.085 -04:00 [INF] Model state not valid: 
+2019-06-18 12:58:48.085 -04:00 [INF] The value '' is invalid. | The value '' is invalid. | The value '' is invalid.
+2019-06-18 13:01:21.885 -04:00 [INF] Model state not valid: 
+2019-06-18 13:01:21.885 -04:00 [INF] The value '' is invalid.

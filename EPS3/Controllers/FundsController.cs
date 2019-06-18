@@ -8,18 +8,21 @@ using Microsoft.EntityFrameworkCore;
 using EPS3.DataContexts;
 using EPS3.Models;
 using EPS3.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace EPS3.Controllers
 {
     public class FundsController : Controller
     {
         private readonly EPSContext _context;
+        private readonly ILogger<FundsController> _logger;
         private PermissionsUtils _pu;
 
-        public FundsController(EPSContext context)
+        public FundsController(EPSContext context, ILoggerFactory loggerFactory)
         {
             _context = context;
-            _pu = new PermissionsUtils(context);
+            _logger = loggerFactory.CreateLogger<FundsController>();
+            _pu = new PermissionsUtils(_context, _logger);
         }
 
         // GET: Funds

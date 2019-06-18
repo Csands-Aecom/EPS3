@@ -6,26 +6,37 @@ using Microsoft.EntityFrameworkCore;
 using EPS3.Models;
 using EPS3.DataContexts;
 using Serilog;
+using Microsoft.Extensions.Logging;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace EPS3.Helpers
 {
     public class PermissionsUtils
     {
         private EPSContext _context;
-        public PermissionsUtils(EPSContext context)
+        private readonly ILogger<Object> _logger;
+        public PermissionsUtils(EPSContext context, ILogger callingLogger)
         {
             _context = context;
+            _logger = (ILogger<Object>)callingLogger;
         }
+
+
         public string GetLogin(string userLogin)
         {
             // userLogin = HttpContext.User.Identity.Name;
-            string TURNPIKE_DOMAIN = "TP";
+            //string TURNPIKE_DOMAIN = "TP";
             //if (userLogin.Contains(TURNPIKE_DOMAIN))
             //{
+            try
+            {
                 int stop = userLogin.IndexOf("\\");
                 userLogin = (stop > -1) ? userLogin.Substring(stop + 1, userLogin.Length - stop - 1) : userLogin;
                 userLogin = userLogin.Substring(0, 7);
                 userLogin = userLogin.ToUpper();
+            }catch(Exception e){
+                _logger.LogError("PermissionsUtils.GetLogin Error:" + e.GetBaseException());
+            }
             //}
             return userLogin;
         }
@@ -104,6 +115,7 @@ namespace EPS3.Helpers
             }catch(Exception e)
             {
                 Log.Error("PermissionsUtils.GetUsersByRole Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetUsersByRole Error:" + e.GetBaseException());
                 return null;
             }
         }
@@ -122,6 +134,7 @@ namespace EPS3.Helpers
                 }catch(Exception e)
                 {
                     Log.Error("PermissionsUtils.GetContractByID Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                    _logger.LogError("PermissionsUtils.GetContractByID Error:" + e.GetBaseException());
                     throw e;
                 }
             }
@@ -144,6 +157,7 @@ namespace EPS3.Helpers
             catch (Exception e)
             {
                 Log.Error("PermissionsUtils.GetContractsByStatus Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetContractByStatus Error:" + e.GetBaseException());
                 return null;
             }
         }
@@ -164,6 +178,7 @@ namespace EPS3.Helpers
             catch (Exception e)
             {
                 Log.Error("PermissionsUtils.GetOriginatorOwnedContracts Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetOriginatorOwnedContract Error:" + e.GetBaseException());
                 return null;
             }
         }
@@ -171,7 +186,7 @@ namespace EPS3.Helpers
         {
             int year = DateTime.Now.Year;
             int month = DateTime.Now.Month;
-            if (month >= 6)
+            if (month > 6)
             {
                 return year.ToString() + " - " + (year + 1).ToString();
             }
@@ -262,6 +277,7 @@ namespace EPS3.Helpers
             catch (Exception e)
             {
                 Log.Error("PermissionsUtils.GetDeepContract Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetDeppContract Error:" + e.GetBaseException());
                 return null;
             }
         }
@@ -286,6 +302,7 @@ namespace EPS3.Helpers
             catch (Exception e)
             {
                 Log.Error("PermissionsUtils.GetDeepEncumbrance Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetDeepEncumbrance Error:" + e.GetBaseException());
                 return null;
             }
         }
@@ -310,6 +327,7 @@ namespace EPS3.Helpers
             catch (Exception e)
             {
                 Log.Error("PermissionsUtils.GetDeepEncumbrances Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetDeepEncumbrances Error:" + e.GetBaseException());
                 return null;
             }
         }
@@ -328,6 +346,7 @@ namespace EPS3.Helpers
             }catch(Exception e)
             {
                 Log.Error("PermissionsUtils.GetDeepLineItem Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetDeepLineItem Error:" + e.GetBaseException());
                 return null;
             }
         }
@@ -349,34 +368,52 @@ namespace EPS3.Helpers
             catch(Exception e)
             {
                 Log.Error("PermissionsUtils.GetDeepLineItems Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetDeepLineItems Error:" + e.GetBaseException());
                 return null;
             }
         }
 
         public Dictionary<int, List<LineItemGroupStatus>> GetDeepContractEncumbranceStatusMap(int contractID)
         {
-            Dictionary<int, List<LineItemGroupStatus>> resultMap = new Dictionary<int, List<LineItemGroupStatus>>();
-            List<int> encumbranceIDs = _context.LineItemGroups
-                .AsNoTracking()
-                .Where(e => e.ContractID == contractID)
-                .Select(e => e.GroupID)
-                .ToList();
-            foreach(int groupID in encumbranceIDs)
+            try
             {
-                resultMap.Add(groupID, GetDeepEncumbranceStatuses(groupID));
+                Dictionary<int, List<LineItemGroupStatus>> resultMap = new Dictionary<int, List<LineItemGroupStatus>>();
+                List<int> encumbranceIDs = _context.LineItemGroups
+                    .AsNoTracking()
+                    .Where(e => e.ContractID == contractID)
+                    .Select(e => e.GroupID)
+                    .ToList();
+                foreach (int groupID in encumbranceIDs)
+                {
+                    resultMap.Add(groupID, GetDeepEncumbranceStatuses(groupID));
+                }
+                return resultMap;
             }
-            return resultMap;
+            catch(Exception e)
+            {
+                Log.Error("PermissionsUtils.GetDeepContractEncumbranceStatusMap Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetDeepContractEncumbranceStatusMap Error:" + e.GetBaseException());
+                return null;
+            }
         }
         public List<LineItemGroupStatus> GetDeepEncumbranceStatuses(int groupID)
         {
-            List<LineItemGroupStatus> resultList = _context.LineItemGroupStatuses
-                .AsNoTracking()
-                .Include(s => s.User)
-                .Where(s => s.LineItemGroupID == groupID)
-                .OrderBy(s => s.SubmittalDate)
-                .ToList();
+            try
+            {
+                List<LineItemGroupStatus> resultList = _context.LineItemGroupStatuses
+                    .AsNoTracking()
+                    .Include(s => s.User)
+                    .Where(s => s.LineItemGroupID == groupID)
+                    .OrderBy(s => s.SubmittalDate)
+                    .ToList();
 
-            return resultList;
+                return resultList;
+            }catch(Exception e)
+            {
+                Log.Error("PermissionsUtils.GetDeepEncumbranceStatuses Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetDeepEncumbranceStatuses Error:" + e.GetBaseException());
+                return null;
+            }
         }
 
         public decimal GetTotalAmountOfAllEncumbrances(int ContractID)

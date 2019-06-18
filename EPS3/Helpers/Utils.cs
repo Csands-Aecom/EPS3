@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using System.Globalization;
 
 namespace EPS3.Helpers
 {
@@ -64,11 +65,19 @@ namespace EPS3.Helpers
             return !enumerable.Any();
         }
 
-        //public Dictionary<string, Object> UnravelEncumbranceString(string encumbrance)
-        //{
-        //    // This is a JSON object with Contract, LineItemGroup, and LineItemGroupStatus information in it
-        //    // Return a Dictionary of just the core key:value pairs. Not the object structure
+        public static string FormatCurrency(string amountString)
+        {
+            amountString = amountString.Replace("$", "").Replace("(", "-").Replace(")", "").Replace(",", "");
+            decimal amount = decimal.Parse(amountString);
+            return FormatCurrency(amount);
+        }
+        public static string FormatCurrency(decimal amount)
+        {
+            CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
+            culture.NumberFormat.CurrencyNegativePattern = 1;
+            String str = String.Format(culture, "{0:C}", amount);
+            return str;
+        }
 
-        //}
     } // end class
 } // end namespace

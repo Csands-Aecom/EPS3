@@ -96,7 +96,7 @@
                             <span class="input-group-addon">
                                 <label for="ContractTotal">
                                     <span class="glyphicon glyphicon-usd btn btn-default"></span>
-                                    @Html.TextBoxFor(model => model.Contract.ContractTotal)
+                                    @Html.TextBoxFor(model => model.Contract.ContractTotal, new { @class="currency"})
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.Contract.ContractTotal, "The Contract Total is the sum of all associated encumbrance request.")

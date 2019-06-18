@@ -8,18 +8,21 @@ using Microsoft.EntityFrameworkCore;
 using EPS3.DataContexts;
 using EPS3.Models;
 using EPS3.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace EPS3.Controllers
 {
     public class CategoriesController : Controller
     {
         private readonly EPSContext _context;
+        private readonly ILogger<CategoriesController> _logger;
         private PermissionsUtils _pu;
 
-        public CategoriesController(EPSContext context)
+        public CategoriesController(EPSContext context, ILoggerFactory loggerFactory)
         {
             _context = context;
-            _pu = new PermissionsUtils(context);
+            _logger = loggerFactory.CreateLogger<CategoriesController>();
+            _pu = new PermissionsUtils(context, _logger);
         }
 
         // GET: Categories

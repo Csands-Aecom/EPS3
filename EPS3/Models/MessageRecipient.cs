@@ -17,6 +17,7 @@ namespace EPS3.Models
         [ForeignKey("UserID")]
         public int UserID { get; set; }
         public virtual User User { get; set; }
+        public byte IsCC { get; set; }
 
         public MessageRecipient() { }
         public MessageRecipient(User user)
@@ -28,10 +29,18 @@ namespace EPS3.Models
         {
             this.UserID = UserID;
         }
-        public MessageRecipient(int MessageID, int UserID)
+        public MessageRecipient(int MessageID, int UserID, byte? IsCC)
         {
             this.MessageID = MessageID;
             this.UserID = UserID;
+            if(IsCC != null)
+            {
+                this.IsCC = (byte)IsCC;
+            }
+            else
+            {
+                this.IsCC = 0;
+            }
         }
     }
 }
