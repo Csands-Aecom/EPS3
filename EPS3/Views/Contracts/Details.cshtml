@@ -9,9 +9,9 @@
         <div class="panel-heading" id="contractPanelHead" name="contractPanelHead">
             <h3 id="ContractTitle" name="ContractTitle">
                 Contract - @Html.DisplayFor(model => model.Contract.ContractNumber)
-                @if(Model.Contract.CurrentStatus.Contains(ConstantStrings.Closed))
+                @if (Model.Contract.CurrentStatus.Contains(ConstantStrings.Closed))
                 {
-                <font color="red">&nbsp;&nbsp;&nbsp;Closed</font>
+                    <font color="red">&nbsp;&nbsp;&nbsp;Closed</font>
                 }
             </h3>
             <div class="row">
@@ -27,7 +27,7 @@
                 <div class="col-sm-2">
                     @if (@ViewBag.CanClose != null && @ViewBag.CanClose == true)
                     {
-                        <span id="CloseContractLink" name="CloseContractLink"><a href="javascript:OpenCloseContractDialog(@Model.Contract.ContractID, '@Model.Contract.ContractNumber', '@Model.Contract.CurrentStatus')">Close this contract</a></span>
+                        <span id="CloseContractLink" name="CloseContractLink"><a href="javascript:openCloseContractDialog(@Model.Contract.ContractID, '@Model.Contract.ContractNumber', '@Model.Contract.CurrentStatus')">Close this contract</a></span>
                         <div id="CloseContractDialog" name="CloseContractDialog"></div>
                     }
                 </div>
@@ -178,14 +178,15 @@
     </div><!-- close panel -->
     <div>
         @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-     || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-     || ViewBag.Roles.Contains(ConstantStrings.Originator))
+    || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
+    || ViewBag.Roles.Contains(ConstantStrings.Originator))
         {
             <a asp-action="Edit" asp-route-id="@Model.Contract.ContractID">Edit Contract Information</a>
         }
         <a asp-action="List" asp-controller="LineItemGroups"> Back to List </a>
     </div>
 
+    <div name="awardDialog" id="awardDialog"></div>
     <br />
     @foreach (LineItemGroup encumbrance in Model.LineItemGroups)
     {
@@ -202,9 +203,9 @@
                 {
                     <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@encumbrance.GroupID">Update Encumbrance Request</a>
                 }
-                @if (ViewBag.Roles.Contains(ConstantStrings.Originator)  && encumbrance.CurrentStatus.Equals(ConstantStrings.CFMComplete))
+                @if (ViewBag.Roles.Contains(ConstantStrings.Originator) && encumbrance.CurrentStatus.Equals(ConstantStrings.CFMComplete))
                 {
-                    <a href="/LineItemGroups/Amend?id=@encumbrance.GroupID" title="Click here to open a new Encumbrance Request that duplicates this one.">Duplicate this Request</a>
+                    <a href="javascript: awardDuplicate(@encumbrance.GroupID)" title="Click here to open a new Encumbrance Request that duplicates this one.">Duplicate this Request</a>
                 }
                 <div class="row">
                     <div class="col-sm-2">
@@ -221,13 +222,13 @@
                             <label for="@encumbrance.AdvertisedDate">Advertised Date:</label>
                             @encumbrance.AdvertisedDate.Value.ToString("MM/dd/yyyy")
                         }
-                        
+
                         @if (encumbrance.LettingDate != null)
                         {
-                           <br /> <label for="@encumbrance.LettingDate">Letting Date:</label>
+                            <br /> <label for="@encumbrance.LettingDate">Letting Date:</label>
                             @encumbrance.LettingDate.Value.ToString("MM/dd/yyyy")
                         }
-                        
+
                         @if (encumbrance.RenewalDate != null)
                         {
                             <label for="@encumbrance.RenewalDate">Renewal Ending Date:</label>
@@ -240,22 +241,22 @@
                     </div>
                     @if (encumbrance.UserAssignedID != null && encumbrance.UserAssignedID.Length > 0)
                     {
-                    <div class="col-sm-2">
-                        <label for="@encumbrance.UserAssignedID">ID:</label>
-                        @encumbrance.UserAssignedID
-                        @if(encumbrance.AmendedLineItemID != null && encumbrance.AmendedLineItemID.Length > 0)
-                        {
-                            <label for="@encumbrance.AmendedLineItemID"> for LOA#</label>
-                            @encumbrance.AmendedLineItemID
-                        }
-                    </div>
+                        <div class="col-sm-2">
+                            <label for="@encumbrance.UserAssignedID">ID:</label>
+                            @encumbrance.UserAssignedID
+                            @if (encumbrance.AmendedLineItemID != null && encumbrance.AmendedLineItemID.Length > 0)
+                            {
+                                <label for="@encumbrance.AmendedLineItemID"> for LOA#</label>
+                                @encumbrance.AmendedLineItemID
+                            }
+                        </div>
                     }
                     @if (encumbrance.AmendedFlairLOAID != null && encumbrance.AmendedFlairLOAID.Length > 0)
                     {
-                    <div class="col-sm-2">
-                        <label for="@encumbrance.AmendedFlairLOAID">Amended/Corrected FLAIR ID:</label>
-                        @encumbrance.AmendedFlairLOAID
-                    </div>
+                        <div class="col-sm-2">
+                            <label for="@encumbrance.AmendedFlairLOAID">Amended/Corrected FLAIR ID:</label>
+                            @encumbrance.AmendedFlairLOAID
+                        </div>
                     }
                 </div>
             </div>
@@ -323,15 +324,15 @@
             </div>
             @if (encumbrance.FileAttachments != null && encumbrance.FileAttachments.Count > 0)
             {
-                 <div class="panel-body" id="fileAttachmentsPanel_@encumbrance.GroupID" name="fileAttachmentsPanel_@encumbrance.GroupID">
-                     <h4>Attached Files</h4>
-                    <input type="hidden" name="AttachmentCount" id="AttachmentCount" value="@encumbrance.FileAttachments.Count"/>
+                <div class="panel-body" id="fileAttachmentsPanel_@encumbrance.GroupID" name="fileAttachmentsPanel_@encumbrance.GroupID">
+                    <h4>Attached Files</h4>
+                    <input type="hidden" name="AttachmentCount" id="AttachmentCount" value="@encumbrance.FileAttachments.Count" />
                     <ul>
-                   @foreach (FileAttachment file in @encumbrance.FileAttachments)
-                    {
-                        var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
-                        <li><a href="@url" target="_blank">@file.DisplayName</a></li>
-                    }
+                        @foreach (FileAttachment file in @encumbrance.FileAttachments)
+                        {
+                            var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
+                            <li><a href="@url" target="_blank">@file.DisplayName</a></li>
+                        }
                     </ul>
                 </div>
             }
@@ -420,8 +421,8 @@
                                         </td>
                                         <td>
                                             @if ((ViewBag.Roles.Contains(ConstantStrings.Originator)
-                                                && @ViewBag.CurrentUser.UserID == Model.Contract.UserID)
-                                                && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
+                                               && @ViewBag.CurrentUser.UserID == Model.Contract.UserID)
+                                               && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
                                             {
                                                 <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a> <br />
                                             }

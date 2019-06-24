@@ -119,6 +119,24 @@ namespace EPS3.Helpers
                 return null;
             }
         }
+
+        public bool UserIsAdmin(string userLogin)
+        {
+            User currentUser = _context.Users
+                .Include(u => u.Roles)
+                .Where(u => u.IsDisabled == 0)
+                .SingleOrDefault(u => u.UserLogin == userLogin);
+            if (currentUser == null) { return false; }
+            foreach (UserRole role in currentUser.Roles)
+            {
+                if (role.Role.Equals(ConstantStrings.AdminRole))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public Contract GetContractByID(int contractID)
         {
             // returns the Contract with the specified contractID

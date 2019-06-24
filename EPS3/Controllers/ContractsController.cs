@@ -62,25 +62,12 @@ namespace EPS3.Controllers
             PopulateViewBag(id);
             try
             {
-                Contract contract = _pu.GetDeepContract(id);
-                List<LineItemGroup> lineItemGroups =  _context.LineItemGroups
-                    .Where(l => l.ContractID == id)
-                    .Include(l => l.LastEditedUser)
-                    .Include(l => l.OriginatorUser)
-                    .Include(l => l.FileAttachments)
-                    .Include(l => l.LineItems).ThenInclude(li => li.OCA)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Category)
-                    .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Fund)
-                    .Include(l => l.Statuses).ThenInclude(gst => gst.User)
-                    .AsNoTracking()
-                    .ToList();
-                erViewModel.Contract = contract;
-                erViewModel.LineItemGroups = lineItemGroups;
-
+                erViewModel.Contract = _pu.GetDeepContract(id);
+                erViewModel.LineItemGroups = _pu.GetDeepEncumbrances(id);
+                // totals for each encumbrance request in the contract
                 Dictionary<int, string> groupAmounts = new Dictionary<int, string>();
-                Boolean canBeClosed = !(contract.CurrentStatus.Contains("Closed"));
-                foreach (LineItemGroup encumbrance in lineItemGroups)
+                Boolean canBeClosed = !(erViewModel.Contract.CurrentStatus.Contains("Closed"));
+                foreach (LineItemGroup encumbrance in erViewModel.LineItemGroups)
                 {
                     decimal groupAmount = 0.0m;
                     foreach(LineItem lineItem in encumbrance.LineItems)
@@ -96,7 +83,7 @@ namespace EPS3.Controllers
                 }
                 ViewBag.CanClose = canBeClosed;
                 ViewBag.GroupAmounts = groupAmounts;
-                ViewBag.ContractAmount = Utils.FormatCurrency(_pu.GetTotalAmountOfAllEncumbrances(contract.ContractID));
+                ViewBag.ContractAmount = Utils.FormatCurrency(_pu.GetTotalAmountOfAllEncumbrances(id));
             }
             catch (Exception e)
             {
@@ -113,10 +100,11 @@ namespace EPS3.Controllers
         {
             string userLogin = GetLogin();
             PopulateViewBag(0);
+            // Redirect non-registered users to List page
             if (ViewBag.CurrentUser == null) { return RedirectToAction("List", "LineItemGroups"); }
+            // dropdown list values
             ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
             ViewData["Compensations"] = _context.Compensations.OrderBy(c => c.CompensationID);
-            ViewData["Vendors"] = _context.Vendors.OrderBy(v => v.VendorName);
             ViewData["Recipients"] = _context.Recipients.OrderBy(v => v.RecipientCode);
             return View();
         }
@@ -173,6 +161,10 @@ namespace EPS3.Controllers
             }
             return View(contract);
         }
+
+        // Main function for adding new contract from /LineItemGroups/Manage
+        // JSON string sent by AJAX method saveContractModal() in site.js
+        // Data comes from NewContractPartial view
 
         [HttpPost]
         public JsonResult AddNewContract(string contract)
@@ -313,7 +305,6 @@ namespace EPS3.Controllers
             ViewData["ContractTypes"] = _context.ContractTypes.OrderBy(c => c.ContractTypeCode);
             ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
             ViewData["Compensations"] = _context.Compensations.OrderBy(c => c.CompensationID);
-            ViewData["Vendors"] = _context.Vendors.OrderBy(v => v.VendorName);
             ViewData["Recipients"] = _context.Recipients.OrderBy(v => v.RecipientName);
 
             ViewData["Categories"] = _context.Categories.OrderBy(v => v.CategoryCode);
@@ -378,14 +369,10 @@ namespace EPS3.Controllers
             ViewData["Compensations"] = new SelectList(_context.Compensations, "CompensationID", "CompensationID", contract.CompensationID);
             ViewData["Procurements"] = new SelectList(_context.Procurements, "ProcurementID", "ProcurementID", contract.ProcurementID);
             ViewData["Recipients"] = new SelectList(_context.Recipients, "RecipientID", "RecipientID", contract.RecipientID);
-            ViewData["Vendors"] = new SelectList(_context.Vendors, "VendorID", "VendorID", contract.VendorID);
             return View(contract);
         }
 
-        private bool ContractExists(int id)
-        {
-            return _context.Contracts.Any(e => e.ContractID == id);
-        }
+        // autocomplete method for Vendor
         [HttpPost]
         public JsonResult ListVendors(string searchString)
         {
@@ -400,6 +387,8 @@ namespace EPS3.Controllers
             }
             return new JsonResult(searchString);
         }
+
+        // autocomplete method for ContractType
         [HttpPost]
         public JsonResult ListContractTypes(string searchString)
         {
@@ -458,6 +447,30 @@ namespace EPS3.Controllers
             }
         }
 
+        public ExtendedContract GetExtendedContract(int contractID)
+        {
+            // returns ExtendedContract object 
+            Contract returnContract = _pu.GetDeepContract(contractID);
+            if (returnContract == null) { return null; }
+            return new ExtendedContract(returnContract);
+        }
+
+        private bool ContractExists(int id)
+        {
+            return _context.Contracts.Single(c => c.ContractID == id) != null;
+        }
+
+
+        // Test RESTful contract method
+        [HttpGet]
+        public JsonResult GetContractAPI(int id)
+        {
+            return (Json(GetExtendedContract(id)));
+        }
+
+        // unused methods
+        // these were developed for a prior iteration
+        // may be used in future reporting tools
         public List<Contract> GetContracts(User user)
         {
 
@@ -537,19 +550,6 @@ namespace EPS3.Controllers
                 Log.Error("ContractsController.GetArchivedContracts Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return null;
             }
-        }
-
-        private List<User> GetWpReviewersList()
-        {
-            return _pu.GetUsersByRole(ConstantStrings.WPReviewer);
-        }
-
- 
-        public ExtendedContract GetExtendedContract(int contractID)
-        {
-            Contract returnContract = _pu.GetDeepContract(contractID);
-            if(returnContract == null) { return null; }
-            return new ExtendedContract(returnContract);
         }
 
     } // end ContractsController class

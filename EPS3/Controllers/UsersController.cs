@@ -31,7 +31,7 @@ namespace EPS3.Controllers
         public async Task<IActionResult> Index()
         {
             ViewBag.Roles = _pu.GetUserRoles(GetLogin());
-            ViewBag.UserIsAdmin = UserIsAdmin();
+            ViewBag.UserIsAdmin = _pu.UserIsAdmin(GetLogin());
             return View(await _context.Users.Include(u => u.Roles).ToListAsync());
         }
 
@@ -76,7 +76,7 @@ namespace EPS3.Controllers
         {
             User user = GetCurrentUser();
 
-            if (UserIsAdmin())
+            if (_pu.UserIsAdmin(user.UserLogin))
             {
                 ViewBag.Roles = _pu.GetUserRoles(user.UserLogin);
                 return View();
@@ -260,23 +260,6 @@ namespace EPS3.Controllers
         private User GetCurrentUser()
         {
             return _pu.GetUser(GetLogin());
-        }
-
-        private bool UserIsAdmin()
-        {
-            string userLogin = GetLogin();
-            EPS3.Models.User currentUser = _context.Users
-                .Include(u => u.Roles)
-                .Where(u => u.IsDisabled == 0)
-                .SingleOrDefault(u => u.UserLogin == userLogin);
-            if(currentUser == null) { return false; }
-            foreach(UserRole role in currentUser.Roles)
-            {
-                if (role.Role.Equals(ConstantStrings.AdminRole)){
-                    return true;
-                }
-            }
-            return false;
         }
 
         private void UpdateUserRoles(User user, string userRoles)

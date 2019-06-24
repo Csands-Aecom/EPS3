@@ -35,12 +35,17 @@ namespace EPS3.Helpers
         {
             return AddMessage(updateType, encumbrance, comments, null);
         }
+
         public int AddMessage(string updateType, LineItemGroup encumbrance, string comments, List<int> otherRecipients)
+        {
+           return AddMessage(updateType, encumbrance, comments, otherRecipients, null);
+        }
+
+        public int AddMessage(string updateType, LineItemGroup encumbrance, string comments, List<int> otherRecipients, List<int> ccIDs)
         {
             encumbrance = _pu.GetDeepEncumbrance(encumbrance.GroupID);
             int msgID = 0;
             List<int> recipientIDs = null;  // list of IDs of email recipients
-            List<int> ccIDs = null; // list of IDs used for carbon copy of a sent email
             decimal encumbranceTotal = 0.0M;
             //string contractViewURL = _serverpath + "/Contracts/View/" + encumbrance.ContractID + "/enc_" + encumbrance.GroupID;
             string contractViewURL = _serverpath + "/LineItemGroups/Manage/" + encumbrance.GroupID;

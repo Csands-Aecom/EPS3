@@ -723,6 +723,7 @@ namespace EPS3.Controllers
                 initializeMessageService();
                 if (newComment.notify)
                 {
+                    // Only send the message if the notify box is checked.
                     // TODO: Add ability to cc: the sender.
                     //User sender = _pu.GetUserByID(newComment.userID);
                     //msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, sender);
@@ -730,17 +731,12 @@ namespace EPS3.Controllers
 
                     // For now, just add the originator to the recipients list
 
-                    if (newComment.notify)
-                    {
-                        newComment.wpIDs.Add(newLineItemGroup.OriginatorUserID);
-                    }
-                    msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
+                    List<int> ccIDs = new List<int>();
+                    ccIDs.Add(newLineItemGroup.OriginatorUserID);
+                    
+                    msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, ccIDs);
+                    _messageService.SendEmailMessage(msgID);
                 }
-                else
-                {
-                    msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs);
-                }
-                _messageService.SendEmailMessage(msgID);
                 if (newComment.receipt)
                 {
                     User sender = _pu.GetUserByID(newComment.userID);
