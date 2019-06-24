@@ -32,23 +32,6 @@ namespace EPS3.Controllers
             return View(await _context.Funds.ToListAsync());
         }
 
-        // GET: Funds/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var fund = await _context.Funds
-                .FirstOrDefaultAsync(m => m.FundID == id);
-            if (fund == null)
-            {
-                return NotFound();
-            }
-
-            return View(fund);
-        }
 
         // GET: Funds/Create
         public IActionResult Create()
@@ -122,35 +105,6 @@ namespace EPS3.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(fund);
-        }
-
-        // GET: Funds/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            if (!UserIsAdmin()) { return RedirectToAction("Index", "Funds"); }
-            var fund = await _context.Funds
-                .FirstOrDefaultAsync(m => m.FundID == id);
-            if (fund == null)
-            {
-                return NotFound();
-            }
-
-            return View(fund);
-        }
-
-        // POST: Funds/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var fund = await _context.Funds.FindAsync(id);
-            _context.Funds.Remove(fund);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool FundExists(int id)
