@@ -81,6 +81,10 @@
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => @item.CurrentStatus)
+                                @if (ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && item.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                                {
+                                    <span class="float-right"><a href="javascript: showHistoryPanel(@item.GroupID)" title="View the history for this encumbrance.">History</a></span>
+                                }
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.LineItemType)
