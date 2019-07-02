@@ -1,16 +1,12 @@
 ﻿<div class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
             <a asp-action="Index" asp-controller="Home" class="navbar-brand"> <img src="~/images/EPSlogo-01.png" alt="EPS Logo" width="200" height="80"/></a>
         </div>
         <div class="navbar-collapse collapse navbar-right" id="navbar-collapse">
             <p>&nbsp;</p>
             <ul class="nav navbar-nav biglinks">
+                <li id="ToDoList" name="ToDoList" class="dropdown"></li>
                 <li>
                     <a href="\Contracts\Create">Contract</a>
                 </li>

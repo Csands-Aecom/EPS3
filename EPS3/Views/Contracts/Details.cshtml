@@ -196,7 +196,7 @@
                     Encumbrance Request <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@encumbrance.GroupID">@encumbrance.GroupID</a>
                     @if (encumbrance.FileAttachments != null && encumbrance.FileAttachments.Count > 0)
                     {
-                        <span class='glyphicon glyphicon-paperclip'></span>
+                        <span title='This encumbrance request has at least one file attachment.'><img src='~/images/Icons/EPS_Clip.png' alt='Attach' height='16' width='20' /></span>
                     }
                 </h4>
                 @if ((ViewBag.Roles.Contains(ConstantStrings.Originator) && @ViewBag.CurrentUser.UserID == Model.Contract.UserID) && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))

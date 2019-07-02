@@ -85,7 +85,7 @@
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.CategoryID)
-                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Category from the list of options."></span>
+                            <span title="Please begin typing and select a Category from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
                         </dt>
                         <dd>
                             <input type="hidden" id="CategoryID" name="CategoryID" />
@@ -109,7 +109,7 @@
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.OCAID)
-                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select an OCA value  from the list of options."></span>
+                            <span title="Please begin typing and select an OCA value from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
                         </dt>
                         <dd>
                             <input type="hidden" id="OCAID" name="OCAID" value="1" />
@@ -146,7 +146,7 @@
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.FundID)
-                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Fund  from the list of options."></span>
+                            <span title="Please begin typing and select a Fund from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
                         </dt>
                         <dd>
                             <input type="hidden" id="FundID" name="FundID" />
@@ -178,7 +178,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="Amount">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     @Html.TextBoxFor(model => model.Amount, new { @class="currency", onchange = "showHideNegativeAmountOptions();" })
                                 </label>
                             </span>

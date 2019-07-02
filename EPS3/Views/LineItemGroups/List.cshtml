@@ -6,7 +6,11 @@
 
 <h2>Index of Encumbrance Requests</h2>
 <input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
-
+@if (@ViewBag.CurrentUser != null)
+{
+<input type="hidden" name="CurrentUserID" id="CurrentUserID" value="@ViewBag.CurrentUser.UserID" />
+}
+<div id="historyDialog" name="historyDialog"></div>
 <div id="tabs">
     <ul>
         @foreach (string key in Model.Keys)
@@ -68,7 +72,10 @@
                                 {
                                     @if (ViewBag.AdIDs.Contains(item.GroupID))
                                     {
-                                        <span class="float-right" title="Click Award link to Award contract @item.Contract.ContractNumber"><a href="javascript: awardAdvertisement(@item.GroupID, '@item.Contract.ContractNumber')"> Award </a></span>
+                                        <span class="float-right" title="Click Award link to Award contract @item.Contract.ContractNumber">
+                                            <a href="javascript: awardAdvertisement(@item.GroupID, '@item.Contract.ContractNumber')"> 
+                                            <img src="~/images/Icons/EPS_Award.png" alt="Award" height="16" width="16"/> 
+                                            </a></span>
                                     }
                                 }
                             </td>
@@ -76,14 +83,20 @@
                                 <a href="/LineItemGroups/Manage?id=@item.GroupID">@Html.DisplayFor(modelItem => item.GroupID)</a>
                                 @if (ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.Originator) && item.CurrentStatus.Equals(ConstantStrings.CFMComplete) && !(item.LineItemType.Equals(ConstantStrings.Advertisement)))
                                 {
-                                    <span class="float-right"><a href="javascript: awardDuplicate(@item.GroupID)" title="Click here to open a new Encumbrance Request that duplicates this one.">Duplicate</a></span>
+                                    <span class="float-right"><a href="javascript: awardDuplicate(@item.GroupID)" title="Click here to open a new Encumbrance Request that duplicates this one.">
+                                         <img src="~/images/Icons/EPS_Duplicate.png" alt="Duplicate" height="16" width="16"/>
+                                         </a></span>
                                 }
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => @item.CurrentStatus)
-                                @if (ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && item.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
+                                @if (ViewBag.Roles != null && ((ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer) && item.CurrentStatus.Equals(ConstantStrings.SubmittedFinance)) ||
+                                        (ViewBag.Roles.Contains(ConstantStrings.WPReviewer) && item.CurrentStatus.Equals(ConstantStrings.SubmittedWP)) ||
+                                        (ViewBag.Roles.Contains(ConstantStrings.CFMSubmitter) && item.CurrentStatus.Equals(ConstantStrings.CFMReady))))
                                 {
-                                    <span class="float-right"><a href="javascript: showHistoryPanel(@item.GroupID)" title="View the history for this encumbrance.">History</a></span>
+                                    <span class="float-right"><a href="javascript: showHistoryDialog(@item.GroupID, '@item.CurrentStatus')" title="View the history for this encumbrance.">
+                                         <img src="~/images/Icons/EPS_History.png" alt="History" height="16" width="20"/>
+                                         </a></span>
                                 }
                             </td>
                             <td>
@@ -104,22 +117,22 @@
                                     {
                                         <div>@fpNum</div>
                                     }
-                            }
-                        </td>
-                        <td>
-                            @item.OriginatedDate.ToString("yyyy-MM-dd hh:ss tt")
-                        </td>
-                        <td>
-                            @item.LastEditedDate.ToString("yyyy-MM-dd hh:ss tt")
-                        </td>
-                        <td>
-                            @ViewBag.EncumbranceAmounts[item.GroupID]
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.OriginatorUser.FullName)
-                        </td>
-                    </tr>
-                }
+                                }
+                            </td>
+                            <td>
+                                @item.OriginatedDate.ToString("yyyy-MM-dd hh:ss tt")
+                            </td>
+                            <td>
+                                @item.LastEditedDate.ToString("yyyy-MM-dd hh:ss tt")
+                            </td>
+                            <td>
+                                @ViewBag.EncumbranceAmounts[item.GroupID]
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.OriginatorUser.FullName)
+                            </td>
+                        </tr>
+                    }
 
                 </tbody>
             </table>
@@ -153,9 +166,9 @@
             </div>
         </div> <!-- end row -->
         <div class="row">
-             <div class="col-sm-4">
-                 <a href="~/EncumbranceLookups/Search/">Advanced Search</a>
-             </div>
+            <div class="col-sm-4">
+                <a href="~/EncumbranceLookups/Search/">Advanced Search</a>
+            </div>
         </div> <!-- end row -->
     </div> <!-- end Search tab -->
 </div> <!-- end tabs div-->

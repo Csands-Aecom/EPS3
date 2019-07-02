@@ -718,25 +718,20 @@ namespace EPS3.Controllers
                 // send receipt and notification if Encumbrance is submitted for review
                 statusChange = AssessStatusChange(newLineItemGroup.CurrentStatus, oldStatus);
                 int msgID = 0;
-
                 // initialize the message service if necessary
                 initializeMessageService();
+                // send the default notification
+                // if notify checkbox is checked, cc: the originator
+
+                List<int> ccIDs = new List<int>();
                 if (newComment.notify)
                 {
-                    // Only send the message if the notify box is checked.
-                    // TODO: Add ability to cc: the sender.
-                    //User sender = _pu.GetUserByID(newComment.userID);
-                    //msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, sender);
-
-
-                    // For now, just add the originator to the recipients list
-
-                    List<int> ccIDs = new List<int>();
                     ccIDs.Add(newLineItemGroup.OriginatorUserID);
-                    
-                    msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, ccIDs);
-                    _messageService.SendEmailMessage(msgID);
                 }
+                    
+                msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, ccIDs);
+                _messageService.SendEmailMessage(msgID);
+                
                 if (newComment.receipt)
                 {
                     User sender = _pu.GetUserByID(newComment.userID);
@@ -985,6 +980,14 @@ namespace EPS3.Controllers
             return RedirectToAction("Manage", new { id = newAmendID });
         }
 
+        [HttpGet]
+        public IActionResult GetHistory(string groupID)
+        {
+            int id = int.Parse(groupID);
+            IEnumerable<LineItemGroupStatus> statuses = _pu.GetDeepEncumbranceStatuses(id);
+            return Json(statuses);
+        }
+
 
         [HttpPost]
         public JsonResult ListContracts(string searchString)
@@ -1047,6 +1050,19 @@ namespace EPS3.Controllers
             Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmountsFromMap(lineItemGroupsMap);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
             return View(lineItemGroupsMap);
+        }
+
+        [HttpGet]
+        public IActionResult GetEncumbranceIDsByStatus(string status)
+        {
+            string encumbranceStatus = JsonConvert.DeserializeObject<string>(status);
+            List<int> encIDs = _context.LineItemGroups
+                                .AsNoTracking()
+                                .Where(g => g.CurrentStatus.Equals(encumbranceStatus))
+                                .OrderBy(g => g.GroupID)
+                                .Select(g => g.GroupID)
+                                .ToList();
+            return Json(encIDs);                                
         }
 
         private Dictionary<string, List<LineItemGroup>> getCategorizedLineItemGroups(User user)
@@ -1306,7 +1322,7 @@ namespace EPS3.Controllers
             //int groupID = int.Parse(closure.LineItemGroupID);
             PopulateViewBag(contractID);
             User user = ViewBag.CurrentUser;
-            LineItemGroup encumbrance = null;
+            //LineItemGroup encumbrance = null;
             Contract contract = null;
 
             try

@@ -50,13 +50,14 @@
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.Contract.ContractTypeID)
+                            <span title="Please begin typing and select a Contract Type from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
                         </dt>
                         <dd>
                             <div>
                                 <input type="hidden" id="Contract_ContractTypeID" name="Contract.ContractTypeID" value="@Model.Contract.ContractTypeID" />
                                 <input type="hidden" id="ContractTypeID" name="ContractTypeID" value="@Model.Contract.ContractTypeID" />
                                 <input type="text" size="50" class="form-control" id="ContractTypeSelector" name="ContractTypeSelector" value="@ViewBag.myContractType.ContractTypeSelector" style="text-transform:uppercase" />
-                                <span id="ContractTypeClear" class="glyphicon glyphicon-remove-circle float-right" style="margin-right : 10px; vertical-align: text-bottom"></span>
+                                <span id="ContractTypeClear" style="margin-right : 10px; vertical-align: text-bottom"><img src="~/images/Icons/EPS_Close.png" alt="Clear" height="16" width="20" /></span>
                                 @Html.ValidationMessageFor(model => model.Contract.ContractTypeID, "A Contract Type is required.")
                             </div>
                         </dd>
@@ -95,7 +96,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="ContractTotal">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     @Html.TextBoxFor(model => model.Contract.ContractTotal, new { @class="currency"})
                                 </label>
                             </span>
@@ -107,7 +108,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="MaxLoaAmount">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     @Html.TextBoxFor(model => model.Contract.MaxLoaAmount)
                                 </label>
                             </span>
@@ -119,7 +120,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="BudgetCeiling">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     @Html.TextBoxFor(model => model.Contract.BudgetCeiling)
                                 </label>
                             </span>
@@ -144,7 +145,7 @@
                                 @Html.TextBoxFor(model => model.Contract.BeginningDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
                                     <label for="Contract_BeginningDate">
-                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                        <span class="btn btn-default"><img src="~/images/Icons/EPS_Calendar.png" alt="Calendar" height="16" width="20" /></span>
                                     </label>
                                 </span>
                             </div>
@@ -158,7 +159,7 @@
                                 @Html.TextBoxFor(model => model.Contract.EndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
                                     <label for="Contract_EndingDate">
-                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                        <span class="btn btn-default"><img src="~/images/Icons/EPS_Calendar.png" alt="Calendar" height="16" width="20" /></span>
                                     </label>
                                 </span>
                             </div>
@@ -172,7 +173,7 @@
                                 @Html.TextBoxFor(model => model.Contract.ServiceEndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
                                     <label for="Contract_ServiceEndingDate">
-                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                        <span class="btn btn-default"><img src="~/images/Icons/EPS_Calendar.png" alt="Calendar" height="16" width="20" /></span>
                                     </label>
                                 </span>
                             </div>
@@ -202,14 +203,15 @@
                         </dd>
 
                         <dt>
-                            <label for="VendorID">Vendor</label>
+                            <label for="VendorID">Vendor <span title="Please begin typing and select a Vendor from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
+                            </label>
                         </dt>
                         <dd>
                             <div>
                                 <input type="hidden" id="Contract_VendorID" name="Contract.VendorID" value="@Model.Contract.VendorID" />
                                 <input type="hidden" id="VendorID" name="VendorID" value="@Model.Contract.VendorID" onchange="updateContractVendorID()" />
                                 <input type="text" class="form-control" id="VendorSelector" name="VendorSelector" value="@ViewBag.myVendor.VendorSelector" />
-                                <span id="VendorClear" class="glyphicon glyphicon-remove-circle float-right " style="margin-right : 10px; vertical-align: text-bottom"></span>
+                                <span id="VendorClear" style="margin-right : 10px; vertical-align: text-bottom"><img src="~/images/Icons/EPS_Close.png" alt="Clear" height="14" width="16" /></span>
                                 @Html.ValidationMessageFor(model => model.Contract.VendorID, "Select AD for Advertisement.")
                             </div>
                         </dd>
