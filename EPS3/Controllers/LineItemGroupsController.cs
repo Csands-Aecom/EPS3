@@ -1065,6 +1065,20 @@ namespace EPS3.Controllers
             return Json(encIDs);                                
         }
 
+        [HttpGet]
+        public IActionResult GetEncumbranceIDsByStatusAndOriginator(string statusAndID)
+        {
+            ToDoRequest searchValues = JsonConvert.DeserializeObject<ToDoRequest>(statusAndID);
+            string encumbranceStatus = searchValues.status;
+            int userID = int.Parse(searchValues.userID);
+            List<int> encIDs = _context.LineItemGroups
+                                .AsNoTracking()
+                                .Where(g => g.CurrentStatus.Equals(encumbranceStatus) && g.OriginatorUserID == userID)
+                                .OrderBy(g => g.GroupID)
+                                .Select(g => g.GroupID)
+                                .ToList();
+            return Json(encIDs);
+        }
         private Dictionary<string, List<LineItemGroup>> getCategorizedLineItemGroups(User user)
         {
             Dictionary<string, List<LineItemGroup>> results = new Dictionary<string, List<LineItemGroup>>();

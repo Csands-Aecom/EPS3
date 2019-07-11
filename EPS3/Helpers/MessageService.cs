@@ -168,14 +168,15 @@ namespace EPS3.Helpers
                         recipientIDs = otherRecipients;;
                         break;
                     case ConstantStrings.CFMToComplete:
-                        msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been input into CFM";
-                        msg.Body = "<p>" + submitter.FullName + " has input encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " into CFM.</p>\n";
-                        if (comments.Length > 0)
-                        { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
-                        msg.Body += "<p>No further action is required. You may view this encumbrance request in the <a href='" + contractViewURL + "'>" +
-                            "EPS Application</a>.</p>";
-                        // Send only to TPK Encumbrance mailbox
-                        recipientIDs = new List<int> { submitter.UserID }; ;
+                        //msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been input into CFM";
+                        //msg.Body = "<p>" + submitter.FullName + " has input encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " into CFM.</p>\n";
+                        //if (comments.Length > 0)
+                        //{ msg.Body += "<p>Comments: " + comments + "</p>\n"; }
+                        //msg.Body += "<p>No further action is required. You may view this encumbrance request in the <a href='" + contractViewURL + "'>" +
+                        //    "EPS Application</a>.</p>";
+                        //// Send only to TPK Encumbrance mailbox
+                        //recipientIDs = new List<int> { submitter.UserID };
+                        // No notification needed per Lorna 7/9/2019
                         break;
                     case ConstantStrings.CloseContract:
                         msg.Subject = "Request to Close Contract #" + contract.ContractNumber;

@@ -487,6 +487,11 @@ function addToDoList() {
     var listString = "<a class='dropdown-toggle' role='button' data-toggle='dropdown' aria-expanded='false'>";
     listString += "To Do List <span class='caret'></span></a>";
     listString += "<ul class='dropdown dropdown-menu' role='menu' id='ToDoDropdown' name='ToDoDropdown'>";
+    var userID = $("#CurrentUserID").val() ? $("#CurrentUserID").val() : $("#UserID").val();
+    if(userID)
+    if ($("#UserRoles").val().indexOf("Originator") >= 0) {
+        getDraftToDoItems("Draft", userID);
+    }
     if ($("#UserRoles").val().indexOf("Finance") >= 0) {
         getToDoItems("Finance");
     }
@@ -500,35 +505,58 @@ function addToDoList() {
     $("#ToDoList").append(listString);
 }
 
+function getDraftToDoItems(status, userID) {
+    var statusAndID = "{\"status\" : \"" + status + "\", \"userID\" : \"" + userID + "\"}";
+    $.ajax({
+        url: "/LineItemGroups/GetEncumbranceIDsByStatusAndOriginator",
+        type: "GET",
+        traditional: true,
+        datatype: "json",
+        data: { statusAndID: statusAndID },
+        success: function (data) { addItemsToToDoList(data, status); },
+        error: function () {
+            addBlankToDoList(status);
+        }        
+    });
+}
 function getToDoItems(status) {
-    var statusName = status.replace(" ", ""); // remove space from status for id label and selector
-    var listString = "";
     $.ajax({
         url: "/LineItemGroups/GetEncumbranceIDsByStatus",
         type: "GET",
         datatype: "json",
         data: { status: JSON.stringify(status) },
-        success: function (data) {
-            // <a href="#menupos1" class="list-group-item" data-toggle="collapse" data-parent="#ToDoList">
-            listString += "<li style='text-align:left' name = 'ToDo_" + statusName + "' id  = 'ToDo_" + statusName + "' class='list-group-item' data-parent='#ToDoList' onmouseover='showHideToDoList(\"" + statusName + "_SubMenu\")'><b>" + status + "</b></li>";
-            //listString += "<li style='text-align:left'><a href='#'>" + status + "</a></li>";
-            // TODO: Make status name clickable to show/hide list items
-            listString += "<div name='" + statusName + "_SubMenu' id= '" + statusName + "_SubMenu' class='collapse list-group-submenu'>";
-            //listString += "<div class='collapse list-group-submenu' id='submenu1'>";
-            if (data.length === 0) { listString += "<li style='text-align:left'>No items</li>"; }
-            for (var i = 0; i<data.length; i++) {
-                listString += "<li style='text-align:left' class='list-group-item sub-sub-item'>";
-                listString += "<a class='dropdown-item' role='button' target='_self' href='/LineItemGroups/Manage/" + data[i] + "'>Encumbrance #" + data[i] + "</a></li>";
-            }
-            //listString += "</div>";
-            $("#ToDoDropdown").append(listString);
-        },
+        success: function (data) { addItemsToToDoList(data, status); },
         error: function () {
-            listString += "<li style='text-align:left'><b>" + status + "</b></li>";
-            listString += "<li style='text-align:left'>No items</li>";
-            $("#ToDoDropdown").append(listString);
+            addBlankToDoList(status);
         }
     });
+}
+
+function addItemsToToDoList(data, status) {
+    var statusName = status.replace(" ", ""); // remove space from status for id label and selector
+    var listString = "";
+    // <a href="#menupos1" class="list-group-item" data-toggle="collapse" data-parent="#ToDoList">
+    listString += "<li style='text-align:left' name = 'ToDo_" + statusName + "' id  = 'ToDo_" + statusName + "' class='list-group-item' data-parent='#ToDoList' onmouseover='showHideToDoList(\"" + statusName + "_SubMenu\")'><b>" + status + "</b></li>";
+    //listString += "<li style='text-align:left'><a href='#'>" + status + "</a></li>";
+    // TODO: Make status name clickable to show/hide list items
+    listString += "<div name='" + statusName + "_SubMenu' id= '" + statusName + "_SubMenu' class='collapse list-group-submenu'>";
+    //listString += "<div class='collapse list-group-submenu' id='submenu1'>";
+    if (data.length === 0) { listString += "<li style='text-align:left'>No items</li>"; }
+    for (var i = 0; i < data.length; i++) {
+        listString += "<li style='text-align:left' class='list-group-item sub-sub-item'>";
+        listString += "<a class='dropdown-item' role='button' target='_self' href='/LineItemGroups/Manage/" + data[i] + "'>Encumbrance #" + data[i] + "</a></li>";
+    }
+    //listString += "</div>";
+    $("#ToDoDropdown").append(listString);
+}
+
+function addBlankToDoList(status) {
+    var statusName = status.replace(" ", ""); // remove space from status for id label and selector
+    var listString = "";
+    listString += "<li style='text-align:left' name = 'ToDo_" + statusName + "' id  = 'ToDo_" + statusName + "' class='list-group-item' data-parent='#ToDoList' onmouseover='showHideToDoList(\"" + statusName + "_SubMenu\")'><b>" + status + "</b></li>";
+    listString += "<div name='" + statusName + "_SubMenu' id= '" + statusName + "_SubMenu' class='collapse list-group-submenu'>";
+    listString += "<li style='text-align:left' class='list-group-item sub-sub-item'>No items</li>";
+    $("#ToDoDropdown").append(listString);
 }
 
 function showHideToDoList(listName) {
