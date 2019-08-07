@@ -644,7 +644,7 @@ else
                     <br />
                     @if (ViewBag.Files != null && ViewBag.Files.Count > 0)
                     {
-                        <table width="25%" name="AttachedFilesTable" id="AttachedFilesTable">
+                        <table width="25" name="AttachedFilesTable" id="AttachedFilesTable">
                             @foreach (FileAttachment file in ViewBag.Files)
                             {
                                 var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
@@ -674,60 +674,66 @@ else
             @if (@Model != null && @Model.Statuses != null && @Model.Statuses.Count > 0)
             {
                 <h3 class="groupStatus">History</h3>
-                <table class="table-striped table-bordered">
-                    <thead>
-                        <tr class="groupStatus">
-                            <th colspan="2">Date</th>
-                            <th colspan="2">Commenter</th>
-                            <th colspan="1">Status</th>
-                            @if (ViewBag.HasWPHistory == "WP")
+                var wpclass = "";
+                @if (ViewBag.HasWPHistory == "WP")
+                {
+                    wpclass = "WPcols";
+                }
+                    <table class="table-striped table-bordered @wpclass" id="HistoryTable">                
+                        <thead>
+                            <tr class="groupStatus">
+                                <th>Date</th>
+                                <th>Commenter</th>
+                                <th>Status</th>
+                                @if (ViewBag.HasWPHistory == "WP")
+                                {
+                                    <th>Comment</th>
+                                    <th>Item Reduced</th>
+                                    <th>Amount Reduced</th>
+                                }
+                                else
+                                {
+                                    <th>Comment</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Statuses != null)
                             {
-                                <th colspan="3">Comment</th>
-                                <th colspan="2">Item Reduced</th>
-                                <th colspan="2">Amount Reduced</th>
+                                @foreach (LineItemGroupStatus gstatus in @Model.Statuses)
+                                {
+                                    <tr class="groupStatus">
+                                        <td>@gstatus.SubmittalDate</td>
+                                        <td>@gstatus.User.FullName</td>
+                                        <td>@gstatus.CurrentStatus</td>
+                                        @if (ViewBag.HasWPHistory == "WP")
+                                        {
+                                            <td>@gstatus.Comments</td>
+                                            <td>@gstatus.ItemReduced</td>
+                                            <td>@gstatus.AmountReduced</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@gstatus.Comments</td>
+                                        }
+                                    </tr>
+                                }
                             }
-                            else
-                            {
-                                <th colspan="7">Comment</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model != null && Model.Statuses != null)
-                        {
-                            @foreach (LineItemGroupStatus gstatus in @Model.Statuses)
-                            {
-                                <tr class="groupStatus">
-                                    <td colspan="2">@gstatus.SubmittalDate</td>
-                                    <td colspan="2">@gstatus.User.FullName</td>
-                                    <td colspan="1">@gstatus.CurrentStatus</td>
-                                    @if (ViewBag.HasWPHistory == "WP")
-                                    {
-                                        <td colspan="3">@gstatus.Comments</td>
-                                        <td colspan="2">@gstatus.ItemReduced</td>
-                                        <td colspan="2">@gstatus.AmountReduced</td>
-                                    }
-                                    else
-                                    {
-                                        <td colspan="7">@gstatus.Comments</td>
-                                    }
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
                 <br />
             }
         </div>
 
         <div class="row">
+            <div id="newCommentStatusDialog" name="newCommentStatusDialog"></div>
             <div class="col-sm-10" id="buttonDiv">
                 <input type="button" class=" btn btn-default" id="btnEncumbranceDraft" value="Save As Draft" onclick="javascript:updateGroupStatus('Draft', 'false')" />
                 <input type="button" class=" btn btn-default" id="btnEncumbranceFinance" value="Submit to Finance" onclick="javascript:updateGroupStatus('Finance', 'false')" />
                 <input type="button" class=" btn btn-default" id="btnEncumbranceRollback" value="Rollback to Draft" onclick="javascript:updateGroupStatus('Draft', 'false')" />
                 @if (Model != null)
                 {
-                    <input type="button" class=" btn btn-default" id="btnEncumbranceSaveAsIs" value="Save with Comments" onclick="javascript:updateGroupStatus('@Model.CurrentStatus', 'false')" />
+                    <input type="button" class=" btn btn-default" id="btnEncumbranceSaveAsIs" value="Save with Comments" onclick="javascript:openNewCommentStatusDialog()" />
                 }
                 <input type="button" class=" btn btn-default" id="btnEncumbranceWP" value="Submit to Work Program" onclick="javascript:updateGroupStatus('Work Program', 'false')" />
                 <input type="button" class=" btn btn-default" id="btnEncumbranceCFM" value="Submit to CFM" onclick="javascript:updateGroupStatus('CFM', 'false')" />
@@ -735,9 +741,11 @@ else
             </div>
             @if (@Model != null)
             {
-                <div class="col-sm-10" id="noButtonDiv">
-                    <input type="hidden" id="GroupStatus" name="GroupStatus" value="@Model.CurrentStatus" />
-                    <text>This encumbrance is currently in @Model.CurrentStatus status.</text>
+                <div class="row">
+                    <div class="col-sm-10" id="noButtonDiv">
+                        <input type="hidden" id="GroupStatus" name="GroupStatus" value="@Model.CurrentStatus" />
+                        <text>This encumbrance is currently in @Model.CurrentStatus status.</text>
+                    </div>
                 </div>
             }
         </div> <!-- end row -->

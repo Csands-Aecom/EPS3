@@ -137,6 +137,25 @@ namespace EPS3.Helpers
             return false;
         }
 
+        public Contract GetContractByEncumbranceID(int encumbranceID)
+        {
+            try
+            {
+                int contractID = _context.LineItemGroups
+                                    .AsNoTracking()
+                                    .Where(e => e.GroupID == encumbranceID)
+                                    .Select(e => e.ContractID)
+                                    .SingleOrDefault();
+                return GetContractByID(contractID);
+            }
+            catch (Exception e)
+            {
+                Log.Error("PermissionsUtils.GetContractByEncumbranceID Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                _logger.LogError("PermissionsUtils.GetContractByEncumbranceID Error:" + e.GetBaseException());
+                throw e;
+            }
+        }
+
         public Contract GetContractByID(int contractID)
         {
             // returns the Contract with the specified contractID

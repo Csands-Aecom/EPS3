@@ -718,25 +718,20 @@ namespace EPS3.Controllers
                 // send receipt and notification if Encumbrance is submitted for review
                 statusChange = AssessStatusChange(newLineItemGroup.CurrentStatus, oldStatus);
                 int msgID = 0;
-
                 // initialize the message service if necessary
                 initializeMessageService();
+                // send the default notification
+                // if notify checkbox is checked, cc: the originator
+
+                List<int> ccIDs = new List<int>();
                 if (newComment.notify)
                 {
-                    // Only send the message if the notify box is checked.
-                    // TODO: Add ability to cc: the sender.
-                    //User sender = _pu.GetUserByID(newComment.userID);
-                    //msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, sender);
-
-
-                    // For now, just add the originator to the recipients list
-
-                    List<int> ccIDs = new List<int>();
                     ccIDs.Add(newLineItemGroup.OriginatorUserID);
-                    
-                    msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, ccIDs);
-                    _messageService.SendEmailMessage(msgID);
                 }
+                    
+                msgID = _messageService.AddMessage(statusChange, newLineItemGroup, newComment.comments, newComment.wpIDs, ccIDs);
+                _messageService.SendEmailMessage(msgID);
+                
                 if (newComment.receipt)
                 {
                     User sender = _pu.GetUserByID(newComment.userID);
@@ -922,7 +917,7 @@ namespace EPS3.Controllers
         {
             /*  The id is GroupID for the Advertisement Encumbrance request
             *   This method creates a new request that is a duplicate of the original in the following way:
-            *   1. Create a new encumbrance with the same contract of type ConstantStrings.Amendmen
+            *   1. Create a new encumbrance with the same contract of type ConstantStrings.Amendment
             *   2. Duplicate each LineItem in the original encumbrance with identical information
             *   3. Open the new Amendment encumbrance in the Manage page.
             *   5. Show the Amend banner warning the user to update the Vendor and Amounts
@@ -983,6 +978,14 @@ namespace EPS3.Controllers
                 Log.Error("LineItemGroupsController.Amend Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
             return RedirectToAction("Manage", new { id = newAmendID });
+        }
+
+        [HttpGet]
+        public IActionResult GetHistory(string groupID)
+        {
+            int id = int.Parse(groupID);
+            IEnumerable<LineItemGroupStatus> statuses = _pu.GetDeepEncumbranceStatuses(id);
+            return Json(statuses);
         }
 
 
@@ -1047,6 +1050,71 @@ namespace EPS3.Controllers
             Dictionary<int, string> lineItemGroupAmounts = getLineItemGroupAmountsFromMap(lineItemGroupsMap);
             ViewBag.EncumbranceAmounts = lineItemGroupAmounts;
             return View(lineItemGroupsMap);
+        }
+
+        [HttpGet]
+        public IActionResult GetEncumbranceIDsByStatus(string status)
+        {
+            string encumbranceStatus = JsonConvert.DeserializeObject<string>(status);
+            List<int> encIDs = _context.LineItemGroups
+                                .AsNoTracking()
+                                .Where(g => g.CurrentStatus.Equals(encumbranceStatus))
+                                .OrderBy(g => g.GroupID)
+                                .Select(g => g.GroupID)
+                                .ToList();
+            return Json(encIDs);                                
+        }
+
+        [HttpGet]
+        public IActionResult GetEncumbranceIDsByStatusAndOriginator(string statusAndID)
+        {
+            ToDoRequest searchValues = JsonConvert.DeserializeObject<ToDoRequest>(statusAndID);
+            string encumbranceStatus = searchValues.status;
+            int userID = int.Parse(searchValues.userID);
+            List<int> encIDs = _context.LineItemGroups
+                                .AsNoTracking()
+                                .Where(g => g.CurrentStatus.Equals(encumbranceStatus) && g.OriginatorUserID == userID)
+                                .OrderBy(g => g.GroupID)
+                                .Select(g => g.GroupID)
+                                .ToList();
+            return Json(encIDs);
+        }
+
+        [HttpGet]
+        public IActionResult GetToDoListItemsByStatus(string status)
+        {
+            string encumbranceStatus = JsonConvert.DeserializeObject<string>(status);
+            var todoList = _context.LineItemGroups
+                                .Include(g => g.Contract)
+                                .Where(g => g.CurrentStatus.Equals(encumbranceStatus))
+                                .OrderByDescending(g => g.LastEditedDate)
+                                .Select(g => new { g.GroupID, g.ContractID, g.Contract.ContractNumber })
+                                .ToList();
+            return Json(todoList);
+        }
+
+        [HttpGet]
+        public IActionResult GetToDoListItemsByStatusAndOriginator(string statusAndID)
+        {
+            ToDoRequest searchValues = JsonConvert.DeserializeObject<ToDoRequest>(statusAndID);
+            string encumbranceStatus = searchValues.status;
+            int userID = int.Parse(searchValues.userID);
+            var todoList = _context.LineItemGroups
+                                .Include(g => g.Contract)
+                                .Where(g => g.CurrentStatus.Equals(encumbranceStatus) && g.OriginatorUserID == userID)
+                                .OrderByDescending(g => g.LastEditedDate)
+                                .Select(g => new { g.GroupID, g.ContractID, g.Contract.ContractNumber })
+                                .ToList();
+            return Json(todoList);
+        }
+
+
+
+        [HttpGet]
+        public IActionResult GetContractByEncumbranceID(int encumbranceID)
+        {
+            Contract contract = _pu.GetContractByEncumbranceID(encumbranceID);
+            return Json(contract);
         }
 
         private Dictionary<string, List<LineItemGroup>> getCategorizedLineItemGroups(User user)
@@ -1306,7 +1374,7 @@ namespace EPS3.Controllers
             //int groupID = int.Parse(closure.LineItemGroupID);
             PopulateViewBag(contractID);
             User user = ViewBag.CurrentUser;
-            LineItemGroup encumbrance = null;
+            //LineItemGroup encumbrance = null;
             Contract contract = null;
 
             try
