@@ -81,7 +81,7 @@ namespace EPS3.Helpers
                         msg.Body += "<p>Review this encumbrance request in the <a href='" + contractViewURL + "'>" +
                             "EPS Application</a>.</p>";
                         // Send only to TPK Encumbrance mailbox
-                        recipientIDs = (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
+                        recipientIDs = getFinanceRecipients();
                         break;
                     case ConstantStrings.DraftToCFM:
                         msg.Subject = "Encumbrance Request# " + encumbrance.GroupID + " for contract " + contract.ContractNumber + " for " + encumbrance.LineItemType;
@@ -125,7 +125,7 @@ namespace EPS3.Helpers
                         break;
                     case ConstantStrings.FinanceToCFM:
                     case ConstantStrings.FinanceToComplete:
-                        // No notification required. Exit without sendind message
+                        // No notification required. Exit without sending message
                         return 0;
                     case ConstantStrings.WPToFinance:
                         msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been returned by Work Program";
@@ -168,14 +168,15 @@ namespace EPS3.Helpers
                         recipientIDs = otherRecipients;;
                         break;
                     case ConstantStrings.CFMToComplete:
-                        msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been input into CFM";
-                        msg.Body = "<p>" + submitter.FullName + " has input encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " into CFM.</p>\n";
-                        if (comments.Length > 0)
-                        { msg.Body += "<p>Comments: " + comments + "</p>\n"; }
-                        msg.Body += "<p>No further action is required. You may view this encumbrance request in the <a href='" + contractViewURL + "'>" +
-                            "EPS Application</a>.</p>";
-                        // Send only to TPK Encumbrance mailbox
-                        recipientIDs = new List<int> { encumbrance.OriginatorUserID }; ;
+                        //msg.Subject = "Encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " has been input into CFM";
+                        //msg.Body = "<p>" + submitter.FullName + " has input encumbrance request #" + encumbrance.GroupID + " for contract " + contract.ContractNumber + " into CFM.</p>\n";
+                        //if (comments.Length > 0)
+                        //{ msg.Body += "<p>Comments: " + comments + "</p>\n"; }
+                        //msg.Body += "<p>No further action is required. You may view this encumbrance request in the <a href='" + contractViewURL + "'>" +
+                        //    "EPS Application</a>.</p>";
+                        //// Send only to TPK Encumbrance mailbox
+                        //recipientIDs = new List<int> { submitter.UserID };
+                        // No notification needed per Lorna 7/9/2019
                         break;
                     case ConstantStrings.CloseContract:
                         msg.Subject = "Request to Close Contract #" + contract.ContractNumber;
@@ -325,6 +326,11 @@ namespace EPS3.Helpers
             return body;
         }
 
+        private List<int> getFinanceRecipients()
+        {
+            return (List<int>)_context.Users.Where(u => u.Email == ConstantStrings.TPKMailbox).Select(u => u.UserID).ToList();
+
+        }
         public void AddRecipients(int msgID, IEnumerable<User> recipients)
         {
             foreach(User user in recipients)

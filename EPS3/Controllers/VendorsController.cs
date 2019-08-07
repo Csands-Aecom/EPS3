@@ -23,7 +23,6 @@ namespace EPS3.Controllers
     {
         private readonly EPSContext _context;
         private readonly ILogger<VendorsController> _logger;
-        private object loggerFactory;
 
         public VendorsController(EPSContext context, ILoggerFactory loggerFactory)
         {

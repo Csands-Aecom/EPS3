@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using EPS3.Helpers;
@@ -13,6 +14,7 @@ namespace EPS3.Models
         public string ContractNumber { get; set; }
         [Key]
         public int GroupID { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal InitialAmount { get; set; }
         public DateTime? BeginningDate { get; set; }
         public DateTime? EndingDate { get; set; }
@@ -27,7 +29,9 @@ namespace EPS3.Models
         public string EncumbranceStatus { get; set; }
         public string ContractStatus { get; set; }
         public string Description { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal EncumbranceAmount { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ContractAmount { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

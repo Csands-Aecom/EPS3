@@ -40,7 +40,7 @@
                                 <input type="text" name="SearchStartDate" id="SearchStartDate" class="datepicker" @if (ViewBag.SearchParams != null && ViewBag.SearchParams.SearchStartDate != null) { @Html.Raw("value=" + ViewBag.SearchParams.SearchStartDate)} />
                                 <span class="input-group-addon">
                                     <label for="SearchStartDate">
-                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                        <span class="btn btn-default"><img src="~/images/Icons/EPS_Calendar.png" alt="Calendar" height="16" width="20" /></span>
                                     </label>
                                 </span>
                             </div>
@@ -56,7 +56,7 @@
                                 <input type="text" name="SearchEndDate" id="SearchEndDate" class="datepicker" @if (ViewBag.SearchParams != null && ViewBag.SearchParams.SearchEndDate != null) { @Html.Raw("value=" + ViewBag.SearchParams.SearchEndDate)} />
                                 <span class="input-group-addon">
                                     <label for="SearchEndDate">
-                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                        <span class="btn btn-default"><img src="~/images/Icons/EPS_Calendar.png" alt="Calendar" height="16" width="20" /></span>
                                     </label>
                                 </span>
                             </div>
@@ -72,7 +72,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="SearchMinAmount">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     <input type="number" name="SearchMinAmount" id="SearchMinAmount" @if (ViewBag.SearchParams != null && ViewBag.SearchParams.SearchMinAmount != null) { @Html.Raw("value=" + ViewBag.SearchParams.SearchMinAmount)} />
                                 </label>
                             </span>
@@ -86,7 +86,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="SearchMaxAmount">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     <input type="number" name="SearchMaxAmount" id="SearchMaxAmount" @if (ViewBag.SearchParams != null && ViewBag.SearchParams.SearchMaxAmount != null) { @Html.Raw("value=" + ViewBag.SearchParams.SearchMaxAmount)} />
                                 </label>
                             </span>

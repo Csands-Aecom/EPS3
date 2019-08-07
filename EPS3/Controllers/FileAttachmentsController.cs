@@ -118,7 +118,8 @@ namespace EPS3.Controllers
 
             }
 	        catch(Exception e)
-	        {
+            {
+                //Console.WriteLine(e.Message);
                 //TODO: If the file wasn't deleted, restore the FileAttachment record
                 //return Json("{'error': 'true', 'message' : 'The attachment was not saved.' }");
                 //return RedirectToAction("Manage", "LineItemGroups", new { id = fileGroupID });

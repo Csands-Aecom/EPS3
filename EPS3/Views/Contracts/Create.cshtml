@@ -36,7 +36,7 @@
                     <dl>
                         <dt>
                             @Html.DisplayNameFor(model => model.ContractTypeID)
-                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Contract Type from the list of options."></span>
+                            <span title="Please begin typing and select a Contract Type from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
                         </dt>
                         <dd>
                             <input type="hidden" id="ContractTypeID" name="ContractTypeID" />
@@ -70,7 +70,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="ContractTotal">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     @Html.DisplayFor(model => model.ContractTotal, new { Value = "0.00", title = "Contract Inital Amount is set by Amendment, Award, or New Contract encumbrance request." })
                                 </label>
                             </span>
@@ -82,7 +82,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="MaxLoaAmount">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     @Html.HiddenFor(model => model.MaxLoaAmount)
                                     <input type="text" name="MaxLoaAmountString" id="MaxLoaAmountString" class="currency" onchange="setDecimal(this, 'MaxLoaAmount')" value="0.00" />
                                 </label>
@@ -95,7 +95,7 @@
                         <dd>
                             <span class="input-group-addon">
                                 <label for="BudgetCeiling">
-                                    <span class="glyphicon glyphicon-usd btn btn-default"></span>
+                                    <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
                                     @Html.HiddenFor(model => model.BudgetCeiling)
                                     <input type="text" name="BudgetCeilingString" id="BudgetCeilingString" class="currency" onchange="setDecimal(this, 'BudgetCeiling')" value="0.00"/>
                                 </label>
@@ -115,7 +115,7 @@
                                 @Html.TextBoxFor(model => model.BeginningDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
                                     <label for="BeginningDate">
-                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                        <span class="btn btn-default"><img src="~/images/Icons/EPS_Calendar.png" alt="Calendar" height="16" width="20" /></span>
                                     </label>
                                 </span>
                             </div>
@@ -129,7 +129,7 @@
                                 @Html.TextBoxFor(model => model.EndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
                                     <label for="EndingDate">
-                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                        <span class="btn btn-default"><img src="~/images/Icons/EPS_Calendar.png" alt="Calendar" height="16" width="20" /></span>
                                     </label>
                                 </span>
                             </div>
@@ -143,7 +143,7 @@
                                 @Html.TextBoxFor(model => model.ServiceEndingDate, "{0:MM/dd/yyyy}", new { @class = "datepicker" })
                                 <span class="input-group-addon">
                                     <label for="ServiceEndingDate">
-                                        <span class="glyphicon glyphicon-calendar btn btn-default"></span>
+                                        <span class="btn btn-default"><img src="~/images/Icons/EPS_Calendar.png" alt="Calendar" height="16" width="20" /></span>
                                     </label>
                                 </span>
                             </div>
@@ -172,7 +172,7 @@
                         <p></p>
                         <dt>
                             <label for="VendorID">Vendor</label>
-                            <span class="glyphicon glyphicon-info-sign" title="Please begin typing and select a Vendor from the list of options."></span>
+                            <span title="Please begin typing and select a Vendor from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
                         </dt>
                         <dd>
                             <input type="hidden" id="VendorID" name="VendorID" />
