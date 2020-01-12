@@ -1388,7 +1388,6 @@ li.dropdown {
 li a, .dropbtn {
     display: inline-block;
     color: white;
-    text-align: center;
     text-decoration: none;
 }
 /**H3 styles in the container**/

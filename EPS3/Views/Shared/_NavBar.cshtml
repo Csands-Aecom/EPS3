@@ -7,8 +7,14 @@
             <p>&nbsp;</p>
             <ul class="nav navbar-nav biglinks">
                 <li id="ToDoList" name="ToDoList" class="dropdown"></li>
-                <li>
-                    <a href="\Contracts\Create">Contract</a>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="false">
+                        Contracts
+                    </a>
+                    <ul class="dropdown dropdown-menu" role="menu">
+                        <li style="text-align:left"><a class="dropdown-item" href="/Contracts/Create">Create Contract</a></li>
+                        <li style="text-align:left"><a class="dropdown-item" role="button" href="/Contracts/">List Contract</a></li>
+                    </ul>
                 </li>
                 <li>
                     <a href="\LineItemGroups\Manage">Request</a>
