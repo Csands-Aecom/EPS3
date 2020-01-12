@@ -502,7 +502,7 @@ function addToDoList() {
         getToDoItems("CFM");
     }
     listString += "</ul>";
-    $("#ToDoList").append(listString);
+    $("#ToDoList").html(listString);
 }
 
 function getDraftToDoItems(status, userID) {
@@ -2570,6 +2570,9 @@ function saveEncumbrance(commentJson) {
                 displayMessage("Encumbrance successfully marked as input into CFM.");
                 $("#btnEncumbranceCFM").remove();
             }
+
+            //Fix for issue 4
+            addToDoList();
         }
     });
 }
