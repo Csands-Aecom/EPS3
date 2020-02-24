@@ -631,14 +631,7 @@ else
     {
         <div class='panel panel-body' name='FileAttachmentsPanel' id='FileAttachmentsPanel' @if (Model == null || Model.GroupID == 0) { @Html.Raw("style='display : none'") ; }>
             <div class="row">
-                <div id="AttachmentRequiredWarning" style="display: none">
-                    <p style="color: red">A file attachment or explanation is required for an encumbrance request for a negative amount.<br />
-                    Please attach a file <strong>or</strong> provide an explanation why no file is attached.<br />
-                    <div class="col-sm-4">
-                        <label for="NoAttachmentComment">Explanation</label>
-                        <textarea id='NoAttachmentComment' name='NoAttachmentComment' />
-                    </div>
-                </div>
+                <span id="AttachmentRequiredWarning" name="AttachmentRequiredWarning"></span>
                 <input type="hidden" name="AttachmentIsRequired" id="AttachmentIsRequired" value="false" />
                 <div class="col-sm-4" name="FlieAttachmentColumn" id="FlieAttachmentColumn">
                     <h3>Upload Attachment</h3>
