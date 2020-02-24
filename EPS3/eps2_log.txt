@@ -327,3 +327,123 @@
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at System.Net.Mail.SmtpClient.Send(MailMessage message)
    at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\chris_sands\source\repos\EPS3\EPS3\Helpers\MessageService.cs:line 548
+2020-01-11 12:34:57.082 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 549
+2020-01-11 12:35:18.254 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 549
+2020-01-11 12:48:47.835 -05:00 [ERR] ContractsController.Edit Error:System.NullReferenceException: Object reference not set to an instance of an object.
+   at EPS3.Controllers.ContractsController.Details(Int32 id) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Controllers\ContractsController.cs:line 69
+   at EPS3.Controllers.ContractsController.Details(Int32 id) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Controllers\ContractsController.cs:line 69
+2020-01-11 12:50:47.944 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 549
+2020-01-11 13:12:23.511 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 549
+2020-01-11 13:51:30.604 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 549
+2020-01-11 13:51:51.795 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 549
+2020-01-11 14:03:43.682 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 549
+2020-01-11 14:35:38.075 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 549
+2020-02-24 16:49:02.488 -05:00 [ERR] MessageService.SendEmail Error:System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10060): A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond 192.29.28.71:23
+   at System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Connect(EndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(IPEndPoint remoteEP)
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Net.Sockets.TcpClient.Connect(String hostname, Int32 port)
+   at System.Net.Mail.SmtpConnection.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpTransport.GetConnection(String host, Int32 port)
+   at System.Net.Mail.SmtpClient.GetConnection()
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at System.Net.Mail.SmtpClient.Send(MailMessage message)
+   at EPS3.Helpers.MessageService.SendMail(Message msg, List`1 recipients, List`1 ccs) in C:\Users\bill.beers\Documents\Turnpike EPS\Source\EPS3\Helpers\MessageService.cs:line 550

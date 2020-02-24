@@ -404,6 +404,7 @@ namespace EPS3.Helpers
                 FromUserID = submitter.UserID,
                 MessageDate = DateTime.Now
             };
+            //ToDo add IDs
             if (closure.ContractOrEncumbrance.Equals("Contract")) {
                 msg.Subject = "Please Close Contract " + contract.ContractNumber + ".";
                 msg.Body = "Please place in status " + closeStatus.ToString() + ".<br/>";

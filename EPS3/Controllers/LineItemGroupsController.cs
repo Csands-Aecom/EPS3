@@ -1421,13 +1421,16 @@ namespace EPS3.Controllers
 
         private void AddEncumbranceStatus(LineItemGroup encumbrance, string newStatus)
         {
+            var now = DateTime.Now;
             LineItemGroupStatus status = new LineItemGroupStatus(encumbrance)
             {
                 CurrentStatus = newStatus,
-                SubmittalDate = DateTime.Now,
+                SubmittalDate = now,
                 UserID = ViewBag.CurrentUser.UserID,
             };
+            encumbrance.LastEditedDate = now;
             _context.LineItemGroupStatuses.Add(status);
+            _context.Update(encumbrance);
             _context.SaveChanges();
         }
 
