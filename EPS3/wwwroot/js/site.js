@@ -1799,7 +1799,7 @@ function populateFiscalYearList(selectedValue) {
     if (!selectedValue) {
         selectedValue = currentYear;
     }
-    for (var i = currentYear - 5; i < currentYear + 10; i++) {
+    for (var i = 2010; i < currentYear + 10; i++) {
         if (selectedValue && (i + 1) === selectedValue) {
             list += '\n<option selected value="' + (i + 1) + '" >' + i + ' - ' + (i + 1) + '</option>';
         } else {
@@ -2647,13 +2647,10 @@ function updateRequireAttachment(encumbranceTotal) {
         && ($("#NoAttachmentComment").val() === undefined || $("#NoAttachmentComment").val().length < 1)
         && ($("#AttachmentCount").val() === undefined || parseInt($("#AttachmentCount").val()) === 0))
     {
-        var warning = "<p><font color='red'>A file attachment is required for an encumbrance request for a negative amount.<br /> ";
-        warning += "Please attach a file or provide an explanation why no file is attached:</font></p> ";
-        warning += "<input type='text' id='NoAttachmentComment' name='NoAttachmentComment' />";
-        $("#AttachmentRequiredWarning").html(warning);
+        $("#AttachmentRequiredWarning").show();
         $("#AttachmentIsRequired").val("true");
     } else {
-        $("#AttachmentRequiredWarning").html("");
+        $("#AttachmentRequiredWarning").hide();
         $("#AttachmentIsRequired").val("false");
     }
 }
