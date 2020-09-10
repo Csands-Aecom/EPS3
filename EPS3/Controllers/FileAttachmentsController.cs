@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +10,6 @@ using EPS3.DataContexts;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.IO;
-using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2;
 using EPS3.Helpers;
 
 namespace EPS3.Controllers
@@ -21,17 +19,9 @@ namespace EPS3.Controllers
         private readonly IHostingEnvironment _appEnvironment;
         private readonly EPSContext _context;
         private readonly ILogger<FileAttachmentsController> _logger;
-        private readonly String UserFilesPhysicalPath;
 
         public FileAttachmentsController(IHostingEnvironment appEnvironment, EPSContext context, ILoggerFactory loggerFactory)
         {
-
-            var appSettingsJson = AppSettingsJson.GetAppSettings();
-            var UserFilesPhysicalPathSetting = appSettingsJson["UserFilesPhysicalPath"];
-            if (UserFilesPhysicalPathSetting.StartsWith("{wwwroot}"))
-            {
-                UserFilesPhysicalPath = UserFilesPhysicalPathSetting.Replace("{wwwroot}", _appEnvironment.WebRootPath);
-            }
             _appEnvironment = appEnvironment;
             _context = context;
             _logger = loggerFactory.CreateLogger<FileAttachmentsController>();
