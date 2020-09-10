@@ -11,6 +11,8 @@ using EPS3.DataContexts;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.IO;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http2;
+using EPS3.Helpers;
 
 namespace EPS3.Controllers
 {
@@ -19,12 +21,18 @@ namespace EPS3.Controllers
         private readonly IHostingEnvironment _appEnvironment;
         private readonly EPSContext _context;
         private readonly ILogger<FileAttachmentsController> _logger;
-        private const string USER_FILE_DIR = "\\UserFiles\\"; //TODO: move to appsettings.json. 
-        private string USER_FILE_PATH;
+        private readonly String UserFilesPhysicalPath;
+
         public FileAttachmentsController(IHostingEnvironment appEnvironment, EPSContext context, ILoggerFactory loggerFactory)
         {
+
+            var appSettingsJson = AppSettingsJson.GetAppSettings();
+            var UserFilesPhysicalPathSetting = appSettingsJson["UserFilesPhysicalPath"];
+            if (UserFilesPhysicalPathSetting.StartsWith("{wwwroot}"))
+            {
+                UserFilesPhysicalPath = UserFilesPhysicalPathSetting.Replace("{wwwroot}", _appEnvironment.WebRootPath);
+            }
             _appEnvironment = appEnvironment;
-            USER_FILE_PATH = _appEnvironment.WebRootPath + USER_FILE_DIR;
             _context = context;
             _logger = loggerFactory.CreateLogger<FileAttachmentsController>();
         }
@@ -69,7 +77,6 @@ namespace EPS3.Controllers
             return View();
         }
 
-
         [HttpPost]
         public async Task<IActionResult> UploadFile(IFormFile FileToUpload, int fileGroupID)
         {
@@ -83,7 +90,7 @@ namespace EPS3.Controllers
                 FileAttachment fileAttachment = new FileAttachment()
                 {
                     FileDate = DateTime.Now,
-                    FileName = fileName,
+                    FileName = fileName, //file name gets changed in next step below; done in two steps so we have the ID
                     DisplayName = fileName,
                     GroupID = fileGroupID
                 };
@@ -99,13 +106,13 @@ namespace EPS3.Controllers
                 _context.SaveChanges();
 
                 // 3. Save the file to the UserFiles directory, using the FileName, not the DisplayName
-                string filePath = USER_FILE_PATH + fileAttachment.FileName;
+                string filePath = AppSettingsJson.UserFilesPhysicalPath() + fileAttachment.FileName;
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await FileToUpload.CopyToAsync(stream);
                 }
                 // Assert: DisplayName = Filename.pdf, FileName = 123_Filename.pdf, file is stored in /UserFiles/123_Filename.pdf
-                string displayPath = USER_FILE_PATH + fileAttachment.DisplayName;
+                string displayPath = AppSettingsJson.UserFilesPhysicalPath() + fileAttachment.DisplayName;
                 ViewData["FilePath"] = filePath;
                 ViewData["DisplayPath"] = displayPath;
 
@@ -140,7 +147,7 @@ namespace EPS3.Controllers
                 _context.SaveChanges();
 
                 //Remove the file from UserFiles directory
-                DeleteFile(USER_FILE_PATH + fileAttachment.FileName);
+                DeleteFile(AppSettingsJson.UserFilesPhysicalPath() + fileAttachment.FileName);
 
                 return (new JsonResult("{\"fileName\" : \"" + fileName + "\"}"));
             }catch(Exception e)
