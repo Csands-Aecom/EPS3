@@ -87,7 +87,7 @@ namespace EPS3.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError("ContractsController.Edit Error:" + e.GetBaseException());
+                _logger.LogError("ContractsController.Edit Error:" + e.GetBaseException()); //todo once we fix the notification bug, change this to "ContractsController.Details"
                 Log.Error("ContractsController.Edit Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
             return View(erViewModel);
@@ -392,11 +392,11 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ListContractTypes(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
-            if (!string.IsNullOrEmpty(searchString) && !searchSTRING.Equals("NEW"))
+            if (!String.IsNullOrEmpty(searchString) && !searchString.ToUpper().Equals("NEW"))
             {
+                searchString = searchString.ToUpper();
                 List<ContractType> ContractTypeList = _context.ContractTypes
-                    .Where(ct => ct.ContractTypeCode.Contains(searchSTRING) || ct.ContractTypeName.ToUpper().Contains(searchSTRING))
+                    .Where(ct => ct.ContractTypeCode.Contains(searchString) || ct.ContractTypeName.ToUpper().Contains(searchString))
                     .OrderBy(ct => ct.ContractTypeCode)
                     .ToList();
 

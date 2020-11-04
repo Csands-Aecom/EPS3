@@ -276,31 +276,36 @@ function initContractControls() {
     //Contract Types
     $("#ContractTypeSelector").autocomplete({
         source: function (request, response) {
-            $.ajax({
-                autoFocus: true,
-                url: "/Contracts/ListContractTypes",
-                type: "POST",
-                dataType: "json",
-                data: { searchString: request.term },
-                success: function (data) {
-                    var counter = 0;
-                    var lastSelector = "";
-                    var lastID = 0;
-                    response($.map(data, function (item) {
-                        var contractTypeSelector = item.contractTypeCode + " - " + item.contractTypeName;
-                        lastSelector = contractTypeSelector;
-                        lastID = item.contractTypeID;
-                        counter++;
-                        $("#ContractTypeIDValidation").hide();
-                        return { label: contractTypeSelector, value: item.contractTypeSelector, contractTypeID: item.contractTypeID, accessKey: item.contractTypeID };
-                    }));
-                    // if autocomplete has a single match, select it
-                    if (counter === 1) {
-                        $("#ContractTypeSelector").val(lastSelector);
-                        $("#ContractTypeID").val(lastID);
+            if (request && request.term && request.term.trim()) {
+                $.ajax({
+                    autoFocus: true,
+                    url: "/Contracts/ListContractTypes",
+                    type: "POST",
+                    dataType: "json",
+                    data: { searchString: request.term },
+                    success: function (data) {
+                        var counter = 0;
+                        var lastSelector = "";
+                        var lastID = 0;
+                        response($.map(data, function (item) {
+                            var contractTypeSelector = item.contractTypeCode + " - " + item.contractTypeName;
+                            lastSelector = contractTypeSelector;
+                            lastID = item.contractTypeID;
+                            counter++;
+                            $("#ContractTypeIDValidation").hide();
+                            return { label: contractTypeSelector, value: item.contractTypeSelector, contractTypeID: item.contractTypeID, accessKey: item.contractTypeID };
+                        }));
+                        // if autocomplete has a single match, select it
+                        if (counter === 1) {
+                            $("#ContractTypeSelector").val(lastSelector);
+                            $("#ContractTypeID").val(lastID);
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                //empty or just white space
+                response([]);
+            }
         },
         select: function (event, ui) {
             $("#ContractTypeSelector").val(ui.item.label);
