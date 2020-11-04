@@ -249,7 +249,7 @@ namespace EPS3.Helpers
             }
             catch (Exception e)
             {
-                Log.Error("MessageService.SendReceipt Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                Log.Error("MessageService.AddReceipt Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 return -1;
             }
         }
@@ -293,12 +293,29 @@ namespace EPS3.Helpers
                     encumbrance.LineItemType.Equals(ConstantStrings.Advertisement) || 
                     encumbrance.LineItemType.Equals(ConstantStrings.Award))
                 {
-                    contractInfo = GetContractInfo(contract);
+                    contractInfo = "<h3>Contract Information</h3>" +
+                        "<strong>Contract Number:</strong> " + contract.ContractNumber + "<br />" +
+                        "<strong>Contract Type:</strong> " + contract.ContractType.ContractTypeSelector + "<br />" +
+                        "<strong>Is Contract Renewable?:</strong> " + (contract.IsRenewable > 0 ? "Yes" : "No") + "<br />" +
+                        "<strong>Contract Initial Amount:</strong> " + Utils.FormatCurrency(contract.ContractTotal) + "<br />" + //TODO per Lorna, on award, this number has to be the award amount
+                        "<strong>Maximum LOA Amount:</strong> " + Utils.FormatCurrency(contract.MaxLoaAmount) + "<br />" +
+                        "<strong>Budget Ceiling:</strong> " + Utils.FormatCurrency(contract.BudgetCeiling) + "<br />" +
+                        "<strong>Contract Begin Date:</strong> " + contract.BeginningDate.ToString("MM/dd/yyyy") + "<br />" +
+                        "<strong>Contract End Date:</strong> " + contract.EndingDate.ToString("MM/dd/yyyy") + "<br />";
+                    if (contract.ServiceEndingDate != null && contract.ServiceEndingDate > new DateTime(2000, 01, 01))
+                    {
+                        contractInfo += "<strong>Service End Date:</strong> " + contract.ServiceEndingDate?.ToString("MM/dd/yyyy") + "<br />";
+                    }
+                    contractInfo += "<strong>Procurement:</strong> " + contract.MethodOfProcurement.ProcurementSelector + "<br />" +
+                        "<strong>Contract Funding Terms:</strong> " + contract.ContractFunding.CompensationSelector + "<br />" +
+                        "<strong>Vendor:</strong> " + contract.Vendor.VendorSelector + "<br />" +
+                        "<strong>Recipient:</strong> " + contract.Recipient.RecipientSelector + "<br />" +
+                        "<strong>Description of Work:</strong> " + contract.DescriptionOfWork + "<br />";
                 }
                 else
                 {
-                    contractInfo += "<strong>Contract: </strong>" + contract.ContractNumber + "<br/>";
-                    contractInfo += "<strong>Contract Initial Amount:</strong> " + Utils.FormatCurrency(contract.ContractTotal) + "<br/>";
+                    contractInfo += "<strong>Contract: </strong>" + contract.ContractNumber + "<br/>" +
+                        "<strong>Contract Initial Amount:</strong> " + Utils.FormatCurrency(contract.ContractTotal) + "<br/>"; //TODO per Lorna, on award, this number has to be the award amount
                     //TODO: What other contract information should be included in the email receipt?
                 }
                 List<LineItem> lineItems = _pu.GetDeepLineItems(encumbrance.GroupID);
@@ -432,7 +449,7 @@ namespace EPS3.Helpers
 
             catch (Exception e)
             {
-                Log.Error("MessageService.SendReceipt Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                Log.Error("MessageService.SendClosingRequest Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
         }
 
@@ -558,34 +575,6 @@ namespace EPS3.Helpers
             }
         }
 
-
-        public string GetContractInfo(Contract contract)
-        {
-            // NOTE: This must be a Deep Copy of a contract
-            string contractInfo = "";
-            contractInfo += "<h3>Contract Information</h3>";
-            contractInfo += "<strong>Contract Number:</strong> " + contract.ContractNumber + "<br />";
-            contractInfo += "<strong>Contract Type:</strong> " + contract.ContractType.ContractTypeSelector + "<br />";
-            string canRenew = contract.IsRenewable > 0 ? "Yes" : "No";
-            contractInfo += "<strong>Is Contract Renewable?:</strong> " + canRenew + "<br />";
-            contractInfo += "<strong>Contract Initial Amount:</strong> " + Utils.FormatCurrency(contract.ContractTotal) + "<br />";
-            contractInfo += "<strong>Maximum LOA Amount:</strong> " + Utils.FormatCurrency(contract.MaxLoaAmount) + "<br />";
-            contractInfo += "<strong>Budget Ceiling:</strong> " + Utils.FormatCurrency(contract.BudgetCeiling)  + "<br />";
-            contractInfo += "<strong>Contract Begin Date:</strong> " + contract.BeginningDate.ToString("MM/dd/yyyy") + "<br />";
-            contractInfo += "<strong>Contract End Date:</strong> " + contract.EndingDate.ToString("MM/dd/yyyy") + "<br />";
-            if (contract.ServiceEndingDate != null && contract.ServiceEndingDate > new DateTime(2000, 01, 01))
-            {
-                contractInfo += "<strong>Service End Date:</strong> " + contract.ServiceEndingDate?.ToString("MM/dd/yyyy") + "<br />";
-            }
-            contractInfo += "<strong>Procurement:</strong> " + contract.MethodOfProcurement.ProcurementSelector + "<br />";
-            contractInfo += "<strong>Contract Funding Terms:</strong> " + contract.ContractFunding.CompensationSelector + "<br />";
-            contractInfo += "<strong>Vendor:</strong> " + contract.Vendor.VendorSelector + "<br />";
-            contractInfo += "<strong>Recipient:</strong> " + contract.Recipient.RecipientSelector + "<br />";
-            contractInfo += "<strong>Description of Work:</strong> " + contract.DescriptionOfWork + "<br />";
-
-            return contractInfo;
-        }
-        
         public string GetEncumbranceInfo(LineItemGroup encumbrance, decimal encumbranceTotal)
         {
             string encumbranceInfo = "";
