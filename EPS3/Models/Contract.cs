@@ -29,10 +29,12 @@ namespace EPS3.Models
         [Display(Name = "Contract Number")]
         [StringLength(5)]
         public string ContractNumber { get; set; }
+        
         [Display(Name = "Contract Initial Amount")]
         [DisplayFormat(DataFormatString = "{0:C}")]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal ContractTotal { get; set; }
+        public decimal ContractTotal { get; set; } //Not really the contract total, apparently, based on the display name
+
         [ForeignKey("ContractTypeID")]
         [Display(Name = "Contract Type")]
         public int ContractTypeID { get; set; }

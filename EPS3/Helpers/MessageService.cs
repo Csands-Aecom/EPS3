@@ -293,6 +293,7 @@ namespace EPS3.Helpers
                     encumbrance.LineItemType.Equals(ConstantStrings.Advertisement) || 
                     encumbrance.LineItemType.Equals(ConstantStrings.Award))
                 {
+                    //todo something like LineItemsController.UpdateContractTotal()
                     contractInfo = "<h3>Contract Information</h3>" +
                         "<strong>Contract Number:</strong> " + contract.ContractNumber + "<br />" +
                         "<strong>Contract Type:</strong> " + contract.ContractType.ContractTypeSelector + "<br />" +
