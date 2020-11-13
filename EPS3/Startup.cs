@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using EPS3.DataContexts;
 using EPS3.Models;
-using EPS3.Helpers;
-using System.Data.Entity;
 using Microsoft.Extensions.Logging;
-using System.IO;
 using Serilog;
+using Microsoft.Extensions.FileProviders;
 
 namespace EPS3
 {
@@ -83,6 +77,10 @@ namespace EPS3
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
+                    name: "userFiles",
+                    template: "UserFiles/{*fileNameOrId}",
+                    defaults: new { controller = "UserFiles", action = "GetFile" });
+                routes.MapRoute(
                     name: "duplicate",
                     template: "{controller=LineItems}/{action=Edit}/{id}/{duplicate?}");
                 routes.MapRoute(
@@ -92,6 +90,7 @@ namespace EPS3
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            
             //DbInitializer.Initialize(context);
             loggerFactory.AddDebug();
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));

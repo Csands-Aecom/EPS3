@@ -636,7 +636,7 @@ else
                     Please attach a file <strong>or</strong> provide an explanation why no file is attached.<br />
                     <div class="col-sm-4">
                         <label for="NoAttachmentComment">Explanation</label>
-                        <textarea id='NoAttachmentComment' name='NoAttachmentComment' />
+                        <textarea id='NoAttachmentComment' name='NoAttachmentComment'></textarea>
                     </div>
                 </div>
                 <input type="hidden" name="AttachmentIsRequired" id="AttachmentIsRequired" value="false" />
@@ -654,7 +654,7 @@ else
                         <table width="25" name="AttachedFilesTable" id="AttachedFilesTable">
                             @foreach (FileAttachment file in ViewBag.Files)
                             {
-                                var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.FileName;
+                                var url = "\\" + @FileAttachment.UserFilesPath + "\\" + file.AttachmentID;
                                 <tr name="file_@file.AttachmentID" id="file_@file.AttachmentID">
                                     <td width="50px">
                                         <a href="@url" target="_blank">@file.DisplayName</a>
