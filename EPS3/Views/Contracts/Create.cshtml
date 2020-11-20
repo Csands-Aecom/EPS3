@@ -220,7 +220,7 @@
     </div> <!-- end panel -->
 </form>
 
-<div id="addVendorDialog" title="Add New Vendor" style="display: none;">
+<div id="addVendorDialog" title="Add New Vendor" style="display: none;" class="needs-validation">
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4>Add New Vendor</h4>
@@ -228,12 +228,10 @@
         <div class='panel-body'>
             <form asp-controller="Vendors" asp-action="Create" id="AddVendorForm" name="AddVendorForm">
                 <label for="VendorCode">Vendor Number:</label>
-                <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" />
+                <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" required pattern="^(F|S)\d{12}" title="Vendor Number is required, and must start with 'F' or 'S', followed by 12 digits" />
                 <br />
                 <label for="VendorName">Vendor Name:</label>
-                <input type="text" name="VendorName" id="VendorName" width="350" />
-                <br />
-                <div id="vendorMessage" name="vendorMessage"></div>
+                <input type="text" name="VendorName" id="VendorName" width="350" required />
                 <br />
                 <input type='button' value='Cancel' class='btn btn-default' onclick='closeAddVendorDialog()' />
                 <input type='button' value='Add Vendor' class='btn btn-default' onclick='addNewVendor()' />

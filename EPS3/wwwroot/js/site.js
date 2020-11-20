@@ -1033,12 +1033,7 @@ function openAddVendorPanel() {
 function hideAddVendorPanel() {
     $("#addVendorPanel").hide();
 }
-function addVendor() {
-    // make sure all values are populated
-    // submit to /ContractStatus/Create controller
-    $("AddVendorForm").submit();
-    // close dialog and return focus to parent form
-}
+
 function closeAddVendorDialog() {
     $("#addVendorDialog").dialog("close");
     $("#VendorSelector").show();
@@ -1069,6 +1064,21 @@ function setVendorValidationMessage(vendorMessageDiv, vCode) {
     }
 }
 function addNewVendor() {
+    var form = $("#ContractForm"); //TODO ContractForm is defined in NewContractPartial, only used on LineItemGroups/Manage; addVendor is also called from Contracts/Create (form named createContractForm, with invalid nested form named AddVendorForm, and Contracts/Edit (unnamed form again with invalid nested form)
+    if (form.length === 0) {
+        form = $('#AddVendorForm');
+    }
+    if (form.length > 0 && form[0].checkValidity() === false) {
+        form.addClass('was-validated');
+        jQuery("#ContractForm > :invalid, #AddVendorForm > :invalid").each(function (index, element) { //TODO limit the selector so that other invalid elements on the main form (not just the two-field add-vendor part of the form)
+            console.log(element);
+            if (element.reportValidity) {
+                element.reportValidity();
+            }
+        });
+        return false;
+    }
+
     if (!validateVendorCode($("#VendorCode").val())) {
         return false;
     }

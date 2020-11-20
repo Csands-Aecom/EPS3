@@ -3,11 +3,6 @@
 @{
     ViewData["Title"] = "Edit Contract Information";
 }
-<script>
-    $(document).ready(function () {
-        initContractControls();
-    });
-</script>
 
 <form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -69,18 +64,18 @@
                             @Html.DisplayNameFor(model => model.Contract.IsRenewable)
                         </dt>
                         <dd>
-                            @if (Model.Contract.IsRenewable > 0) 
+                            @if (Model.Contract.IsRenewable > 0)
                             {
                                 <div class="custom-control custom-radio">
-                                        Yes <input id="IsRenewable1" name="IsRenewable" type="radio" class="custom-control-input" checked value="1">
-                                        No &nbsp;<input id="IsRenewable0" name="IsRenewable" type="radio" class="custom-control-input" value="0">
+                                    Yes <input id="IsRenewable1" name="IsRenewable" type="radio" class="custom-control-input" checked value="1">
+                                    No &nbsp;<input id="IsRenewable0" name="IsRenewable" type="radio" class="custom-control-input" value="0">
                                 </div>
                             }
                             else
                             {
                                 <div class="custom-control custom-radio">
-                                        Yes <input type="radio" class="custom-control-input" id="IsRenewable1" name="IsRenewable" value="1" />
-                                        No &nbsp;<input type="radio" class="custom-control-input" id="IsRenewable0" name="IsRenewable" checked value="0" />
+                                    Yes <input type="radio" class="custom-control-input" id="IsRenewable1" name="IsRenewable" value="1" />
+                                    No &nbsp;<input type="radio" class="custom-control-input" id="IsRenewable0" name="IsRenewable" checked value="0" />
                                 </div>
                             }
                         </dd>
@@ -97,7 +92,7 @@
                             <span class="input-group-addon">
                                 <label for="ContractTotal">
                                     <span class="btn btn-default"><img src="~/images/Icons/EPS_Dollar.png" alt="$" height="16" width="20" /></span>
-                                    @Html.TextBoxFor(model => model.Contract.ContractTotal, new { @class="currency"})
+                                    @Html.TextBoxFor(model => model.Contract.ContractTotal, new { @class = "currency" })
                                 </label>
                             </span>
                             @Html.ValidationMessageFor(model => model.Contract.ContractTotal, "The Contract Total is the sum of all associated encumbrance request.")
@@ -203,7 +198,8 @@
                         </dd>
 
                         <dt>
-                            <label for="VendorID">Vendor <span title="Please begin typing and select a Vendor from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
+                            <label for="VendorID">
+                                Vendor <span title="Please begin typing and select a Vendor from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
                             </label>
                         </dt>
                         <dd>
@@ -341,7 +337,7 @@
                                 @Html.DisplayFor(modelItem => item.Amount)
                             </td>
                             <td>
-                                <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a> 
+                                <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a>
                             </td>
                         </tr>
                     }
@@ -352,7 +348,7 @@
 </form>
 
 
-<div id="addVendorDialog" title="Add New Vendor" style="display: none;">
+<div id="addVendorDialog" title="Add New Vendor" style="display: none;" class="needs-validation">
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4>Add New Vendor</h4>
@@ -360,23 +356,29 @@
         <div class='panel-body'>
             <form asp-controller="Vendors" asp-action="Create" id="AddVendorForm" name="AddVendorForm">
                 <label for="VendorCode">Vendor Number:</label>
-                <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" />
+                <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" required pattern="^(F|S)\d{12}" title="Vendor Number is required, and must start with 'F' or 'S', followed by 12 digits" />
                 <br />
                 <label for="VendorName">Vendor Name:</label>
-                <input type="text" name="VendorName" id="VendorName" width="350" />
+                <input type="text" name="VendorName" id="VendorName" width="350" required />
                 <br />
-                <div id="vendorMessage" name="vendorMessage"></div>
-                <br />
-                <input type='hidden' id='ContractID' name="ContractID" value='@ViewBag.Contract.ContractID' />
+                <input type='button' value='Cancel' class='btn btn-default' onclick='closeAddVendorDialog()' />
                 <input type='button' value='Add Vendor' class='btn btn-default' onclick='addNewVendor()' />
             </form>
         </div> <!-- end panel body -->
     </div> <!-- end panel -->
 </div> <!-- end AddVendor dialog -->
+
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            initContractControls();
+        });
+    </script>
+
 }
