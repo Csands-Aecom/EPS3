@@ -1,6 +1,6 @@
 ﻿@model EPS3.Models.Contract
 
-<form asp-action="Create">
+<form asp-action="Create" class="needs-validation" id="ContractForm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="UserID" id="UserID" value="@ViewBag.CurrentUser.UserID" />
     <input type="hidden" name="CurrentStatus" id="CurrentStatus" value="New" />
@@ -177,25 +177,24 @@
 
                             @Html.ValidationMessageFor(model => model.CompensationID, "")
                         </dd>
-                        <p></p>
-                        <form class="vendorForm" action="#" method="post">
-                            <dt>
-                                <label for="VendorID">Vendor</label>
-                                <span title="Please begin typing and select a Vendor from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
-                            </dt>
-                            <dd>
-                                @if (Model != null) {
-                                <input type="hidden" id="VendorID" name="VendorID" value="@Model.VendorID" />
-                                <input type="text" id="VendorSelector" name="VendorSelector" value="@Model.Vendor.VendorSelector" />
-                                } else {
-                                <input type="hidden" id="VendorID" name="VendorID" />
-                                <input type="text" id="VendorSelector" name="VendorSelector" placeholder="Begin typing, then select from the list"  />
-                                }
-                                <br />Select <strong><em>AD</em></strong> for Advertisement.
-                            </dd>
-                        </form>
+                        <dt>
+                            <label for="VendorID">Vendor</label>
+                            <span title="Please begin typing and select a Vendor from the list of options."><img src="~/images/Icons/EPS_Info.png" alt="Info" height="14" width="16" /></span>
+                        </dt>
+                        <dd>
+                            @if (Model != null) {
+                            <input type="hidden" id="VendorID" name="VendorID" value="@Model.VendorID" />
+                            <input type="text" id="VendorSelector" name="VendorSelector" value="@Model.Vendor.VendorSelector" />
+                            } else {
+                            <input type="hidden" id="VendorID" name="VendorID" />
+                            <input type="text" id="VendorSelector" name="VendorSelector" placeholder="Begin typing, then select from the list"  />
+                            }
+                            <br />Select <strong><em>AD</em></strong> for Advertisement.
+                        </dd>
                         <dt>
                             <a href="javascript:openAddVendorPanel();">Add New Vendor</a>
+                            @*TODO: because of the display:none, the edit vendor link doesn't show up. Also, both the span and link have the same ID; need to find out if hiding it
+                                was something intentional, because they decided they didn't want it, or some sort of kludgy way of making it extra secret. *@
                             @if(ViewBag.Roles != null && ViewBag.Roles.Contains(ConstantStrings.AdminRole)){
                                 <span name="editVendorLink" id="editVendorLink" style="display:none"><a href="javascript:openEditVendorPanel();" id="editVendorLink" name="editVendorLink">Edit Selected Vendor</a></span>
                             }
@@ -209,12 +208,10 @@
                                     </div>
                                     <div class='panel-body'>
                                         <label for="VendorCode">Vendor Number:</label>
-                                        <input type="text" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" />
+                                        <input type="text" class="form-control" name="VendorCode" id="VendorCode" width="100" style="text-transform:uppercase" required pattern="^(F|S)\d{12}" title="Vendor Number is required, and must start with 'F' or 'S', followed by 12 digits" />
                                         <br />
                                         <label for="VendorName">Vendor Name:</label>
                                         <input type="text" name="VendorName" id="VendorName" width="350" />
-                                        <br />
-                                        <div id="vendorMessage" name="vendorMessage"></div>
                                         <br />
                                         <input type='button' value='Cancel' class='btn btn-default' onclick='hideAddVendorPanel()' />
                                         <input type='button' value='Add Vendor' class='btn btn-default' onclick='addNewVendor()' />

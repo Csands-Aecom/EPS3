@@ -25,5 +25,23 @@ namespace EPS3.Helpers
 
             return builder.Build();
         }
+
+        private static string _userFilesPhysicalPath = "";
+
+        public static string UserFilesPhysicalPath()
+        {
+            if (string.IsNullOrEmpty(_userFilesPhysicalPath))
+            {
+                var appSettingsJson = AppSettingsJson.GetAppSettings();
+                var UserFilesPhysicalPathSetting = appSettingsJson["UserFilesPhysicalPath"];
+                if (UserFilesPhysicalPathSetting.StartsWith("{wwwroot}"))
+                {
+                    _userFilesPhysicalPath = UserFilesPhysicalPathSetting.Replace("{wwwroot}", ApplicationExeDirectory() + "\\wwwroot");
+                }
+            }
+            return _userFilesPhysicalPath;
+
+        }
+
     }
 }
