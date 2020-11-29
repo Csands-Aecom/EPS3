@@ -391,14 +391,9 @@ namespace EPS3.Helpers
         }
         public void SendClosingRequest(ContractClosure closure, User submitter)
         {
-            int groupID = (closure.LineItemGroupID != null && !closure.LineItemGroupID.Equals("undefined"))? int.Parse(closure.LineItemGroupID) : 0;
-            int contractID = closure.ContractID != null ? int.Parse(closure.ContractID) : 0;
             int closeStatus = closure.ClosureType.Contains("50") ? 50 : 98;
-            if (groupID > 0) {
-                LineItemGroup encumbrance = (LineItemGroup)_context.LineItemGroups.AsNoTracking().SingleOrDefault(e => e.GroupID == groupID);
-            }
             Contract contract = (Contract)_context.Contracts.AsNoTracking().Include(c => c.Vendor)
-                .SingleOrDefault(c => c.ContractID == contractID);
+                .SingleOrDefault(c => c.ContractID == closure.ContractID);
             Message msg = new Message
             {
                 FromUserID = submitter.UserID,
@@ -407,12 +402,18 @@ namespace EPS3.Helpers
             //ToDo add IDs
             if (closure.ContractOrEncumbrance.Equals("Contract")) {
                 msg.Subject = "Please Close Contract " + contract.ContractNumber + ".";
-                msg.Body = "Please place in status " + closeStatus.ToString() + ".<br/>";
-                msg.Body += "Contract Number: " + contract.ContractNumber + " Vendor: " + contract.Vendor.VendorName;
+                msg.Body = "Please place in status " + closeStatus.ToString() + ".<br/>" +
+                            "Contract Number: " + contract.ContractNumber + " Vendor: " + contract.Vendor.VendorName + "<br /><br />" +
+                            "<p><strong>I certify that the amounts being released are not required for current and future obligations.</strong></p>";
             } else {
                 msg.Subject = "Please Close Amendment " + closure.FlairID + ".";
                 msg.Body = "Please place in status " + closeStatus.ToString() + ".<br/>";
                 msg.Body += "Amendment: " + closure.FlairID + "  Contract Number: " + contract.ContractNumber + "  Vendor: " + contract.Vendor.VendorName;
+            }
+
+            if (!String.IsNullOrWhiteSpace(closure.Comments))
+            {
+                msg.Body += "<br /><br /><strong>Comments:</strong> " + closure.Comments;
             }
 
             // Save the message to the database
