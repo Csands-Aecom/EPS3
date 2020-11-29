@@ -296,18 +296,27 @@ function initContractControls() {
                     }));
                     // if autocomplete has a single match, select it
                     if (counter === 1) {
-                        $("#ContractTypeSelector").val(lastSelector);
-                        $("#ContractTypeID").val(lastID);
+                        contractTypeSelected(lastSelector, lastID);
                     }
                 }
             });
         },
         select: function (event, ui) {
-            $("#ContractTypeSelector").val(ui.item.label);
-            $("#ContractTypeID").val(ui.item.contractTypeID);
+            contractTypeSelected(ui.item.label, ui.item.contractTypeID);
             return false;
         }
     });
+
+    function contractTypeSelected(label, value) {
+        $("#ContractTypeSelector").val(label);
+        $("#ContractTypeID").val(value);
+
+        if (value == 87) {
+            $("#GovernorDeclareEmergencyNumberDiv").show();
+        } else {
+            $("#GovernorDeclareEmergencyNumberDiv").hide();
+        }
+    }
 
     $("#ContractTypeSelector").bind('blur', function () {
         updateContractContractType();
