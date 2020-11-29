@@ -12,6 +12,8 @@ using EPS3.ViewModels;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Newtonsoft.Json;
+using System.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace EPS3.Controllers
 {
@@ -119,9 +121,9 @@ namespace EPS3.Controllers
 
 
         [HttpPost]
-        public JsonResult AddNewLineItem(string lineItem)
+        public JsonResult AddNewLineItem(LineItem newLineItem)
         {
-            LineItem newLineItem = JsonConvert.DeserializeObject<LineItem>(lineItem);
+            //LineItem newLineItem = JsonConvert.DeserializeObject<LineItem>(lineItem);
             try {
                 _logger.LogDebug("New line item for Contract " + newLineItem.ContractID);
                 // set linenumber correctly
@@ -182,6 +184,18 @@ namespace EPS3.Controllers
                 return Json("{\"fail\" : \"Delete failed.\"}");
             }
             return Json("{\"success\": \"Line " + LineItemID.ToString() + " successfully deleted.\"}");
+        }
+
+        public JsonResult UploadFile(IFormFile File, int LineItemID)
+        {
+            var lineItem = _context.LineItems.SingleOrDefault(m => m.LineItemID == LineItemID);
+            if (lineItem == null)
+            {
+                throw new ArgumentException("Invalid Line Item ID");
+            }
+
+
+            return Json("todo");
         }
 
         // GET: LineItems/Delete/5
