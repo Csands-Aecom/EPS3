@@ -1,0 +1,35 @@
+﻿<div id="CloseContractDialog" style="display:none">
+    <label>Please select a closure type: </label>
+
+    <div class="form-group">
+        <div>
+            <input type="radio" name="closureType" id="close50" value="CloseContract50" class="radio radio-inline" required/>
+            <label class="radio-inline" for="close50">Close Status 50, Executed Contract</label>
+        </div>
+        <div>
+            <input type="radio" name="closureType" id="close98" value="CloseContract98" class="radio radio-inline" required/>
+            <label class="radio-inline" for="close98">Close Status 98, Unexecuted Contract</label>
+        </div>
+    </div>
+
+    <label>I certify that the amounts being released are not required for current and future obligations.</label>
+
+    <div class="form-group">
+        <div>
+            <input type="radio" name="amountsYesNo" id="amountsYes" value="yes" class="radio radio-inline" required/>
+            <label class="radio-inline" for="amountsYes">Yes</label>
+        </div>
+        <div>
+            <input type="radio" name="amountsYesNo" id="amountsNo" value="no" class="radio radio-inline" required/>
+            <label class="radio-inline" for="amountsNo">No</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label" for="ClosureComments">Comments</label><br />
+        <textarea id="ClosureComments" name="ClosureComments"></textarea>
+    </div>
+
+    <div class="alert alert-danger" name="WarnMessage" id="WarnMessage" style="display: none"></div>
+
+</div>

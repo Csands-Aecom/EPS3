@@ -802,25 +802,6 @@ function openCloseContractDialog(contractID, contractNumber, contractStatus) {
         modal: true,
         open: function (event, ui) {
             $("#ContractSelector").hide();
-            $(this).html("");
-            var contents = "<p>Please select a closure type: </p>";
-            contents += "<table><tr><th>&nbsp;</th><th>&nbsp;</th></tr><tr>";
-            contents += "<td><input type='radio' name='closureType' id='close50' class='radio inline' style='vertical-align: middle; margin: 0px;' /></td><td><label class='radio-inline'> Close Status 50, Executed Contract </label></td>";
-            contents += "</tr><tr>";
-            contents += "<td><input type='radio' name='closureType' id='close98' class='radio inline' style='vertical-align: middle; margin: 0px;' /></td><td><label class='radio-inline'> Close Status 98, Unexecuted Contract </label></td>";
-            contents += "</tr></table><br/>";
-            //contents += "<p>To remove line items from this Encumbrance Request, use the <strong>Delete</strong> link for that line in the <strong>Financial Information</strong> section of the form.</p>";
-            contents += "<p>I certify that the amounts being released are not required for current and future obligations.</p>";
-            contents += "<table><tr><th>&nbsp;</th><th>&nbsp;</th></tr><tr>";
-            contents += "<td><input type='radio' name='amountsYesNo' id='amountsYes' /></td><td> Yes</td>";
-            contents += "</tr><tr>";
-            contents += "<td><input type='radio' name='amountsYesNo' id='amountsNo'  /></td><td> No</td>";
-            contents += "</tr></table><br/>";
-            contents += "Comments: <br/>";
-            contents += "<input type='textarea' name='ClosureComments' id='ClosureComments' /><br />";
-            contents += "<div name='WarnMessage' id='WarnMessage'></div>";
-            contents += "<input type='hidden' name='CloseContractID' id='CloseContractID' value='" + contractID + "'>";
-            $(this).html(contents);
         },
         buttons: {
             "Cancel": function () {
@@ -828,9 +809,10 @@ function openCloseContractDialog(contractID, contractNumber, contractStatus) {
                 $(this).dialog("close");
             },
             "Complete": function () {
-                var closeJson = getClosingDetails();
-                // if validation fails, closeJson is empty string
-                if (closeJson !== "") {
+                var closeJson = getClosingDetails(contractID);
+
+                // if validation fails, closeJson is null
+                if (closeJson) {
                     closeContract(closeJson);
                     $("#ContractSelector").show();
                     $(this).dialog("close");
@@ -841,76 +823,50 @@ function openCloseContractDialog(contractID, contractNumber, contractStatus) {
     $("#CloseContractDialog").dialog("open");
 }
 
-// get details for Closing a Contract
-function getClosingDetails() {
-    var closeJson = "";
-    // read all values from the dialog into the json string
-    closeJson += "{";
-    closeJson += '"ContractID": "' + $("#CloseContractID").val() + '",';
-    var closureType = "";
-    if ($("#close50").is(":checked")) {
-        closureType = "CloseContract50";
-    }
-    if ($("#close98").is(":checked")) {
-        closureType = "CloseContract98";
-    }
-
-    closeJson += '"ActionItemType":"' + closureType + '",';
-    var amountsYesNo = "";
-    if ($("#amountsYes").is(":checked")) {
-        amountsYesNo = "yes";
-    }
-    if ($("#amountsNo").is(":checked")) {
-        amountsYesNo = "No";
-    }
-    if ($("#amountsNA").is(":checked")) {
-        amountsYesNo = "NA";
+// get details for Closing a Contract; also does validation
+function getClosingDetails(contractId) {
+    var closeJson = {
+        "ContractID": contractId,
+        "ClosureType": $('input[name="closureType"]:checked').val(),
+        "Amounts": $('input[name="amountsYesNo"]:checked').val(),
+        "LineItemGroupID": $("#LineItemGroupID").val() || 0,
+        "Comments": $("#ClosureComments").val(),
+        "ContractOrEncumbrance": "Contract"
     }
 
     // Validation
     var warnMsg = "";
-    if (closureType === "") {
+    if (!closeJson.ClosureType) {
         // no Type selection
         warnMsg += "Please select a closure type. <br />";
     }
-    if (amountsYesNo === "") {
+    if (!closeJson.Amounts) {
         // no amounts verification
-        warnMsg += "Please verify that amounts are not required for current or future obligations. <br />";
-    }
-    if (amountsYesNo === "No") {
+        warnMsg += "Please verify that amounts being released are not required for current or future obligations. <br />";
+    } else if (closeJson.Amounts === "no") {
         // no amounts verification
-        warnMsg += "This contract cannot be closed at this time. <br />";
+        warnMsg += "This contract cannot be closed until the amounts being released are certified as not required for current and future oblications.<br />";
     }
     if (warnMsg !== "") {
         // Validation fails. Show warnMsg and return to form
-        $("#WarnMessage").html("<font color='red'>" + warnMsg + "</font>");
-        return "";
+        $("#WarnMessage").html(warnMsg).show();
+        return null;
     }
-    var groupID;
-    if ($("#LineItemGroupID").length > 0 && $("#LineItemGroupID").val() !== null && $("#LineItemGroupID").val() !== undefined) {
-        $("#LineItemGroupID").val();
-    } else { groupID = 0; }
+    $('#WarnMessage').hide();
 
-    closeJson += '"Amounts":"' + amountsYesNo + '",';
-    closeJson += '"LineItemGroupID":"' + groupID + '",';
-    closeJson += '"Comments":"' + $("#ClosureComments").val() + '",';
-    closeJson += "\"ClosureType\":\"" + closureType + "\",";
-    closeJson += "\"ContractOrEncumbrance\":\"" + "Contract" + "\",";
-    closeJson += "}";
-    // return the json string
+    // return the json object
     return closeJson;
 }
 
 // AJAX call to the server to close the contract
-function closeContract(jsonString) {
+function closeContract(obj) {
     $.blockUI({ message: "<h4>Closing Contract...</h4>", timeout: 3000 });
     $.ajax({
         url: "/LineItemGroups/CloseContract",
         type: "POST",
         dataType: "json",
-        data: { closeContract: jsonString },
-        success: function (data) {
-            var results = JSON.parse(data);
+        data: obj,
+        success: function () {
             // remove Close Contract link
             $("#CloseContractLink").remove();
             // show red Closed message
@@ -2177,6 +2133,7 @@ function saveLineItemModal() {
     lineItem.FlairObject = $("#FlairObject").val();
     lineItem.WorkActivity = $("#WorkActivity").val();
     lineItem.Comments = $("#Comments").val();
+
     if (!lineItem.LineItemID) {
         lineItem.LineItemID = 0;
     }
@@ -2190,14 +2147,56 @@ function saveLineItemModal() {
         }
     }
 
+    var fileUpload = $('#FileToUpload');
+    if (fileUpload.length > 0 && fileUpload.get(0).files) {
+        var fileData = new FormData();
+
+        //we only allow uploading one file, but "files" property is an array
+        var file = fileUpload.get(0).files[0];
+
+        lineItem.Attachment = file;
+        //fileData.append("File", file);
+        //fileData.append("LineItemID", result.LineItemID);
+    }
+
     // Submit the Contract to the database with ajax
     $.ajax({
-            url: "/LineItems/AddNewLineItem",
-            type: "POST",
-            dataType: "json",
-        data: { lineItem: JSON.stringify(lineItem) },
+        url: "/LineItems/AddNewLineItem",
+        type: "POST",
+        dataType: "json",
+        data: lineItem,
         success: function (data) {
             var result = JSON.parse(data);
+
+            /*
+             * var fileUpload = $('#FileToUpload');
+            if (fileUpload.length > 0 && fileUpload.get(0).files) {
+                var fileData = new FormData();
+
+                //we only allow uploading one file, but "files" property is an array
+                var file = fileUpload.get(0).files[0];
+
+                fileData.append("File", file);
+                fileData.append("LineItemID", result.LineItemID);
+                
+                $.ajax({
+                    url: '/LineItems/UploadFile',
+                    type: "POST",
+                    contentType: false, // Not to set any content header  
+                    processData: false, // Not to process data  
+                    data: fileData,
+                    success: function (result) {
+                        debugger;
+                        alert(result);
+                    },
+                    error: function (err) {
+                        debugger;
+                        alert(err.statusText);
+                    }
+                });
+            }*/
+
+
             // return the completed Contract object to the calling form and use it to populate ContractPanel div
             var newRow = getNewLineItemRow(result);
             if ($("#row_item_" + result.LineItemID).html()) {
@@ -2213,6 +2212,10 @@ function saveLineItemModal() {
             clearLineItemsDialog();
             // show the line items table
             $("#LineItemsTable").show();
+        }, 
+        error: function (err) {
+            debugger;
+            alert(err.statusText);
         }
     });
 }
@@ -2727,10 +2730,16 @@ function showHideNegativeAmountOptions() {
         // hide FlairAmendmentID and LineID6S in the LineItems form
         $("#LineItemID6SCell").css('visibility', 'hidden');
         $("#LineItemFlairIDCell").css('visibility', 'hidden');
+        // per issue #21, field for attachments for negative line item amounts
+        $('#FileAttachmentRow').hide();
+
     } else {
         // show FlairAmendmentID and LineID6S in the LineItems form
         $("#LineItemID6SCell").css('visibility', 'visible');
         $("#LineItemFlairIDCell").css('visibility', 'visible');
+
+        // per issue #21, field for attachments for negative line item amounts
+        $('#FileAttachmentRow').show();
     }
 }
 

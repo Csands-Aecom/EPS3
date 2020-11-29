@@ -75,7 +75,7 @@ namespace EPS3.Controllers
                         groupAmount += lineItem.Amount;
                     }
                     groupAmounts.Add(encumbrance.GroupID, Utils.FormatCurrency(groupAmount));
-                    // check if all line item groups can be closed
+                    // check if all line item groups can be closed -- must be CFM complete or closed
                     if (!encumbrance.CurrentStatus.Contains(ConstantStrings.CFMComplete) && !encumbrance.CurrentStatus.Contains("Closed"))
                     {
                         canBeClosed = false;

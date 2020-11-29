@@ -28,7 +28,10 @@
                     @if (@ViewBag.CanClose != null && @ViewBag.CanClose == true)
                     {
                         <span id="CloseContractLink" name="CloseContractLink"><a href="javascript:openCloseContractDialog(@Model.Contract.ContractID, '@Model.Contract.ContractNumber', '@Model.Contract.CurrentStatus')">Close this contract</a></span>
-                        <div id="CloseContractDialog" name="CloseContractDialog"></div>
+                        <partial name="~/Views/Shared/CloseContractDialogPartial.cshtml" />
+                    } else
+                    {
+                        <!-- cannot close -->
                     }
                 </div>
             </div>

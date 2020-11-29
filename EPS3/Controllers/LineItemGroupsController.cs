@@ -1363,25 +1363,22 @@ namespace EPS3.Controllers
         }
 
         [HttpPost]
-        public JsonResult CloseContract(string closeContract)
+        public String CloseContract(ContractClosure closure)
         {
-            if(closeContract == null) { return Json("{ \"fail\" : \"No information\"}"); }
-            ContractClosure closure = JsonConvert.DeserializeObject<ContractClosure>(closeContract);
-
-            string response = "";
-            int contractID = int.Parse(closure.ContractID);
+            if (closure == null || closure.ContractID == 0 )
+            {
+                throw new ArgumentException("No data passed to CloseContract method");
+            }
             // TODO: Group ID doesn't matter. This closes the contract. Line closures are handled as new encumbrances
             //int groupID = int.Parse(closure.LineItemGroupID);
-            PopulateViewBag(contractID);
+            PopulateViewBag(closure.ContractID);
             User user = ViewBag.CurrentUser;
-            //LineItemGroup encumbrance = null;
-            Contract contract = null;
 
             try
             {
                 // get contract
-                contract = (Contract)_context.Contracts
-                    .SingleOrDefault(c => c.ContractID == contractID);
+                Contract contract = (Contract)_context.Contracts
+                    .SingleOrDefault(c => c.ContractID == closure.ContractID);
                 string closedStatus = closure.ClosureType.Contains("98") ? ConstantStrings.ContractComplete98 : ConstantStrings.ContractComplete50;
                                 
                 
@@ -1394,29 +1391,29 @@ namespace EPS3.Controllers
                 * 6. Send one notification to the Central Office requesting to close the contract
                 */
                               
-                    List<LineItemGroup> encumbrances = _context.LineItemGroups.Where(li => li.ContractID == contract.ContractID).ToList();
-                    foreach(LineItemGroup enc in encumbrances)
-                    {
-                        enc.CurrentStatus = closedStatus;
-                        AddEncumbranceStatus(enc, closedStatus);
-                    }
-                    contract.CurrentStatus = closedStatus;
-                    //save changes to the database
-                    _context.Contracts.Update(contract);
-                    _context.SaveChanges();
+                List<LineItemGroup> encumbrances = _context.LineItemGroups.Where(li => li.ContractID == contract.ContractID).ToList();
+                foreach(LineItemGroup enc in encumbrances)
+                {
+                    enc.CurrentStatus = closedStatus;
+                    AddEncumbranceStatus(enc, closedStatus);
+                }
+                contract.CurrentStatus = closedStatus;
+                //save changes to the database
+                _context.Contracts.Update(contract);
+                _context.SaveChanges();
                 
 
                 // Send Close Contract/Encumbrance Request to Closers
                 initializeMessageService();
                 _messageService.SendClosingRequest(closure, user);
-                response = "{\"Request Sent\" : \"Closure request sent to closers.\"}";
+                return "ok";
             }
             catch(Exception e)
             {
                 _logger.LogError("LineItemGroupsController.CloseContract Error:" + e.GetBaseException());
                 Log.Error("LineItemGroupsController.CloseContract  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
+                return "Error closing contract: " + e.Message;
             }
-            return Json(response);
         }
 
         private void AddEncumbranceStatus(LineItemGroup encumbrance, string newStatus)
