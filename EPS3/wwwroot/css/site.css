@@ -641,10 +641,14 @@ textarea {
         border: 1px solid #005A04;
     }
 
-input[type="checkbox"] {
+input[type="checkbox"], input[type="radio"] {
     background: transparent;
     border: inherit;
     width: auto;
+}
+
+input[type="radio"] {
+    vertical-align: text-bottom;
 }
 
 input[type="submit"],
@@ -1494,9 +1498,7 @@ label span {
     height: auto !important;
 }
 
-input[type="radio"] {
-    margin: 0 10px 0 10px;
-}
+
 .ui-autocomplete-input {
     border: none;
     font-size: 14px;
