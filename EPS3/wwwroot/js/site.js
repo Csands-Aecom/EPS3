@@ -1595,6 +1595,20 @@ function validateContractDialog() {
     var isErrorFree = true; // set to false when an error is found
     var msg = "";
     displayContractMessage(msg);
+
+    var form = $("#ContractForm"); 
+    if (form.length > 0 && form[0].checkValidity() === false) {
+        form.addClass('was-validated');
+        jQuery("#ContractForm :invalid").not('[data-validate-vendor]').each(function (index, element) { 
+            console.log(element);
+            if (element.reportValidity) {
+                element.reportValidity();
+            }
+            isErrorFree = false;
+        });
+    }
+
+
     if ($("#DuplicateContract").val() === "true") {
         msg += "The Contract Number must be unique. <br/>";
         isErrorFree = false;
