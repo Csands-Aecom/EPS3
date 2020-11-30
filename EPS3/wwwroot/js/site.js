@@ -1,6 +1,6 @@
 ﻿// ready function initializes all pages, runs common scripts
 $(document).ready(function () {
-    initForms(); 
+    initForms();
     initContractControls();
     addDialogs();
     showHideButtons();
@@ -183,7 +183,7 @@ function initForms() {
     // set Encumbrance Total
     setEncumbranceTotal();
     setContractAmountTotal();
-   
+
 } // *** end of initForms which is the body of the ready function ***
 
 function initContractControls() {
@@ -377,7 +377,7 @@ function addDialogs() {
             }
         }
     });
-    
+
     // add Add Vendor dialog and link to /LineItemGroups/Manage
     $('#addVendorDialog').dialog({
         autoOpen: false,
@@ -445,8 +445,8 @@ function addDialogs() {
         $("#ContractSelector").show();
     });
 
-     // add LineItem dialog to /LineItemGroups/Manage
-   $("#LineItemDialog").dialog({
+    // add LineItem dialog to /LineItemGroups/Manage
+    $("#LineItemDialog").dialog({
         autoOpen: false,
         width: 1200,
         resizable: false,
@@ -498,9 +498,9 @@ function addToDoList() {
     listString += "<ul class='dropdown dropdown-menu' role='menu' id='ToDoDropdown' name='ToDoDropdown'>";
     var userID = $("#CurrentUserID").val() ? $("#CurrentUserID").val() : $("#UserID").val();
     if(userID)
-    if ($("#UserRoles").val().indexOf("Originator") >= 0) {
-        getDraftToDoItems("Draft", userID);
-    }
+        if ($("#UserRoles").val().indexOf("Originator") >= 0) {
+            getDraftToDoItems("Draft", userID);
+        }
     if ($("#UserRoles").val().indexOf("Finance") >= 0) {
         getToDoItems("Finance");
     }
@@ -525,7 +525,7 @@ function getDraftToDoItems(status, userID) {
         success: function (data) { addItemsToToDoList(data, status); },
         error: function () {
             addBlankToDoList(status);
-        }        
+        }
     });
 }
 function getToDoItems(status) {
@@ -617,8 +617,8 @@ function showHideButtons() {
             $("#btnEncumbranceCFM").val("Submit for CFM Input");
             $("#btnEncumbranceCFM").show();
         } else { */
-            $("#btnEncumbranceFinance").val("Submit to Finance");
-            $("#btnEncumbranceFinance").show();
+        $("#btnEncumbranceFinance").val("Submit to Finance");
+        $("#btnEncumbranceFinance").show();
         //}
         return false;
     }
@@ -1033,36 +1033,38 @@ function addNewVendor() {
     if (form.length === 0) {
         form = $('#AddVendorForm');
     }
+    var vendorValid = true;
     if (form.length > 0 && form[0].checkValidity() === false) {
         form.addClass('was-validated');
-        jQuery("#ContractForm > :invalid, #AddVendorForm > :invalid").each(function (index, element) { //TODO limit the selector so that other invalid elements on the main form (not just the two-field add-vendor part of the form)
+        jQuery("[data-validate-vendor]:invalid").each(function (index, element) { //TODO limit the selector so that other invalid elements on the main form (not just the two-field add-vendor part of the form)
             console.log(element);
             if (element.reportValidity) {
                 element.reportValidity();
             }
+            vendorValid = false;
         });
-        return false;
     }
+    if (!vendorValid) return false;
 
-    if (!validateVendorCode($("#VendorCode").val())) {
-        return false;
-    }
-    if ($("#VendorName").val().length < 1) { return false; }
-    Vendor = {};
-    Vendor.VendorName = $("#VendorName").val();
-    Vendor.VendorCode = $("#VendorCode").val();
+    var vendor = {
+        "VendorName": $("#VendorName").val(),
+        "VendorCode": $("#VendorCode").val()
+    };
     $.ajax({
         url: "/Vendors/AddNewVendor",
         type: "POST",
         dataType: "json",
-        data: { vendor: JSON.stringify(Vendor) },
-        success: function (data) {
-            var results = JSON.parse(data);
-            $("#VendorID").val(results.VendorID);
-            $("#VendorSelector").val(results.VendorCode + " - " + results.VendorName);
+        data: { vendor },
+        success: function (results) {
+            $("#VendorID").val(results.vendorID); //apparently some automatic JSONing of vendors pushes IDs to init lower case, without explicitly having to annote the class with that.
+            $("#VendorSelector").val(results.vendorCode + " - " + results.vendorName);
             $("#addVendorPanel").hide();
             $("#addVendorDialog").dialog("close");
             $("#VendorSelector").show();
+        },
+        error: function (err) {
+            //TODO how do we usually report errors?
+            alert(err);
         }
     });
 }
@@ -1155,7 +1157,7 @@ function showCloseLineItemTypeDialog(encumbranceType) {
         autoOpen: false,
         height: 200,
         width: 400,
-        position: { 
+        position: {
             of: $("#EncumbrancePanelHeading"),
             my: "center center",
             at: "center top",
@@ -1320,7 +1322,7 @@ function getWPUsers(status) {
         dataType: 'html',
         url: '/Users/GetWPUsers/',
         success: function (response) {
- 
+
             var wpUsers = JSON.parse(response);
             openEncumbranceSubmissionDialog(status, wpUsers);
         }
@@ -1330,7 +1332,7 @@ function getWPUsers(status) {
 function getSubmissionDetails() {
     // make a json object from the information in the SubmissionDialog and return it
     var jsonString = "{";
-    jsonString += "\"status\" : \"" + $("#newStatus").val() + "\", "; 
+    jsonString += "\"status\" : \"" + $("#newStatus").val() + "\", ";
     jsonString += "\"userID\" : " + $("#UserID").val() + ", ";
     if ($("#receiptBox").is(":checked")) {
         jsonString += "\"receipt\" : \"true\", ";
@@ -1957,7 +1959,7 @@ function getNextLineNumber(groupID) {
         success: function (data) {
             var result = JSON.parse(data);
             var nextLine = parseInt(result) + 1;
-           // $("#LineNumber").val(nextLine);
+            // $("#LineNumber").val(nextLine);
         },
         fail: function (data) {
             return 0;
@@ -2221,7 +2223,7 @@ function saveLineItemModal() {
             clearLineItemsDialog();
             // show the line items table
             $("#LineItemsTable").show();
-        }, 
+        },
         error: function (err) {
             debugger;
             alert(err.statusText);
@@ -2234,7 +2236,7 @@ function getNewLineItemRow(lineItem) {
     var rowID = "row_" + itemKey;
     var tableText = "";
     var FY = parseInt(lineItem.FiscalYear.substr(0, 4)) + 1;
- 
+
     if (lineItem.OrgCode.indexOf("55-") < 0) { lineItem.OrgCode = "55-" + lineItem.OrgCode; }
     tableText += "<tr class='groupItem' id='" + rowID + "'>";
     tableText += "<td id='" + itemKey + "_LineItemNumber'>" + lineItem.LineItemNumber + "<input type='hidden' id='" + itemKey + "_LineItemID' value='" + lineItem.LineItemID + "'/> <br />";
@@ -3062,11 +3064,11 @@ function uploadFile() {
 
 function deleteAttachment(id) {
     $.ajax({
-            autoFocus: true,
-            url: "/FileAttachments/Delete",
-            type: "POST",
-            dataType: "json",
-            data: { id: id },
+        autoFocus: true,
+        url: "/FileAttachments/Delete",
+        type: "POST",
+        dataType: "json",
+        data: { id: id },
         success: function (data) {
             //remove row from table of files
             var results = JSON.parse(data);
