@@ -399,7 +399,7 @@ namespace EPS3.Controllers
 
                 //code equals first
                 foreach (var contractType in _context.ContractTypes
-                    .Where(ct => ct.ContractTypeCode.Equals(searchSTRING))
+                    .Where(ct => ct.ContractTypeCode.Equals(searchString))
                     .OrderBy(ct => ct.ContractTypeCode))
                 {
                     contractTypes.Add(contractType);
