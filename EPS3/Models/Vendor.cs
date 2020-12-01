@@ -13,8 +13,10 @@ namespace EPS3.Models
         [Key]
         [Display(Name = "Vendor")]
         public int VendorID { get; set; }
+
         [Display(Name = "Vendor ID")]
         public String VendorCode { get; set; }
+
         [Display(Name = "Vendor Name")]
         public String VendorName { get; set; }
 

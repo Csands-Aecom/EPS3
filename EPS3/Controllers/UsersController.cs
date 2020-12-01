@@ -137,7 +137,9 @@ namespace EPS3.Controllers
                     ConstantStrings.FinanceReviewer,
                     ConstantStrings.WPReviewer,
                     ConstantStrings.CFMSubmitter,
-                    ConstantStrings.AdminRole
+                    ConstantStrings.AdminRole,
+                    ConstantStrings.Closer,
+                    ConstantStrings.CloserCC
                 };
                 ViewBag.RolesList = rolesList;
 
@@ -270,6 +272,8 @@ namespace EPS3.Controllers
             possibleRoles.Add(ConstantStrings.FinanceReviewer);
             possibleRoles.Add(ConstantStrings.WPReviewer);
             possibleRoles.Add(ConstantStrings.CFMSubmitter);
+            possibleRoles.Add(ConstantStrings.Closer);
+            possibleRoles.Add(ConstantStrings.CloserCC);
 
             string existingRoles = GetRolesList(user);
             foreach(string role in possibleRoles)

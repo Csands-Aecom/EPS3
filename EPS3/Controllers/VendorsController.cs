@@ -56,26 +56,22 @@ namespace EPS3.Controllers
             return RedirectToAction("Edit", "Contracts", new { id = ContractID });
         }
 
-        public JsonResult AddNewVendor(string vendor)
+        public JsonResult AddNewVendor(Vendor vendor)
         {
-            Vendor newVendor = JsonConvert.DeserializeObject<Vendor>(vendor);
-            newVendor.VendorCode = newVendor.VendorCode.ToUpper();
-            if((newVendor.VendorCode != null && newVendor.VendorCode.Length > 0) && (newVendor.VendorName != null && newVendor.VendorName.Length > 0)) {
-                if (VendorExists(newVendor.VendorCode))
+            if(!String.IsNullOrWhiteSpace(vendor.VendorCode) && !String.IsNullOrWhiteSpace(vendor.VendorName)) {
+                if (VendorExists(vendor.VendorCode))
                 {
-                    newVendor = _context.Vendors.SingleOrDefault(v => v.VendorCode == newVendor.VendorCode);
-                }else
-                {
-                    _context.Vendors.Add(newVendor);
+                    vendor = _context.Vendors.SingleOrDefault(v => v.VendorCode == vendor.VendorCode);
+                } else {
+                    vendor.VendorName = vendor.VendorName.ToUpper();
+                    vendor.VendorCode = vendor.VendorCode.ToUpper();
+                    _context.Vendors.Add(vendor);
                     _context.SaveChanges();
                 }
+            } else {
+                throw new Exception("Missing vendor code or name");
             }
-            else
-            {
-                return (Json("{\"success\": \"false\"}"));
-            }
-            string success = "{\"success\": \"true\", \"VendorName\" : \"" + newVendor.VendorName + "\", \"VendorID\" : \"" + newVendor.VendorID + "\", \"VendorCode\": \"" + newVendor.VendorCode + "\"}";
-            return Json(success);
+            return Json(vendor); 
         }
 
         public JsonResult UpdateVendor(string vendor)
