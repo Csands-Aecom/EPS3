@@ -992,9 +992,9 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ListContracts(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
             if (!string.IsNullOrEmpty(searchString))
             {
+                var searchSTRING = searchString.ToUpper();
                 List<Contract> ContractList = _context.Contracts
                     .Where(c => (c.ContractNumber.ToUpper().Contains(searchSTRING)))
                     .OrderBy(c => c.ContractNumber)
@@ -1007,11 +1007,10 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ExactMatchContract(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
             if (!string.IsNullOrEmpty(searchString))
             {
                 List<Contract> ContractList = _context.Contracts
-                    .Where(c => (c.ContractNumber.ToUpper().Equals(searchSTRING)))
+                    .Where(c => (c.ContractNumber.ToUpper().Equals(searchString.ToUpper())))
                     .OrderBy(c => c.ContractNumber)
                     .ToList();
                 return Json(ContractList);
