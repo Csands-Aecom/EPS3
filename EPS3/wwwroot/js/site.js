@@ -312,9 +312,9 @@ function initContractControls() {
         $("#ContractTypeID").val(value);
 
         if (value == 87) {
-            $("#GovernorDeclareEmergencyNumberDiv").show();
+            $("#GovernorDeclaredEmergencyNumberDiv").show();
         } else {
-            $("#GovernorDeclareEmergencyNumberDiv").hide();
+            $("#GovernorDeclaredEmergencyNumberDiv").hide();
         }
     }
 
@@ -1668,34 +1668,34 @@ function validateContractDialog() {
 
 function saveContractModal() {
     // javascript model of the Contract object  populated it from the dialog
-    var Contract = {};
-    Contract.BeginningDate = $("#BeginningDate").val();
-    Contract.BudgetCeiling = formatDecimal($("#BudgetCeiling").val());
-    Contract.CompensationID = $("#CompensationID").val();
-    Contract.ContractID = $("#ContractID").val();
-    if (Contract.ContractID === null || Contract.ContractID === "") { Contract.ContractID = 0; }
-    Contract.ContractNumber = $("#ContractNumber").val();
-    //Contract.ContractTotal = formatDecimal($("#ContractTotal").val());  // Contract Total is calculated, not set.
-    Contract.ContractTypeID = $("#ContractTypeID").val(); // blank
-    Contract.CurrentStatus = $("#CurrentStatus").val();
-    Contract.DescriptionOfWork = $("#DescriptionOfWork").val();
-    Contract.EndingDate = $("#EndingDate").val();
-    Contract.IsRenewable = 0;
-    if ($("#IsRenewable1").is(":checked")) { Contract.IsRenewable = 1; }
-    Contract.MaxLoaAmount = formatDecimal($("#MaxLoaAmount").val());
-    Contract.ModifiedDate = $("#ModifiedDate").val(); // set in save method
-    Contract.ProcurementID = $("#ProcurementID").val();
-    Contract.RecipientID = $("#RecipientID").val();
-    Contract.UserID = $("#UserID").val();
-    Contract.ServiceEndingDate = $("#ServiceEndingDate").val();
-    Contract.VendorID = $("#VendorID").val(); // undefined
+    var Contract = {
+        BeginningDate: $("#BeginningDate").val(),
+        BudgetCeiling: formatDecimal($("#BudgetCeiling").val()),
+        CompensationID: $("#CompensationID").val(),
+        ContractID: $("#ContractID").val() || 0,
+        ContractNumber: $("#ContractNumber").val(),
+        //Contract.ContractTotal: formatDecimal($("#ContractTotal").val());  // Contract Total is calculated, not set.
+        ContractTypeID: $("#ContractTypeID").val(), // blank
+        CurrentStatus: $("#CurrentStatus").val(),
+        DescriptionOfWork: $("#DescriptionOfWork").val(),
+        EndingDate: $("#EndingDate").val(),
+        Contract: $("#EndingDate").val(),
+        IsRenewable: ($("#IsRenewable1").is(":checked")) ? 1 : 0,
+        MaxLoaAmount: formatDecimal($("#MaxLoaAmount").val()),
+        ModifiedDate: $("#ModifiedDate").val(), // set in save method
+        ProcurementID: $("#ProcurementID").val(),
+        RecipientID: $("#RecipientID").val(),
+        UserID: $("#UserID").val(),
+        ServiceEndingDate: $("#ServiceEndingDate").val(),
+        VendorID: $("#VendorID").val() // undefined
+    }
 
     // Submit the Contract to the database with ajax
     $.ajax({
         url: "/Contracts/AddNewContract",
         type: "POST",
         dataType: "json",
-        data: { contract: JSON.stringify(Contract) },
+        data: { Contract },
         success: function (data) {
             var result = JSON.parse(data);
             // return the completed Contract object to the calling form and use it to populate ContractPanel div

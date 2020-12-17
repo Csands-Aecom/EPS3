@@ -45,6 +45,23 @@
                         </dd>
                     </dl>
                 </div>
+                @{
+                    var GDENdisplay = "display: none";
+                    @if (Model != null && Model.ContractType != null && Model.ContractType.ContractTypeCode == "H")
+                    {
+                        GDENdisplay = "";
+                    }
+                }
+                <div class="col-sm-3" style="@GDENdisplay" id="GovernorDeclaredEmergencyNumberDiv">
+                    <dl>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.GovernorDeclaredEmergencyNumber)
+                        </dt>
+                        <dd>
+                            @Html.TextBoxFor(model => model.GovernorDeclaredEmergencyNumber, new { pattern = "..-...", title = "Please enter the emergency number in XX-XXX format" })
+                        </dd>
+                    </dl>
+                </div>
                 <div class="col-sm-3">
                     <dl>
                         <dt>

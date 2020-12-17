@@ -114,7 +114,7 @@ namespace EPS3.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserID,ContractID,ContractNumber,ContractTypeID,GovernorDeclareEmergencyNumber,RecipientID,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,CurrentStatus")] Contract contract)
+        public async Task<IActionResult> Create([Bind("UserID,ContractID,ContractNumber,ContractTypeID,GovernorDeclaredEmergencyNumber,RecipientID,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,CurrentStatus")] Contract contract)
         {
             int AD_VENDOR = 1; //If no Vendor is specified, default to AD with id value = 1
             if (contract.VendorID == 0)
@@ -167,22 +167,23 @@ namespace EPS3.Controllers
         // Data comes from NewContractPartial view
 
         [HttpPost]
-        public JsonResult AddNewContract(string contract)
+        public JsonResult AddNewContract(Contract newContract)
         {
-            Contract newContract = JsonConvert.DeserializeObject<Contract>(contract);
             if(newContract.ServiceEndingDate < new DateTime(2000, 01, 01))
             {
                 // ServiceEndingDate is empty or prior to Y2k so set to null
                 newContract.ServiceEndingDate = null;
             }
             
-            newContract.ContractNumber = newContract.ContractNumber.ToUpper();
             try
             {
                 if (newContract.ContractNumber == null || newContract.ContractNumber == "")
                 {
                     newContract.ContractNumber = "NEW";
                 }
+                
+                newContract.ContractNumber = newContract.ContractNumber.ToUpper();
+
                 // set Vendor
                 Vendor vendor = _context.Vendors.SingleOrDefault(v => v.VendorID == newContract.VendorID);
                 newContract.Vendor = vendor;
@@ -319,7 +320,7 @@ namespace EPS3.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("ContractID,ContractNumber,ContractTypeID,GovernorDeclareEmergencyNumber,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,RecipientID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,UserID,CurrentStatus")] Contract contract, string Comments, int CurrentUserID)
+        public IActionResult Edit(int id, [Bind("ContractID,ContractNumber,ContractTypeID,GovernorDeclaredEmergencyNumber,ProcurementID,CompensationID,IsRenewable,ContractTotal,MaxLoaAmount,BudgetCeiling,VendorID,RecipientID,BeginningDate,EndingDate,ServiceEndingDate,DescriptionOfWork,UserID,CurrentStatus")] Contract contract, string Comments, int CurrentUserID)
         {
             if (id != contract.ContractID)
             {
@@ -342,6 +343,7 @@ namespace EPS3.Controllers
                     oldContract.CurrentStatus = contract.CurrentStatus;
                     oldContract.DescriptionOfWork = contract.DescriptionOfWork;
                     oldContract.EndingDate = contract.EndingDate;
+                    oldContract.GovernorDeclaredEmergencyNumber = contract.GovernorDeclaredEmergencyNumber;
                     oldContract.IsRenewable = contract.IsRenewable;
                     oldContract.MaxLoaAmount = contract.MaxLoaAmount;
                     oldContract.ProcurementID = contract.ProcurementID;

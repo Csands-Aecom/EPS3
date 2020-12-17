@@ -58,6 +58,18 @@
                         </dd>
                     </dl>
                 </div>
+                @if (Model.Contract.ContractTypeID == 87) {
+                    <div class="col-sm-2">
+                        <dl>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Contract.GovernorDeclaredEmergencyNumber)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.Contract.GovernorDeclaredEmergencyNumber)
+                            </dd>
+                        </dl>
+                    </div>
+                }
                 <div class="col-sm-2">
                     <dl>
                         <dt>

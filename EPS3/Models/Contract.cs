@@ -47,7 +47,6 @@ namespace EPS3.Models
         [Display(Name = "Contract Type")]
         public virtual ContractType ContractType { get; set; }
 
-        [NotMapped] //TODO remove this tag
         [Display(Name = "Governor-Declared Emergency Number")]
         public string GovernorDeclaredEmergencyNumber { get; set; }
 
