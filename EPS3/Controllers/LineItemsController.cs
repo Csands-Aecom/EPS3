@@ -227,10 +227,9 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ListEOs(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
-
             if (!string.IsNullOrEmpty(searchString))
             {
+                var searchSTRING = searchString.ToUpper();
                 List<string> EOList = _context.LineItems
                     .Where(l => l.ExpansionObject.ToUpper().StartsWith(searchSTRING))
                     .OrderBy(l => l.ExpansionObject)
@@ -305,13 +304,13 @@ namespace EPS3.Controllers
     [HttpPost]
     public JsonResult ListOCAs(string searchString)
     {
-        var searchSTRING = searchString.ToUpper();
         if (!string.IsNullOrEmpty(searchString))
         {
+            var searchSTRING = searchString.ToUpper();
             List<OCA> OCAList = _context.OCAs
-                    .Where(o => o.OCACode.Contains(searchSTRING) || o.OCAName.ToUpper().Contains(searchSTRING))
-                    .OrderBy(o => o.OCACode)
-                    .ToList();
+                .Where(o => o.OCACode.Contains(searchSTRING) || o.OCAName.ToUpper().Contains(searchSTRING))
+                .OrderBy(o => o.OCACode)
+                .ToList();
 
             return Json(OCAList);
         }
@@ -321,9 +320,9 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ListCategories(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
             if (!string.IsNullOrEmpty(searchString))
             {
+                var searchSTRING = searchString.ToUpper();
                 List<Category> CategoryList = _context.Categories
                     .Where(c => c.CategoryCode.Contains(searchSTRING) || c.CategoryName.ToUpper().Contains(searchSTRING))
                     .OrderBy(c => c.CategoryCode)
@@ -337,9 +336,9 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ListFunds(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
             if (!string.IsNullOrEmpty(searchString))
             {
+                var searchSTRING = searchString.ToUpper();
                 List<Fund> FundsList = _context.Funds
                     .Where(f => f.FundCode.Contains(searchSTRING))
                     .OrderBy(f => f.FundCode)

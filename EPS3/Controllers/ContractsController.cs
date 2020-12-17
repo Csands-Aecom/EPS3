@@ -87,7 +87,7 @@ namespace EPS3.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError("ContractsController.Edit Error:" + e.GetBaseException());
+                _logger.LogError("ContractsController.Edit Error:" + e.GetBaseException()); //todo once we fix the notification bug, change this to "ContractsController.Details"
                 Log.Error("ContractsController.Edit Error:" + e.GetBaseException() + "\n" + e.StackTrace);
             }
             return View(erViewModel);
@@ -376,9 +376,9 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ListVendors(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
             if (!string.IsNullOrEmpty(searchString))
             {
+                var searchSTRING = searchString.ToUpper();
                 List<Vendor> VendorList = _context.Vendors
                     .Where(v => (v.VendorCode.Contains(searchSTRING) || v.VendorName.ToUpper().Contains(searchSTRING)))
                     .OrderBy(v => v.VendorCode)
@@ -392,17 +392,58 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ListContractTypes(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
-            if (!string.IsNullOrEmpty(searchString) && !searchSTRING.Equals("NEW"))
-            {
-                List<ContractType> ContractTypeList = _context.ContractTypes
-                    .Where(ct => ct.ContractTypeCode.Contains(searchSTRING) || ct.ContractTypeName.ToUpper().Contains(searchSTRING))
-                    .OrderBy(ct => ct.ContractTypeCode)
-                    .ToList();
+            HashSet<ContractType> contractTypes = new HashSet<ContractType>();
 
-                return Json(ContractTypeList);
+            if (!string.IsNullOrEmpty(searchString))
+            {
+
+                //code equals first
+                foreach (var contractType in _context.ContractTypes
+                    .Where(ct => ct.ContractTypeCode.Equals(searchString))
+                    .OrderBy(ct => ct.ContractTypeCode))
+                {
+                    contractTypes.Add(contractType);
+                }
+
+                //code starts-with second; note that because we're pushing to a set duplicates are excluded
+                foreach (var contractType in _context.ContractTypes
+                    .Where(ct => ct.ContractTypeCode.StartsWith(searchString))
+                    .OrderBy(ct => ct.ContractTypeCode))
+                {
+                    contractTypes.Add(contractType);
+                }
+
+                //name starts-with next
+                foreach (var contractType in _context.ContractTypes
+                    .Where(ct => ct.ContractTypeName.StartsWith(searchString))
+                    .OrderBy(ct => ct.ContractTypeName))
+                {
+                    contractTypes.Add(contractType);
+                }
+
+                //name contains next
+                foreach (var contractType in _context.ContractTypes
+                  .Where(ct => ct.ContractTypeName.Contains(searchString))
+                  .OrderBy(ct => ct.ContractTypeName))
+                {
+                    contractTypes.Add(contractType);
+                }
+                //code contains last
+                foreach (var contractType in _context.ContractTypes
+                    .Where(ct => ct.ContractTypeCode.Contains(searchString))
+                    .OrderBy(ct => ct.ContractTypeCode))
+                {
+                    contractTypes.Add(contractType);
+                }
+
+                //List<ContractType> ContractTypeList = _context.ContractTypes
+                //    .Where(ct => ct.ContractTypeCode.Contains(searchSTRING) || ct.ContractTypeName.ToUpper().Contains(searchSTRING))
+                //    .OrderBy(ct => ct.ContractTypeCode)
+                //    .ToList();
+                
+
             }
-            return new JsonResult(searchString);
+            return Json(contractTypes);
         }
 
         private string GetLogin() {
