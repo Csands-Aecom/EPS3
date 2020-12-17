@@ -119,9 +119,8 @@ namespace EPS3.Controllers
 
 
         [HttpPost]
-        public JsonResult AddNewLineItem(string lineItem)
+        public JsonResult AddNewLineItem(LineItem newLineItem)
         {
-            LineItem newLineItem = JsonConvert.DeserializeObject<LineItem>(lineItem);
             try {
                 _logger.LogDebug("New line item for Contract " + newLineItem.ContractID);
                 // set linenumber correctly
