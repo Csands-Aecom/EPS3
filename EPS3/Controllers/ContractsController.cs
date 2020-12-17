@@ -376,9 +376,9 @@ namespace EPS3.Controllers
         [HttpPost]
         public JsonResult ListVendors(string searchString)
         {
-            var searchSTRING = searchString.ToUpper();
             if (!string.IsNullOrEmpty(searchString))
             {
+                var searchSTRING = searchString.ToUpper();
                 List<Vendor> VendorList = _context.Vendors
                     .Where(v => (v.VendorCode.Contains(searchSTRING) || v.VendorName.ToUpper().Contains(searchSTRING)))
                     .OrderBy(v => v.VendorCode)
