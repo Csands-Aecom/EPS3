@@ -1054,7 +1054,7 @@ function addNewVendor() {
         url: "/Vendors/AddNewVendor",
         type: "POST",
         dataType: "json",
-        data: { vendor },
+        data: vendor,
         success: function (results) {
             $("#VendorID").val(results.vendorID); //apparently some automatic JSONing of vendors pushes IDs to init lower case, without explicitly having to annote the class with that.
             $("#VendorSelector").val(results.vendorCode + " - " + results.vendorName);
@@ -1695,7 +1695,7 @@ function saveContractModal() {
         url: "/Contracts/AddNewContract",
         type: "POST",
         dataType: "json",
-        data: { Contract },
+        data: Contract,
         success: function (data) {
             var result = JSON.parse(data);
             // return the completed Contract object to the calling form and use it to populate ContractPanel div
