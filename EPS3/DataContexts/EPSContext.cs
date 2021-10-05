@@ -42,6 +42,10 @@ namespace EPS3.DataContexts
         public DbSet<VEncumbrance> VEncumbrances { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //base.OnModelCreating(modelBuilder);
+
+            //modelBuilder.Entity<Contract>().Property(p => p.GovernorDeclaredEmergencyNumber).HasColumnName("GovernorDeclaredEmergencyNumber");
+
             modelBuilder.
             Entity<VEncumbrance>().ToTable("VEncumbrances")
             .Property(v => v.GroupID).HasColumnName("GroupID");

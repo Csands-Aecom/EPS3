@@ -71,7 +71,8 @@
                             @Html.DisplayNameFor(model => model.Contract.GovernorDeclaredEmergencyNumber)
                         </dt>
                         <dd>
-                            @Html.TextBoxFor(model => model.Contract.GovernorDeclaredEmergencyNumber, new { pattern = "..-...", title = "Please enter the emergency number in XX-XXX format" })
+                            @Html.TextBoxFor(model => model.Contract.GovernorDeclaredEmergencyNumber)
+                            @Html.ValidationMessageFor(model => model.Contract.GovernorDeclaredEmergencyNumber, "Please enter the number in \"XX-XXX\" format")
                         </dd>
                     </dl>
                 </div>

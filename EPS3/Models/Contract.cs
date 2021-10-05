@@ -48,6 +48,7 @@ namespace EPS3.Models
         public virtual ContractType ContractType { get; set; }
 
         [Display(Name = "Governor-Declared Emergency Number")]
+        [RegularExpression("..-...", ErrorMessage ="Please enter the emergency number in \"XX-XXX\" format")]
         public string GovernorDeclaredEmergencyNumber { get; set; }
 
         [Display(Name = "Created Date")]
