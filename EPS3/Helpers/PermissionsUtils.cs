@@ -30,6 +30,7 @@ namespace EPS3.Helpers
             //{
             try
             {
+                //strips off the domain, per FTE best practice recommendation
                 int stop = userLogin.IndexOf("\\");
                 userLogin = (stop > -1) ? userLogin.Substring(stop + 1, userLogin.Length - stop - 1) : userLogin;
                 userLogin = userLogin.Substring(0, 7);

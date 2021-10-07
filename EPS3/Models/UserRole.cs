@@ -17,8 +17,10 @@ namespace EPS3.Models
         public int UserID { get; set; }
         [Display(Name = "Role")]
         [StringLength(25)]
+        //Note this conceptually should relate to Roles table, but that table is empty and not modeled as an entity class.
+        // Accepted Values= {Admin, Originator, Finance Reviewer, WP Reviewer, CFM Submitter, Closer, and CloserCC}
+
         public string Role { get; set; }
-        // Accepted Values= {Admin, Originator, Finance Reviewer, WP Reviewer, CFM Submitter}
         [Display(Name = "Begin Date")]
         [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime BeginDate { get; set; }

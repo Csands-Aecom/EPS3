@@ -1229,7 +1229,7 @@ namespace EPS3.Controllers
                 results.Add("Closed", closeGroups);
                 allLineIDs.AddRange(closeGroups);
             }
-            results.Add("Complete", allLineIDs);
+            results.Add("Complete", allLineIDs); //this "Complete" doesn't mean "Done", but rather "all"
             return results;
         }
 
