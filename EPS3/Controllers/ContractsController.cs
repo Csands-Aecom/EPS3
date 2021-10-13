@@ -224,26 +224,26 @@ namespace EPS3.Controllers
 
         private Contract UpdateExistingContract(Contract existingContract, Contract newContract)
         {
-            // TODO: for each property, copy from newContract to existingContract
+            // For each property, copy from newContract to existingContract
             if (existingContract.ContractID == newContract.ContractID)
             {
                 existingContract.BeginningDate = newContract.BeginningDate;
                 existingContract.BudgetCeiling = newContract.BudgetCeiling;
                 existingContract.CompensationID = newContract.CompensationID;
-                existingContract.ContractFunding = newContract.ContractFunding; //
+                existingContract.ContractFunding = newContract.ContractFunding;
                 existingContract.ContractNumber = newContract.ContractNumber;
                 existingContract.ContractTotal = newContract.ContractTotal;
-                //existingContract.ContractType = newContract.ContractType;
+                existingContract.ContractType = _context.ContractTypes.Find(newContract.ContractTypeID);
                 existingContract.ContractTypeID = newContract.ContractTypeID;
                 existingContract.CurrentStatus = newContract.CurrentStatus;
                 existingContract.DescriptionOfWork = newContract.DescriptionOfWork;
                 existingContract.EndingDate = newContract.EndingDate;
                 existingContract.IsRenewable = newContract.IsRenewable;
                 existingContract.MaxLoaAmount = newContract.MaxLoaAmount;
-                //existingContract.MethodOfProcurement = newContract.MethodOfProcurement;
+                existingContract.MethodOfProcurement = _context.Procurements.Find(newContract.ProcurementID);
                 existingContract.ModifiedDate = newContract.ModifiedDate;
                 existingContract.ProcurementID = newContract.ProcurementID;
-                //existingContract.Recipient = newContract.Recipient;
+                existingContract.Recipient = _context.Recipients.Find(newContract.RecipientID);
                 existingContract.RecipientID = newContract.RecipientID;
                 existingContract.VendorID = newContract.VendorID;
                 existingContract.ServiceEndingDate = newContract.ServiceEndingDate;
