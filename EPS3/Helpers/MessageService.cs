@@ -43,7 +43,7 @@ namespace EPS3.Helpers
 
         public int AddMessage(string updateType, LineItemGroup encumbrance, string comments, List<int> otherRecipients, List<int> ccIDs)
         {
-            encumbrance = _pu.GetDeepEncumbrance(encumbrance.GroupID);
+            encumbrance = _context.GetDeepEncumbrance(encumbrance.GroupID);
             int msgID = 0;
             List<int> recipientIDs = null;  // list of IDs of email recipients
             decimal encumbranceTotal = 0.0M;
@@ -267,9 +267,9 @@ namespace EPS3.Helpers
             string encumbranceInfo = "";
             string linesInfo = "";
             string url = _serverpath + "/LineItemGroups/Manage/" + encumbrance.GroupID;
-            if (_pu.IsShallowContract(contract))
+            if (this.IsShallowContract(contract))
             {
-                contract = _pu.GetDeepContract(contract.ContractID);
+                contract = _context.GetDeepContract(contract.ContractID);
             }
             if (encumbrance == null)
             {
@@ -277,15 +277,15 @@ namespace EPS3.Helpers
             }
             else
             {
-                if (_pu.IsShallowEncumbrance(encumbrance))
+                if (this.IsShallowEncumbrance(encumbrance))
                 {
-                    encumbrance = _pu.GetDeepEncumbrance(encumbrance.GroupID);
+                    encumbrance = _context.GetDeepEncumbrance(encumbrance.GroupID);
                 }
                 decimal encumbranceTotal = GetEncumbranceTotal(encumbrance);
                 encumbranceInfo = GetEncumbranceInfo(encumbrance, encumbranceTotal);
                 if (contract == null)
                 {
-                    contract = _pu.GetDeepContract(encumbrance.ContractID);
+                    contract = _context.GetDeepContract(encumbrance.ContractID);
                 }
 
                 // if encumbrance is populated, start with a row for contract, one row for encumbrance and include all associated Line Items
@@ -301,7 +301,7 @@ namespace EPS3.Helpers
                     contractInfo += "<strong>Contract Initial Amount:</strong> " + Utils.FormatCurrency(contract.ContractTotal) + "<br/>";
                     //TODO: What other contract information should be included in the email receipt?
                 }
-                List<LineItem> lineItems = _pu.GetDeepLineItems(encumbrance.GroupID);
+                List<LineItem> lineItems = _context.GetDeepLineItems(encumbrance.GroupID);
                 if (lineItems == null || lineItems.Count == 0)
                 {
                     linesInfo += "There are no line items associated with this encumbrance.";
@@ -673,6 +673,21 @@ namespace EPS3.Helpers
                 }
             }
             return total;
+        }
+
+        private bool IsShallowContract(Contract contract)
+        {
+            // return true if contract does not include child elements
+            if (contract.LineItems == null && _context.HasLineItems(contract)) { return true; }
+            if (contract.ProcurementID > 0 && contract.MethodOfProcurement == null) { return true; }
+            return false;
+        }
+        public bool IsShallowEncumbrance(LineItemGroup encumbrance)
+        {
+            // return true if encumbrance does not include child elements (i.e., LineItems)
+            if (encumbrance.LineItems == null && _context.HasLineItems(encumbrance)) { return true; }
+            if (encumbrance.OriginatorUserID > 0 && encumbrance.OriginatorUser == null) { return true; }
+            return false;
         }
     }
 }

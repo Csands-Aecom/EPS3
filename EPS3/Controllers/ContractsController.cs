@@ -62,8 +62,8 @@ namespace EPS3.Controllers
             PopulateViewBag(id);
             try
             {
-                erViewModel.Contract = _pu.GetDeepContract(id);
-                erViewModel.LineItemGroups = _pu.GetDeepEncumbrances(id);
+                erViewModel.Contract = _context.GetDeepContract(id);
+                erViewModel.LineItemGroups = _context.GetDeepEncumbrances(id);
                 // totals for each encumbrance request in the contract
                 Dictionary<int, string> groupAmounts = new Dictionary<int, string>();
                 Boolean canBeClosed = !(erViewModel.Contract.CurrentStatus.Contains("Closed"));
@@ -83,7 +83,7 @@ namespace EPS3.Controllers
                 }
                 ViewBag.CanClose = canBeClosed;
                 ViewBag.GroupAmounts = groupAmounts;
-                ViewBag.ContractAmount = Utils.FormatCurrency(_pu.GetTotalAmountOfAllEncumbrances(id));
+                ViewBag.ContractAmount = Utils.FormatCurrency(_context.GetTotalAmountOfAllEncumbrances(id));
             }
             catch (Exception e)
             {
@@ -301,7 +301,7 @@ namespace EPS3.Controllers
             {
                 return NotFound();
             }
-            ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contractVM.Contract.ContractID);
+            ViewBag.ContractAmount = _context.GetTotalAmountOfAllEncumbrances(contractVM.Contract.ContractID);
 
             ViewData["ContractTypes"] = _context.ContractTypes.OrderBy(c => c.ContractTypeCode);
             ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
@@ -473,7 +473,7 @@ namespace EPS3.Controllers
                 {
                     User currentUser = _pu.GetUser(userLogin);
                     string roles = _pu.GetUserRoles(userLogin);
-                    Contract contract = _pu.GetContractByID(contractID);
+                    Contract contract = _context.GetContractByID(contractID);
                     ViewBag.Contract = contract;
                     ViewBag.CurrentUser = currentUser;
                     ViewBag.Roles = roles;
@@ -493,7 +493,7 @@ namespace EPS3.Controllers
         public ExtendedContract GetExtendedContract(int contractID)
         {
             // returns ExtendedContract object 
-            Contract returnContract = _pu.GetDeepContract(contractID);
+            Contract returnContract = _context.GetDeepContract(contractID);
             if (returnContract == null) { return null; }
             return new ExtendedContract(returnContract);
         }
@@ -538,15 +538,15 @@ namespace EPS3.Controllers
                     }
                     if (rolesList.Contains(ConstantStrings.FinanceReviewer))
                     {
-                        contracts.AddRange(_pu.GetContractsByStatus(ConstantStrings.SubmittedFinance));
+                        contracts.AddRange(_context.GetContractsByStatus(ConstantStrings.SubmittedFinance));
                     }
                     if (rolesList.Contains(ConstantStrings.WPReviewer))
                     {
-                        contracts.AddRange(_pu.GetContractsByStatus(ConstantStrings.SubmittedWP));
+                        contracts.AddRange(_context.GetContractsByStatus(ConstantStrings.SubmittedWP));
                     }
                     if (rolesList.Contains(ConstantStrings.CFMSubmitter))
                     {
-                        contracts.AddRange(_pu.GetContractsByStatus(ConstantStrings.CFMReady));
+                        contracts.AddRange(_context.GetContractsByStatus(ConstantStrings.CFMReady));
                     }
                 }
             }catch(Exception e)

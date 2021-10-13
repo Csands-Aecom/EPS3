@@ -209,7 +209,7 @@ namespace EPS3.Controllers
                 {
                     User currentUser = _pu.GetUser(userLogin);
                     string roles = _pu.GetUserRoles(userLogin);
-                    Contract contract = _pu.GetContractByID(contractID);
+                    Contract contract = _context.GetContractByID(contractID);
                     ViewBag.Contract = contract;
                     if (contract == null)
                     {
@@ -223,7 +223,7 @@ namespace EPS3.Controllers
                     ViewBag.Roles = roles;
                 }
                 catch (Exception e)
-                {
+                { //should be encumbrancelookupscontroller
                     _logger.LogError("LineItemGroupsController.PopulateViewBag Error:" + e.GetBaseException());
                     Log.Error("LineItemGroupsController.PopulateViewBag  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
                 }

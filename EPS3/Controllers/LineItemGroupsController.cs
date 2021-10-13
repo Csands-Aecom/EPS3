@@ -16,20 +16,13 @@ using Serilog;
 
 namespace EPS3.Controllers
 {
-    public class LineItemGroupsController : Controller
+    public class LineItemGroupsController : _BaseController
     {
-        private readonly EPSContext _context;
-        private readonly ILogger<LineItemGroupsController> _logger;
-        private PermissionsUtils _pu;
+       
         private MessageService _messageService;
-        public SmtpConfig SmtpConfig { get; }
 
-        public LineItemGroupsController(EPSContext context, ILoggerFactory loggerFactory, IOptions<SmtpConfig> smtpConfig)
+        public LineItemGroupsController(EPSContext context, ILoggerFactory loggerFactory, IOptions<SmtpConfig> smtpConfig) : base(context, loggerFactory, smtpConfig)
         {
-            _context = context;
-            _logger = loggerFactory.CreateLogger<LineItemGroupsController>();
-            SmtpConfig = smtpConfig.Value;
-            _pu = new PermissionsUtils(_context, _logger);
         }
 
         public IActionResult Index()
@@ -44,7 +37,7 @@ namespace EPS3.Controllers
             // Group by role
             // Order by last updated (ascending)
 
-            PopulateViewBag(0);
+            PopulateUserViewBag(0);
             User currentUser = ViewBag.CurrentUser;
             string roles = ViewBag.Roles;
             Dictionary<string, List<LineItemGroup>> encumbrances = new Dictionary<string, List<LineItemGroup>>();
@@ -125,7 +118,7 @@ namespace EPS3.Controllers
                     id = 0;
                 }
             }
-            PopulateViewBag(contractID);
+            PopulateUserViewBag(contractID);
 
             if ((id == null || id == 0) && !(ViewBag.Roles.Contains(ConstantStrings.Originator) || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)))
             {
@@ -136,12 +129,12 @@ namespace EPS3.Controllers
 
             int groupID = (id == null) ? 0 : (int)id;
 
-            List<LineItem> LineList = _pu.GetDeepLineItems(groupID);
+            List<LineItem> LineList = _context.GetDeepLineItems(groupID);
             ViewBag.LineItems = LineList;
             ViewBag.LineItemCount = LineList == null ? 0 : LineList.Count();
             if (groupID > 0)
             {
-                LineItemGroup Encumbrance = _pu.GetDeepEncumbrance(groupID);
+                LineItemGroup Encumbrance = _context.GetDeepEncumbrance(groupID);
                 // set ViewBag.HasWPHistory
                 if (Encumbrance.Statuses != null)
                 {
@@ -153,7 +146,7 @@ namespace EPS3.Controllers
 
                 if (Encumbrance != null)
                 {
-                    Contract Contract = _pu.GetDeepContract(Encumbrance.ContractID);
+                    Contract Contract = _context.GetDeepContract(Encumbrance.ContractID);
                     try
                     {
                         // select the LineItemTypes list to display:
@@ -191,7 +184,7 @@ namespace EPS3.Controllers
                         ViewBag.Files = files;
 
                         ViewBag.Contract = Contract;
-                        ViewBag.ContractAmount = _pu.GetTotalAmountOfAllEncumbrances(contractID);
+                        ViewBag.ContractAmount = _context.GetTotalAmountOfAllEncumbrances(contractID);
                         return View(Encumbrance);
                     }
                     catch (Exception e) {
@@ -459,7 +452,7 @@ namespace EPS3.Controllers
                 Contract contract = _context.Contracts.AsNoTracking().SingleOrDefault(c => c.ContractNumber == search.SearchContractNumber);
                 if (contract != null)
                 {
-                    results = _pu.GetDeepEncumbrances(contract.ContractID);
+                    results = _context.GetDeepEncumbrances(contract.ContractID);
                 }
             }
 
@@ -474,7 +467,7 @@ namespace EPS3.Controllers
                     .ToList();
                 foreach(LineItemGroup item in dateResults)
                 {
-                    results.Add(_pu.GetDeepEncumbrance(item.GroupID));
+                    results.Add(_context.GetDeepEncumbrance(item.GroupID));
                 }
             }
 
@@ -518,7 +511,7 @@ namespace EPS3.Controllers
                     .ToList();
                 foreach(LineItemGroup item in dollarResults)
                 {
-                    results.Add(_pu.GetDeepEncumbrance(item.GroupID));
+                    results.Add(_context.GetDeepEncumbrance(item.GroupID));
                 }
             }
 
@@ -543,56 +536,7 @@ namespace EPS3.Controllers
         //    }
         //    return View(contracts);
         //}
-        private string GetLogin()
-        {
-            string userLogin = "";
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
-            }
-            else
-            {
-                userLogin = HttpContext.User.Identity.Name;
-            }
-            return _pu.GetLogin(userLogin);
-        }
-
-        public void PopulateViewBag(int contractID)
-        {
-            //const string sessionKey = "CurrentUser";
-            string userLogin = GetLogin();
-
-            if (userLogin != null)
-            {
-                try
-                {
-                    User currentUser = _pu.GetUser(userLogin);
-                    string roles = _pu.GetUserRoles(userLogin);
-                    Contract contract = _pu.GetContractByID(contractID);
-                    ViewBag.Contract = contract;
-                    if (contract == null)
-                    {
-                        ViewBag.ContractID = 0;
-                    }
-                    else
-                    {
-                        ViewBag.ContractID = contract.ContractID;
-                    }
-                    ViewBag.CurrentUser = currentUser;
-                    ViewBag.Roles = roles;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError("LineItemGroupsController.PopulateViewBag Error:" + e.GetBaseException());
-                    Log.Error("LineItemGroupsController.PopulateViewBag  Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                }
-            }
-            else
-            {
-                RedirectToAction("Home");
-            }
-        }
-
+       
         [HttpGet]
         public IActionResult NewContractPartial(int? id)
         {
@@ -604,8 +548,7 @@ namespace EPS3.Controllers
                     .Include(c => c.Vendor)
                     .SingleOrDefault(c => c.ContractID == id);
             }
-            string userLogin = GetLogin();
-            PopulateViewBag(0);
+            PopulateUserViewBag(0);
             ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
             ViewData["Compensations"] = _context.Compensations.OrderBy(c => c.CompensationID);
             ViewData["Vendors"] = _context.Vendors.OrderBy(v => v.VendorName);
@@ -625,9 +568,8 @@ namespace EPS3.Controllers
             {
                 contract = _context.Contracts.SingleOrDefault(c => c.ContractID == id);
             }
-            string userLogin = GetLogin();
-            PopulateViewBag(0);
-            ViewBag.currentFiscalYear = _pu.GetCurrentFiscalYear();
+            PopulateUserViewBag(0);
+            ViewBag.currentFiscalYear = PermissionsUtils.GetCurrentFiscalYear();
             ViewData["Categories"] = _context.Categories.OrderBy(v => v.CategoryCode);
             ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
             if (contract != null)
@@ -734,7 +676,7 @@ namespace EPS3.Controllers
                 
                 if (newComment.receipt)
                 {
-                    User sender = _pu.GetUserByID(newComment.userID);
+                    User sender = _context.GetUserByID(newComment.userID);
                     _messageService.SendReceipt(newLineItemGroup, sender, newComment.comments);
                 }
             }
@@ -838,7 +780,7 @@ namespace EPS3.Controllers
                 try
                 {
                     // Make the new Award LineItemGroup record
-                    LineItemGroup newAward = new LineItemGroup(advertisement.ContractID, _pu.GetUser(GetLogin()).UserID);
+                    LineItemGroup newAward = new LineItemGroup(advertisement.ContractID, this.GetCurrentUser().UserID);
                     newAward.LineItemType = ConstantStrings.Award;
                     newAward.CurrentStatus = ConstantStrings.Draft;
                     newAward.IncludesContract = 1;
@@ -935,7 +877,7 @@ namespace EPS3.Controllers
             try
             {
                 // Make the new Amendment LineItemGroup record
-                LineItemGroup newRequest = new LineItemGroup(original.ContractID, _pu.GetUser(GetLogin()).UserID);
+                LineItemGroup newRequest = new LineItemGroup(original.ContractID, this.GetCurrentUser().UserID);
                 newRequest.LineItemType = ConstantStrings.Amendment;
                 newRequest.CurrentStatus = ConstantStrings.Draft;
                 newRequest.IncludesContract = 1;
@@ -984,7 +926,7 @@ namespace EPS3.Controllers
         public IActionResult GetHistory(string groupID)
         {
             int id = int.Parse(groupID);
-            IEnumerable<LineItemGroupStatus> statuses = _pu.GetDeepEncumbranceStatuses(id);
+            IEnumerable<LineItemGroupStatus> statuses = _context.GetDeepEncumbranceStatuses(id);
             return Json(statuses);
         }
 
@@ -1021,7 +963,7 @@ namespace EPS3.Controllers
         [HttpGet]
         public IActionResult List()
         {
-            PopulateViewBag(0);
+            PopulateUserViewBag(0);
             User user = ViewBag.CurrentUser;
             Dictionary<string, List<LineItemGroup>> lineItemGroupsMap = new Dictionary<string, List<LineItemGroup>>();
             if (ViewBag.Roles.Contains(ConstantStrings.Originator))
@@ -1112,7 +1054,7 @@ namespace EPS3.Controllers
         [HttpGet]
         public IActionResult GetContractByEncumbranceID(int encumbranceID)
         {
-            Contract contract = _pu.GetContractByEncumbranceID(encumbranceID);
+            Contract contract = _context.GetContractByEncumbranceID(encumbranceID);
             return Json(contract);
         }
 
@@ -1138,7 +1080,7 @@ namespace EPS3.Controllers
             }
             else
             {
-                string roles = _pu.GetUserRoles(user.UserLogin);
+                string roles = String.Join(' ', GetCurrentUserRoles());
                 // add Line IDs for Groups in Finance if user has Finance role
                 List<LineItemGroup> finLineIDs = _context.LineItemGroups.AsNoTracking()
                     .Where(l => l.CurrentStatus.Equals(ConstantStrings.SubmittedFinance))
@@ -1370,7 +1312,7 @@ namespace EPS3.Controllers
             }
             // TODO: Group ID doesn't matter. This closes the contract. Line closures are handled as new encumbrances
             //int groupID = int.Parse(closure.LineItemGroupID);
-            PopulateViewBag(closure.ContractID);
+            PopulateUserViewBag(closure.ContractID);
             User user = ViewBag.CurrentUser;
 
             try

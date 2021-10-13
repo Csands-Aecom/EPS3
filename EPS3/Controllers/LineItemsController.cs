@@ -75,7 +75,7 @@ namespace EPS3.Controllers
         [HttpGet]
         public IActionResult Create(int contractID, int groupID)
         {
-            string userLogin = GetLogin();
+            //string userLogin = GetLogin();
             PopulateViewBag(contractID);
             if (groupID > 0)
             {
@@ -111,7 +111,7 @@ namespace EPS3.Controllers
                 }
             }
             ViewBag.LineItemTypes = ConstantStrings.GetLineItemTypeList();
-            ViewBag.currentFiscalYear = _pu.GetCurrentFiscalYear();
+            ViewBag.currentFiscalYear = PermissionsUtils.GetCurrentFiscalYear();
             ViewData["Categories"] = _context.Categories.OrderBy(v => v.CategoryCode);
             ViewData["StatePrograms"] = _context.StatePrograms.OrderBy(v => v.ProgramCode);
             return View();
@@ -375,16 +375,17 @@ namespace EPS3.Controllers
 
         private string GetLogin()
         {
-            string userLogin = "";
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
-            }
-            else
-            {
-                userLogin = HttpContext.User.Identity.Name;
-            }
-            return _pu.GetLogin(userLogin);
+            return "TODO"; // _pu.GetLogin();
+            //string userLogin = "";
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
+            //}
+            //else
+            //{
+            //    userLogin = HttpContext.User.Identity.Name;
+            //}
+            //return _pu.GetLogin(userLogin);
         }
 
         public void PopulateViewBag(int contractID)
@@ -398,7 +399,7 @@ namespace EPS3.Controllers
                 {
                     User currentUser = _pu.GetUser(userLogin);
                     string roles = _pu.GetUserRoles(userLogin);
-                    Contract contract = _pu.GetContractByID(contractID);
+                    Contract contract = _context.GetContractByID(contractID);
                     ViewBag.Contract = contract;
                     ViewBag.CurrentUser = currentUser;
                     ViewBag.Roles = roles;
@@ -548,7 +549,7 @@ namespace EPS3.Controllers
 
         public ExtendedLineItem GetExtendedLineItem(int lineItemID)
         {
-            LineItem returnLineItem = _pu.GetDeepLineItem(lineItemID);
+            LineItem returnLineItem = _context.GetDeepLineItem(lineItemID);
             if (returnLineItem == null) { return null; }
             return new ExtendedLineItem(returnLineItem);
         }

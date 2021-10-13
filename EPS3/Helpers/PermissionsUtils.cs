@@ -8,6 +8,7 @@ using EPS3.DataContexts;
 using Serilog;
 using Microsoft.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using Microsoft.AspNetCore.Http;
 
 namespace EPS3.Helpers
 {
@@ -15,10 +16,16 @@ namespace EPS3.Helpers
     {
         private EPSContext _context;
         private readonly ILogger<Object> _logger;
+        private readonly HttpContext _httpContext;
         public PermissionsUtils(EPSContext context, ILogger callingLogger)
         {
             _context = context;
             _logger = (ILogger<Object>)callingLogger;
+        }
+
+        public PermissionsUtils(EPSContext context, ILogger callingLogger, HttpContext httpContext) : this(context, callingLogger)
+        {
+            _httpContext = httpContext;
         }
 
 
@@ -60,25 +67,7 @@ namespace EPS3.Helpers
             return null;
         }
 
-        public User GetUserByID(int userID)
-        {
-            if (userID > 0)
-            {
-                try
-                {
-                    User currentUser = (User)_context.Users
-                    .Where(u => u.UserID == userID)
-                    .AsNoTracking()
-                    .SingleOrDefault();
-                    return currentUser;
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
-            }
-            return null;
-        }
+        
 
         public string GetUserRoles(string userLoginName)
         {
@@ -138,89 +127,8 @@ namespace EPS3.Helpers
             return false;
         }
 
-        public Contract GetContractByEncumbranceID(int encumbranceID)
-        {
-            try
-            {
-                int contractID = _context.LineItemGroups
-                                    .AsNoTracking()
-                                    .Where(e => e.GroupID == encumbranceID)
-                                    .Select(e => e.ContractID)
-                                    .SingleOrDefault();
-                return GetContractByID(contractID);
-            }
-            catch (Exception e)
-            {
-                Log.Error("PermissionsUtils.GetContractByEncumbranceID Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetContractByEncumbranceID Error:" + e.GetBaseException());
-                throw e;
-            }
-        }
-
-        public Contract GetContractByID(int contractID)
-        {
-            // returns the Contract with the specified contractID
-            if (contractID > 0)
-            {
-                try
-                {
-                    Contract contract = _context.Contracts
-                    .Where(c => c.ContractID == contractID)
-                    .AsNoTracking()
-                    .SingleOrDefault();
-                    return contract;
-                }catch(Exception e)
-                {
-                    Log.Error("PermissionsUtils.GetContractByID Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                    _logger.LogError("PermissionsUtils.GetContractByID Error:" + e.GetBaseException());
-                    throw e;
-                }
-            }
-            return null;
-        }
-
-        public List<Contract> GetContractsByStatus(string status)
-        {
-            // returns Contracts with current status matching the specified status
-            try { 
-            List<Contract> contracts = (List<Contract>)_context.Contracts
-                .Include(c => c.Vendor)
-                .Include(c => c.ContractType)
-                .Include(c => c.User)
-                .Where(c => c.CurrentStatus.Contains(status))
-                .AsNoTracking()
-                .ToList();
-            return (contracts);
-            }
-            catch (Exception e)
-            {
-                Log.Error("PermissionsUtils.GetContractsByStatus Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetContractByStatus Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-
-        public List<Contract> GetOriginatorOwnedContracts(int userID)
-        {
-            // returns Contracts created by the specified user
-            try { 
-            List<Contract> contracts = (List<Contract>)_context.Contracts
-                .Include(c => c.Vendor)
-                .Include(c => c.ContractType)
-                .Include(c => c.User)
-                .Where(c => c.UserID == userID)
-                .AsNoTracking()
-                .ToList();
-            return (contracts);
-            }
-            catch (Exception e)
-            {
-                Log.Error("PermissionsUtils.GetOriginatorOwnedContracts Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetOriginatorOwnedContract Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-        public string GetCurrentFiscalYear()
+        //todo this belongs somewhere else
+        public static string GetCurrentFiscalYear()
         {
             int year = DateTime.Now.Year;
             int month = DateTime.Now.Month;
@@ -234,6 +142,7 @@ namespace EPS3.Helpers
             }
         }
 
+        [Obsolete ("Not used")]
         public string GetStatusDropdown(Contract contract, User user)
         {
             string dropdown = "";
@@ -272,205 +181,8 @@ namespace EPS3.Helpers
             return dropdown;
         }
 
-        public bool IsShallowContract(Contract contract)
-        {
-              // return true if contract does not include child elements
-            if(contract.LineItems == null && HasLineItems(contract)) { return true; }
-            if(contract.ProcurementID > 0 && contract.MethodOfProcurement == null) { return true; }
-            return false;
-        }
-        public bool IsShallowEncumbrance(LineItemGroup encumbrance)
-        {
-            // return true if encumbrance does not include child elements (i.e., LineItems)
-            if(encumbrance.LineItems == null && HasLineItems(encumbrance)) { return true; }
-            if(encumbrance.OriginatorUserID > 0 && encumbrance.OriginatorUser == null) { return true; }
-            return false;
-        }
+        
 
-        public bool HasLineItems(Contract contract)
-        {
-            int itemCount = _context.LineItems.Where(li => li.ContractID == contract.ContractID).Count();
-            return (itemCount > 0);
-        }
-        public bool HasLineItems(LineItemGroup encumbrance)
-        {
-            int itemCount = _context.LineItems.Where(li => li.LineItemGroupID == encumbrance.GroupID).Count();
-            return (itemCount > 0);
-        }
-
-        public Contract GetDeepContract(int contractID)
-        {
-            try
-            {
-                Contract contract = _context.Contracts.AsNoTracking()
-                    .Include(c => c.ContractFunding)
-                    .Include(c => c.MethodOfProcurement)
-                    .Include(c => c.Vendor)
-                    .Include(c => c.User)
-                    .Include(c => c.Recipient)
-                    .Include(c => c.ContractType)
-                    .SingleOrDefault(c => c.ContractID == contractID);
-                return contract;
-            }
-            catch (Exception e)
-            {
-                Log.Error("PermissionsUtils.GetDeepContract Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetDeppContract Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-
-        public LineItemGroup GetDeepEncumbrance(int groupID)
-        {
-            try
-            {
-                LineItemGroup encumbrance = _context.LineItemGroups.AsNoTracking()
-                    .Include(l => l.LastEditedUser)
-                    .Include(l => l.OriginatorUser)
-                    .Include(l => l.Contract)
-                    .Include(l => l.FileAttachments)
-                    .Include(l => l.LineItems).ThenInclude(li => li.OCA)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Category)
-                    .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Fund)
-                    .Include(l => l.Statuses).ThenInclude(gst => gst.User)
-                    .SingleOrDefault(l => l.GroupID == groupID);
-                return encumbrance;
-            }
-            catch (Exception e)
-            {
-                Log.Error("PermissionsUtils.GetDeepEncumbrance Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetDeepEncumbrance Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-
-        public List<LineItemGroup> GetDeepEncumbrances(int contractID)
-        {
-            try
-            {
-                List<LineItemGroup> encumbrances = _context.LineItemGroups.AsNoTracking()
-                    .Include(l => l.Contract)
-                    .Include(l => l.LastEditedUser)
-                    .Include(l => l.OriginatorUser)
-                    .Include(l => l.LineItems).ThenInclude(li => li.OCA)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Category)
-                    .Include(l => l.LineItems).ThenInclude(li => li.StateProgram)
-                    .Include(l => l.LineItems).ThenInclude(li => li.Fund)
-                    .Include(l => l.Statuses).ThenInclude(gst => gst.User)
-                    .Where(l => l.ContractID == contractID)
-                    .ToList();
-                return encumbrances;
-            }
-            catch (Exception e)
-            {
-                Log.Error("PermissionsUtils.GetDeepEncumbrances Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetDeepEncumbrances Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-        public LineItem GetDeepLineItem(int lineItemID)
-        {
-            try
-            {
-                LineItem item = _context.LineItems.AsNoTracking()
-                    .Include(l => l.Category)
-                    .Include(l => l.Fund)
-                    .Include(l => l.OCA)
-                    .Include(l => l.StateProgram)
-                    .OrderBy(l => l.LineNumber)
-                    .SingleOrDefault(l => l.LineItemID == lineItemID);
-                return item;
-            }catch(Exception e)
-            {
-                Log.Error("PermissionsUtils.GetDeepLineItem Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetDeepLineItem Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-
-        public List<LineItem> GetDeepLineItems(int groupID)
-        {
-            try
-            {
-                List<LineItem> items = _context.LineItems.AsNoTracking()
-                    .Include(l => l.Category)
-                    .Include(l => l.Fund)
-                    .Include(l => l.OCA)
-                    .Include(l => l.StateProgram)
-                    .OrderBy(l => l.LineNumber)
-                    .Where(l => l.LineItemGroupID == groupID)
-                    .ToList();
-                return items;
-            }
-            catch(Exception e)
-            {
-                Log.Error("PermissionsUtils.GetDeepLineItems Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetDeepLineItems Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-
-        public Dictionary<int, List<LineItemGroupStatus>> GetDeepContractEncumbranceStatusMap(int contractID)
-        {
-            try
-            {
-                Dictionary<int, List<LineItemGroupStatus>> resultMap = new Dictionary<int, List<LineItemGroupStatus>>();
-                List<int> encumbranceIDs = _context.LineItemGroups
-                    .AsNoTracking()
-                    .Where(e => e.ContractID == contractID)
-                    .Select(e => e.GroupID)
-                    .ToList();
-                foreach (int groupID in encumbranceIDs)
-                {
-                    resultMap.Add(groupID, GetDeepEncumbranceStatuses(groupID));
-                }
-                return resultMap;
-            }
-            catch(Exception e)
-            {
-                Log.Error("PermissionsUtils.GetDeepContractEncumbranceStatusMap Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetDeepContractEncumbranceStatusMap Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-        public List<LineItemGroupStatus> GetDeepEncumbranceStatuses(int groupID)
-        {
-            try
-            {
-                List<LineItemGroupStatus> resultList = _context.LineItemGroupStatuses
-                    .AsNoTracking()
-                    .Include(s => s.User)
-                    .Where(s => s.LineItemGroupID == groupID)
-                    .OrderBy(s => s.SubmittalDate)
-                    .ToList();
-
-                return resultList;
-            }catch(Exception e)
-            {
-                Log.Error("PermissionsUtils.GetDeepEncumbranceStatuses Error:" + e.GetBaseException() + "\n" + e.StackTrace);
-                _logger.LogError("PermissionsUtils.GetDeepEncumbranceStatuses Error:" + e.GetBaseException());
-                return null;
-            }
-        }
-
-        public decimal GetTotalAmountOfAllEncumbrances(int ContractID)
-        {
-            List<LineItemGroup> encumbrances = _context.LineItemGroups.AsNoTracking()
-                .Include(l => l.LineItems)
-                .Where(l => l.ContractID == ContractID).ToList();
-            decimal totalAmount = 0.0m;
-            foreach (LineItemGroup encumbrance in encumbrances)
-            {
-                if (encumbrance.LineItemType != ConstantStrings.Advertisement)
-                {
-                    foreach (LineItem lineitem in encumbrance.LineItems)
-                    {
-                        totalAmount += lineitem.Amount;
-                    }
-                }
-            }
-            return totalAmount;
-        }
+ 
     }
 }
