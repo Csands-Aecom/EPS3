@@ -22,6 +22,12 @@ namespace EPS3.Controllers
 
         public SmtpConfig SmtpConfig { get; }
 
+        public _BaseController(EPSContext context, ILoggerFactory loggerFactory)
+        {
+            _context = context;
+            _logger = loggerFactory.CreateLogger<LineItemGroupsController>();
+        }
+
         public _BaseController(EPSContext context, ILoggerFactory loggerFactory, IOptions<SmtpConfig> smtpConfig)
         {
             _context = context;

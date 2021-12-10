@@ -16,24 +16,21 @@ using Serilog;
 
 namespace EPS3.Controllers
 {
-    public class ContractsController : Controller
+    public class ContractsController : _BaseController
     {
-        private readonly EPSContext _context;
-        private readonly ILogger<ContractsController> _logger;
-        private PermissionsUtils _pu;
-
-        public ContractsController(EPSContext context, ILoggerFactory loggerFactory)
+        public ContractsController(EPSContext context, ILoggerFactory loggerFactory) : base(context, loggerFactory)
         {
-            _context = context;
-            _logger = loggerFactory.CreateLogger<ContractsController>();
-            _pu = new PermissionsUtils(_context, _logger);
         }
 
         // GET: Contracts
         public async Task<IActionResult> Index()
         {
-            string userLogin = GetLogin();
-            PopulateViewBag(0);
+            if (GetCurrentUser() == null)
+            {
+                RedirectToRoutePermanent("Contact");
+            }
+
+            PopulateUserViewBag(0);
 
             var contracts = _context.Contracts
                 .Include(c => c.ContractFunding)
@@ -41,11 +38,7 @@ namespace EPS3.Controllers
                 .Include(c => c.Vendor)
                 .Include(c => c.Recipient)
                 .Include(c => c.ContractType);
-            User currentUser = ViewBag.CurrentUser;
-            if (currentUser == null)
-            {
-                RedirectToRoutePermanent("Contact");
-            }
+
             return View(await contracts.ToListAsync());
         }
         
@@ -58,8 +51,7 @@ namespace EPS3.Controllers
             }
             EncumbranceRequestViewModel erViewModel = new EncumbranceRequestViewModel();
 
-            string userLogin = GetLogin();
-            PopulateViewBag(id);
+            PopulateUserViewBag(id);
             try
             {
                 erViewModel.Contract = _context.GetDeepContract(id);
@@ -93,15 +85,14 @@ namespace EPS3.Controllers
             return View(erViewModel);
         }
 
-
-
         // GET: Contracts/Create
         public IActionResult Create()
         {
-            string userLogin = GetLogin();
-            PopulateViewBag(0);
+            PopulateUserViewBag(0);
             // Redirect non-registered users to List page
-            if (ViewBag.CurrentUser == null) { return RedirectToAction("List", "LineItemGroups"); }
+            if (GetCurrentUser() == null) { 
+                return RedirectToAction("List", "LineItemGroups"); 
+            }
             // dropdown list values
             ViewData["Procurements"] = _context.Procurements.OrderBy(p => p.ProcurementCode);
             ViewData["Compensations"] = _context.Compensations.OrderBy(c => c.CompensationID);
@@ -141,7 +132,7 @@ namespace EPS3.Controllers
                         .Include(u => u.Roles)
                         .SingleOrDefaultAsync(u => u.UserID == contract.UserID);
 
-                    PopulateViewBag(contract.ContractID);
+                    //PopulateViewBag(contract.ContractID);
                     return RedirectToAction("Details", new { id = contract.ContractID });
                 }catch(Exception e)
                 {
@@ -151,7 +142,7 @@ namespace EPS3.Controllers
             }
             else
             {
-                PopulateViewBag(contract.ContractID);
+                PopulateUserViewBag(contract.ContractID);
                 Log.Information("Model state not valid: ");
                 var errors = string.Join(" | ", ModelState.Values
                     .SelectMany(v => v.Errors)
@@ -222,6 +213,7 @@ namespace EPS3.Controllers
             return Json(result);
         }
 
+        //Called from AddNewContract, which is called from LineItemGroups/Manage
         private Contract UpdateExistingContract(Contract existingContract, Contract newContract)
         {
             // For each property, copy from newContract to existingContract
@@ -252,11 +244,13 @@ namespace EPS3.Controllers
         }
 
         [HttpPost]
+        //Called from site.js > showContractPanel
         public JsonResult GetDisplayContract(int contractID)
         {
             return Json(JsonConvert.SerializeObject(GetExtendedContract(contractID)));
         }
 
+        //Called from site.js setContractAmountTotal
         [HttpPost]
         public JsonResult GetContractAmountTotal(string contractInfo)
         {
@@ -280,8 +274,7 @@ namespace EPS3.Controllers
             {
                 return NotFound();
             }
-            string userLogin = GetLogin();
-            PopulateViewBag(id);
+            PopulateUserViewBag(id);
             var contractVM = new ContractViewModel();
             contractVM.Contract = await _context.Contracts
                 .Include(m => m.User)
@@ -448,48 +441,6 @@ namespace EPS3.Controllers
             return Json(contractTypes);
         }
 
-        private string GetLogin() {
-            string userLogin = "";
-            PermissionsUtils pu = new PermissionsUtils(_context, _logger);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                userLogin = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
-            }
-            else
-            {
-                userLogin = HttpContext.User.Identity.Name;
-            }
-            return pu.GetLogin(userLogin);
-        }
-
-        public void PopulateViewBag(int contractID)
-        {
-            //const string sessionKey = "CurrentUser";
-            string userLogin = GetLogin();
-
-            if (userLogin != null)
-            {
-                try
-                {
-                    User currentUser = _pu.GetUser(userLogin);
-                    string roles = _pu.GetUserRoles(userLogin);
-                    Contract contract = _context.GetContractByID(contractID);
-                    ViewBag.Contract = contract;
-                    ViewBag.CurrentUser = currentUser;
-                    ViewBag.Roles = roles;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError("ContractsController.PopulateViewBag Error:" + e.GetBaseException());
-                    Log.Error("ContractsController.PopulateViewBag Error:" + e.GetBaseException() +  "\n" + e.StackTrace);
-                }
-            }
-            else
-            {
-                RedirectToAction("Home");
-            }
-        }
-
         public ExtendedContract GetExtendedContract(int contractID)
         {
             // returns ExtendedContract object 
@@ -498,22 +449,11 @@ namespace EPS3.Controllers
             return new ExtendedContract(returnContract);
         }
 
-        private bool ContractExists(int id)
-        {
-            return _context.Contracts.Single(c => c.ContractID == id) != null;
-        }
-
-
-        // Test RESTful contract method
-        [HttpGet]
-        public JsonResult GetContractAPI(int id)
-        {
-            return (Json(GetExtendedContract(id)));
-        }
-
         // unused methods
         // these were developed for a prior iteration
         // may be used in future reporting tools
+
+        [Obsolete ("Not used")]
         public List<Contract> GetContracts(User user)
         {
 
@@ -556,6 +496,7 @@ namespace EPS3.Controllers
             return contracts;
         }
 
+        [Obsolete ("Only used by another obsolete method")]
         public List<Contract> GetActiveContracts()
         {
             try
@@ -575,6 +516,8 @@ namespace EPS3.Controllers
                 return null;
             }
         }
+
+        [Obsolete ("Not used")]
         public List<Contract> GetArchivedContracts()
         {
             try

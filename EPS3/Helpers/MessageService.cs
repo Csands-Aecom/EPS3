@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using EPS3.DataContexts;
 using EPS3.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Protocols;
 using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
