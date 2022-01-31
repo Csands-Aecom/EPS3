@@ -48,7 +48,7 @@ namespace EPS3
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             services.AddDbContext<EPSContext>(options => options.UseSqlServer(connectionString));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);            
+            services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);            
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {
