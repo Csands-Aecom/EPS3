@@ -1,0 +1,1 @@
+This folder and the views it contains were probably not meant to be included in the final version. No reference in documentation or UI to edit. Deprecating for now, will delete later after consultation with client.

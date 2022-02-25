@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EPS3.Controllers
 {
+    [Obsolete("As far as I can tell this wasn't implemented and never was meant to be. There is nothing in documentation or interface that references these endpoints.")]
     public class CategoriesController : Controller
     {
         private readonly EPSContext _context;
