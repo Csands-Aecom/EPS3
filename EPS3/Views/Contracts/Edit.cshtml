@@ -10,6 +10,8 @@
     <input type="hidden" name="Contract.UserID" id="Contract_UserID" value="@ViewBag.CurrentUser.UserID" />
     <input type="hidden" name="Contract.CurrentStatus" id="Contract_CurrentStatus" value="@Model.Contract.CurrentStatus" />
     <input type="hidden" name="CurrentUserID" id="CurrentUserID" value="@ViewBag.CurrentUser.UserID" />
+    <input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
+
     <div class="panel panel-default" data-toggle="collapse" aria-expanded="true">
         <div class="panel-heading">
             <div class="float-right align-top paddingright">
@@ -82,20 +84,14 @@
                             @Html.DisplayNameFor(model => model.Contract.IsRenewable)
                         </dt>
                         <dd>
-                            @if (Model.Contract.IsRenewable > 0)
-                            {
-                                <div class="custom-control custom-radio">
-                                    Yes <input id="IsRenewable1" name="IsRenewable" type="radio" class="custom-control-input" checked value="1">
-                                    No &nbsp;<input id="IsRenewable0" name="IsRenewable" type="radio" class="custom-control-input" value="0">
-                                </div>
+                            @{
+                                String yesChecked = Model.Contract.IsRenewable > 0 ? "checked": "";
+                                String noChecked = Model.Contract.IsRenewable == 0 ? "checked" : "";
                             }
-                            else
-                            {
-                                <div class="custom-control custom-radio">
-                                    Yes <input type="radio" class="custom-control-input" id="IsRenewable1" name="IsRenewable" value="1" />
-                                    No &nbsp;<input type="radio" class="custom-control-input" id="IsRenewable0" name="IsRenewable" checked value="0" />
-                                </div>
-                            }
+                            <div class="custom-control custom-radio">
+                                Yes <input id="IsRenewable1" name="Contract.IsRenewable" type="radio" class="custom-control-input" @yesChecked value="1">
+                                No &nbsp;<input id="IsRenewable0" name="Contract.IsRenewable" type="radio" class="custom-control-input" @noChecked value="0">
+                            </div>
                         </dd>
                     </dl>
                 </div>

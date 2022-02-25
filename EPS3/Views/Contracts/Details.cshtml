@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Details";
 }
+<input type="hidden" name="UserRoles" id="UserRoles" value="@ViewBag.Roles" />
 
 <div class="container-fluid">
     <div class="panel panel-default" data-toggle="collapse" aria-expanded="true" id="contractPanel" name="contractPanel">
@@ -29,7 +30,8 @@
                     {
                         <span id="CloseContractLink" name="CloseContractLink"><a href="javascript:openCloseContractDialog(@Model.Contract.ContractID, '@Model.Contract.ContractNumber', '@Model.Contract.CurrentStatus')">Close this contract</a></span>
                         <partial name="~/Views/Shared/CloseContractDialogPartial.cshtml" />
-                    } else
+                    }
+                    else
                     {
                         <!-- cannot close -->
                     }
@@ -58,7 +60,8 @@
                         </dd>
                     </dl>
                 </div>
-                @if (Model.Contract.ContractTypeID == 87) {
+                @if (Model.Contract.ContractTypeID == 87)
+                {
                     <div class="col-sm-2">
                         <dl>
                             <dt>
@@ -193,8 +196,8 @@
     </div><!-- close panel -->
     <div>
         @if (ViewBag.Roles.Contains(ConstantStrings.AdminRole)
-    || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
-    || ViewBag.Roles.Contains(ConstantStrings.Originator))
+   || ViewBag.Roles.Contains(ConstantStrings.FinanceReviewer)
+   || ViewBag.Roles.Contains(ConstantStrings.Originator))
         {
             <a asp-action="Edit" asp-route-id="@Model.Contract.ContractID">Edit Contract Information</a>
         }
@@ -436,8 +439,8 @@
                                         </td>
                                         <td>
                                             @if ((ViewBag.Roles.Contains(ConstantStrings.Originator)
-                                               && @ViewBag.CurrentUser.UserID == Model.Contract.UserID)
-                                               && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
+                                              && @ViewBag.CurrentUser.UserID == Model.Contract.UserID)
+                                              && encumbrance.CurrentStatus.Equals(ConstantStrings.Draft))
                                             {
                                                 <a asp-controller="LineItemGroups" asp-action="Manage" asp-route-id="@item.LineItemGroupID">Edit</a> <br />
                                             }
