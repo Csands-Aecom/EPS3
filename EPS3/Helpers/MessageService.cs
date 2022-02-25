@@ -176,7 +176,7 @@ namespace EPS3.Helpers
                         //// Send only to TPK Encumbrance mailbox
                         //recipientIDs = new List<int> { submitter.UserID };
                         // No notification needed per Lorna 7/9/2019
-                        break;
+                        return 0;
                     case ConstantStrings.CloseContract:
                         msg.Subject = "Request to Close Contract #" + contract.ContractNumber;
                         msg.Body = "<p>" + submitter.FullName + " requests closure of the contract " + contract.ContractNumber + ", closure type " + encumbrance.LineItemType + " </p>";
@@ -440,7 +440,7 @@ namespace EPS3.Helpers
         {
             try
             {
-                if (msgID == 0) { return; }
+                if (msgID < 1) { return; } //0 means no message needs to be sent, -1 means error inserting message record, so there's nothing to send
                 Message msg = _context.Messages.AsNoTracking()
                     .Include(m => m.FromUser)
                     .SingleOrDefault(m => m.MessageID == msgID);
