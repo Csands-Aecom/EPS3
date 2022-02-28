@@ -581,6 +581,7 @@ function showHideToDoList(listName) {
 
 // /LineItemGroups/Manage
 // based on encumbrance CurrentStatus and user Roles show and hide buttons to allow actions
+//TODO not sure this is being called, or from where, but it needs to take contract currentstatus into account as well
 function showHideButtons() {
     updateHamburgerMenuForAdmin();
     //collapse panels if not Originator
@@ -744,10 +745,26 @@ function showContractPanel(contractID) {
 
 function populateContractPanel(contract) {
     //write contract details to ContractPanel
-    if (!contract) { return false; }
+    if (!contract) {
+        return false;
+    }
+
+    //disable certain elements if contract is closed per https://github.com/Csands-Aecom/EPS3/issues/33
+    var currentStatus = contract.CurrentStatus || 'new', //not really sure if this could happen
+        isClosed = currentStatus.startsWith('Closed');
+    if (isClosed) {
+        $("#saveEncumbranceLink").hide();
+        $("#messageSpan").text("This contract is closed.");
+    } else {
+        $("#saveEncumbranceLink").show();
+    }
     $("#ContractTitle").text("Contract - " + contract.ContractNumber);
     $("#EncHeaderContract").html("Contract: <h4><a href='/Contracts/Details/" + contract.ContractID + "'>" + contract.ContractNumber + "</a></h4>");
     var roles = $("#UserRoles").val();
+    //todo for https://github.com/Csands-Aecom/EPS3/issues/33
+    //unclear whether contract information should be locked out as well, for now keeping status quo, but if a
+    //follow-up with Lorna says we need to also prevent that, then next line changes to
+    //if (!isClosed && (roles.indexOf("Originator") >= 0 || roles.indexOf("Finance Reviewer") >= 0)) {
     if (roles.indexOf("Originator") >= 0 || roles.indexOf("Finance Reviewer") >= 0) {
         $("#EditContractLink").html("<a href= 'javascript:openContractDialogExisting(" + contract.ContractID + ")'>Edit Contract Information</a> ");
     }

@@ -83,6 +83,8 @@ namespace EPS3.Models
             {
                 this.ContractRenewable = "No";
             }
+
+            this.CurrentStatus = contract.CurrentStatus;
         }
 
         //This is a class for Contract used to pass child properties in a JSON string
@@ -110,5 +112,7 @@ namespace EPS3.Models
         public string FormattedMaxLoaAmount { get; set; }
         public string FormattedBudgetCeiling { get; set; }
         public string ContractRenewable { get; set; }
+
+        public string CurrentStatus { get; set; }
     }
 }
