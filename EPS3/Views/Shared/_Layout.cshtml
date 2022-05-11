@@ -14,11 +14,18 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/FDOT-bootstrap.css" />
     <link href="~/css/jquery-ui.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/lib/DataTables/DataTables-1.10.16/css/dataTables.bootstrap.min.css" />
+    <!--<link rel="stylesheet" href="~/lib/DataTables/DataTables-1.10.16/css/dataTables.bootstrap.min.css" />-->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"
           asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.css"
           asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
     <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+
+    <!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.11.5/b-2.2.2/b-html5-2.2.2/datatables.min.css" />-->
+
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" />
+
 </head>
 <body>
     <partial name="_NavBar" />
@@ -41,9 +48,31 @@
     <script src="~/lib/jquery/dist/jquery-ui-1.12.1.js"></script>
     <script src="~/lib/jquery/dist/jquery.BlockUI.js"></script>
     <script src="~/lib/jquery/jquery-validation/dist/jquery.validate.js"></script>
-    <script src="~/lib/DataTables/datatables.min.js"></script>
+    <!-- local datatables removed, couldn't get export to work
+        <script src="~/lib/DataTables/datatables.min.js"></script>
+        <script src="~/js/datatables.js"></script>-->
+    <!--cloud hosted minified and combined versions that also didn't work
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.11.5/b-2.2.2/b-html5-2.2.2/datatables.min.js"></script>
+
+        <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.colVis.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>-->
+    <!--this works. could be smaller but it's a known issue with datables buttons that order of loading matters-->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+
     <script src="~/js/site.js"></script>
-    <!-- <script src="~/lib/popper/popper.js"></script> -->
     <script src="~/js/site.min.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)

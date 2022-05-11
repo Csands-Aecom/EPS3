@@ -11,7 +11,13 @@ function initForms() {
 
     //initialize DataTable to be filterable, sortable, and searchable
     //sort by encumbrance ID, descending
-    $('[id^=indexTable]').DataTable({ "order": [[1, "desc"]], "pageLength": 50});
+    $('[id^=indexTable]').DataTable({ //this is the selector in use
+        "order": [[1, "desc"]],
+        "pageLength": 50,
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]});
 
     // support for NavBar submenus
     $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function (event) {
@@ -36,7 +42,10 @@ function initForms() {
 
     //sort messages in descending order
     $('#messageTable').DataTable({
-        "order": [[ 0, 'desc']]
+        "order": [[0, 'desc']],
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
     });
 
     //initialize tabs

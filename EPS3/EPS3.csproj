@@ -29,7 +29,6 @@ Unanswerable questions related to this application can be directed to ctsands@gm
     <PackageReference Include="EntityFramework" Version="6.2.0" />
     <PackageReference Include="EntityFramework.CodeFirst" Version="1.0.7" />
     <PackageReference Include="jQuery.BlockUI" Version="2.70.0" />
-    <PackageReference Include="jquery.datatables" Version="1.10.15" />
     <PackageReference Include="jquery.validate.bootstrap" Version="1.0.0.2" />
     <PackageReference Include="jQuery.Validation" Version="1.17.0" />
     <PackageReference Include="Microsoft.AspNet.Identity.EntityFramework" Version="2.2.1" />
