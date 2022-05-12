@@ -16,7 +16,7 @@ function initForms() {
         "pageLength": 50,
         dom: 'Bfrtip',
         buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
+            'copy', 'excel'
         ]});
 
     // support for NavBar submenus
@@ -44,7 +44,7 @@ function initForms() {
     $('#messageTable').DataTable({
         "order": [[0, 'desc']],
         buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
+            'copy', 'excel'
         ]
     });
 
