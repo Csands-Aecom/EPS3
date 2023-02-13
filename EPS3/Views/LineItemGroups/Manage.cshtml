@@ -619,14 +619,17 @@ else
             <div class="row">
                 <span id="messageSpanPanelLineItem" name="messageSpanPanelLineItem"></span>
             </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <dl>
+                        <dt>Purpose of funds:</dt>
+                        <dd>@Model??.Description </dd>
+                    </dl>
+                </div>
+            </div>
         </div> <!-- end panel-body -->
     </div> <!-- end panel -->
-    @if (Model != null && @ViewBag.Roles.Contains(ConstantStrings.WPReviewer) && Model.CurrentStatus.Equals(ConstantStrings.SubmittedWP))
-    {
-        @:<div class="panel panel-default"><h4>Purpose of funds:</h4> @Model.Description </div>
 
-
-    }
     @if (ViewBag.Roles.Contains(ConstantStrings.Originator) && (Model == null || Model.CurrentStatus.Equals(ConstantStrings.Draft)))
     {
         <div class='panel panel-body' name='FileAttachmentsPanel' id='FileAttachmentsPanel' @if (Model == null || Model.GroupID == 0) { @Html.Raw("style='display : none'") ; }>
